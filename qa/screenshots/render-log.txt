@@ -1,0 +1,5 @@
+[desktop] {"gl":true,"rm":false,"lenis":true,"scrollW":1440,"vw":1440,"sections":[["skyline",0,2610],["fleet",2610,1620],["sculpture",4230,2700],["reserve",6930,1710]],"vh":900,"docH":8788}
+[mobile] {"gl":true,"rm":false,"lenis":false,"scrollW":390,"vw":390,"sections":[["skyline",0,2448],["fleet",2448,1556],["sculpture",4003,2532],["reserve",6535,1604]],"vh":844,"docH":8330}
+[reduced] {"gl":true,"rm":true,"lenis":false,"scrollW":1440,"vw":1440,"sections":[["skyline",0,904],["fleet",904,891],["sculpture",1795,900],["reserve",2695,1710]],"vh":900,"docH":4553}
+
+Blocked: 

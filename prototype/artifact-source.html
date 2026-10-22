@@ -1,0 +1,1220 @@
+<title>LuxuryRental.ae Prototype</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Homepage concept prototype for LuxuryRental.ae: Burj by Night, Velocity Tunnel and Kinetic Sculpture in one scroll story.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300..700&family=Syncopate:wght@400;700&display=swap">
+<style>
+/* Layout: a fixed full-bleed WebGL stage behind one scroll story in four chapters (two sticky), with a glass booking dock on the bottom edge. Deliberately single-theme dark, per the design system. */
+:root{
+  color-scheme: dark;
+  --bg:#0C0A09; --card:#1C1917; --elevated:#292524; --fg:#FAFAF9; --muted:#A8A29E;
+  --accent:#CA8A04; --accent-hover:#EAB308; --on-accent:#0C0A09; --ring:#EAB308;
+  --border:#44403C; --input:#78716C; --danger:#F87171; --ok:#4ADE80;
+  --ice:#7DD3FC; --champagne:#D6D3D1; --amber:#B45309;
+  --glass:rgba(28,25,23,.55); --glass-line:rgba(250,250,249,.08); --card-veil:rgba(28,25,23,.8); --shade:rgba(12,10,9,.78);
+  --font-display:"Syncopate","Eurostile","Arial Black",system-ui,sans-serif;
+  --font-body:"Montserrat","Helvetica Neue",Arial,system-ui,sans-serif;
+  --space-xs:4px; --space-sm:8px; --space-md:24px; --space-lg:32px; --space-xl:48px; --space-2xl:64px; --space-3xl:96px;
+  --r-btn:999px; --r-card:16px; --r-panel:24px;
+  --glow-gold:0 0 0 1px rgba(202,138,4,.4),0 8px 32px rgba(202,138,4,.15);
+  --edge:inset 0 1px 0 rgba(250,250,249,.08);
+  --dock-h:104px;
+}
+@media (max-width:1023px){ :root{ --dock-h:84px; } }
+
+html.lenis, html.lenis body{ height:auto; }
+.lenis.lenis-smooth{ scroll-behavior:auto !important; }
+.lenis.lenis-stopped{ overflow:hidden; }
+
+*,*::before,*::after{ box-sizing:border-box; }
+body{
+  background:var(--bg); color:var(--fg);
+  font:400 16px/1.5 var(--font-body);
+  padding-left:max(16px, env(safe-area-inset-left,0px));
+  padding-right:max(16px, env(safe-area-inset-right,0px));
+  -webkit-font-smoothing:antialiased;
+}
+main{ overflow-x:clip; }
+@media (min-width:1024px){ main{ padding-right:150px; } }
+h1,h2,h3,p,dl,dd,ol{ margin:0; }
+a{ color:inherit; }
+:focus-visible{ outline:2px solid var(--ring); outline-offset:3px; border-radius:6px; }
+.sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+/* Stage */
+#stage{ position:fixed; inset:0; width:100%; height:100%; display:block; z-index:0; opacity:0; transition:opacity 1.4s ease; }
+#stage.on{ opacity:1; }
+.veil{ position:fixed; inset:0; z-index:1; pointer-events:none;
+  background:
+    radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(12,10,9,.7) 100%),
+    linear-gradient(to bottom, rgba(12,10,9,.55), transparent 20%, transparent 72%, rgba(12,10,9,.6)); }
+html.no-gl .veil{ background: radial-gradient(90% 60% at 70% 100%, rgba(180,83,9,.35), transparent 70%), radial-gradient(60% 50% at 20% 0%, rgba(125,211,252,.08), transparent 70%); }
+
+/* Header */
+.site-header{
+  position:fixed; z-index:20; top:0; left:0; right:0;
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:calc(env(safe-area-inset-top,0px) + 14px) max(16px, env(safe-area-inset-right,0px)) 14px max(16px, env(safe-area-inset-left,0px));
+  background:linear-gradient(to bottom, rgba(12,10,9,.82), rgba(12,10,9,0));
+}
+.wordmark{ display:inline-flex; align-items:baseline; gap:.5em; text-decoration:none; font:700 12px/1 var(--font-display); letter-spacing:.2em; min-height:44px; align-items:center; }
+.wordmark em{ font-style:normal; color:var(--accent); }
+.tag{ font:600 10px/1 var(--font-body); letter-spacing:.18em; text-transform:uppercase; color:var(--muted); border:1px solid var(--border); border-radius:999px; padding:6px 10px; }
+.nav{ display:flex; align-items:center; gap:4px; }
+.nav a:not(.btn){ display:inline-flex; align-items:center; min-height:44px; padding:0 14px; text-decoration:none; font:600 11px/1 var(--font-body); letter-spacing:.18em; text-transform:uppercase; color:var(--muted); transition:color .2s ease; }
+.nav a:not(.btn):hover{ color:var(--fg); }
+.nav .btn{ margin-left:8px; }
+.head-left{ display:flex; align-items:center; gap:14px; }
+@media (max-width:767px){ .nav a:not(.btn){ display:none; } .tag{ display:none; } }
+
+.progress{ position:fixed; z-index:21; top:env(safe-area-inset-top,0px); left:0; width:100%; height:2px; background:var(--accent); transform-origin:left center; transform:scaleX(0); }
+
+/* Chapter rail */
+.rail{ position:fixed; z-index:15; top:50%; right:max(20px, calc(env(safe-area-inset-right,0px) + 20px)); transform:translateY(-50%); }
+.rail ol{ list-style:none; padding:0; display:grid; gap:6px; }
+.rail a{ display:flex; align-items:center; justify-content:flex-end; gap:12px; min-height:36px; text-decoration:none; opacity:.5; transition:opacity .3s ease; }
+.rail a:hover{ opacity:.85; }
+.rail .rn{ font:700 10px/1 var(--font-display); letter-spacing:.1em; }
+.rail .rl{ font:600 10px/1 var(--font-body); letter-spacing:.2em; text-transform:uppercase; }
+.rail .rb{ width:14px; height:1px; background:var(--fg); transition:width .4s ease, background-color .4s ease; }
+.rail a[aria-current="step"]{ opacity:1; }
+.rail a[aria-current="step"] .rn{ color:var(--accent); }
+.rail a[aria-current="step"] .rb{ width:32px; background:var(--accent); }
+@media (max-width:1023px){ .rail{ display:none; } }
+
+/* Type */
+.eyebrow{ display:flex; align-items:center; gap:12px; font:600 11px/1.2 var(--font-body); letter-spacing:.22em; text-transform:uppercase; color:var(--muted); }
+.eyebrow .num{ font:700 11px/1 var(--font-display); letter-spacing:.08em; color:var(--accent); }
+.display{ font:700 clamp(2rem, 1rem + 4.8vw, 5.4rem)/0.98 var(--font-display); letter-spacing:.02em; text-transform:uppercase; text-wrap:balance; }
+.display-md{ font:700 clamp(1.5rem, 1rem + 2.4vw, 3.1rem)/1.04 var(--font-display); letter-spacing:.02em; text-transform:uppercase; text-wrap:balance; }
+.display-sm{ font:700 clamp(1rem, .85rem + .8vw, 1.45rem)/1.2 var(--font-display); letter-spacing:.03em; text-transform:uppercase; text-wrap:balance; }
+.lede{ font-size:clamp(1rem, .95rem + .3vw, 1.125rem); line-height:1.6; color:var(--muted); max-width:52ch; }
+.fine{ font-size:12px; color:var(--muted); letter-spacing:.02em; }
+.shadowed{ text-shadow:0 2px 24px rgba(12,10,9,.85); }
+
+/* Buttons */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  min-height:48px; padding:14px 28px; border-radius:var(--r-btn);
+  font:600 12px/1 var(--font-body); letter-spacing:.14em; text-transform:uppercase; text-decoration:none;
+  border:1px solid transparent; cursor:pointer;
+  transition:background-color .2s ease, border-color .2s ease, transform .2s ease, color .2s ease;
+}
+.btn-primary{ background:var(--accent); color:var(--on-accent); }
+.btn-primary:hover{ background:var(--accent-hover); transform:translateY(-1px); }
+.btn-ghost{ background:transparent; color:var(--fg); border-color:var(--input); }
+.btn-ghost:hover{ border-color:var(--accent); }
+.btn-sm{ min-height:44px; padding:12px 20px; }
+.btn[disabled]{ cursor:progress; opacity:.75; transform:none; }
+.actions{ display:flex; flex-wrap:wrap; gap:12px; }
+
+/* Chapters */
+.chapter{ position:relative; z-index:2; }
+.sticky{ position:sticky; top:0; height:100vh; height:100svh; }
+#skyline{ height:290vh; }
+#fleet{ min-height:180vh; }
+#sculpture{ height:300vh; }
+#reserve{ min-height:190vh; }
+
+/* 01 Skyline */
+.sky-frame{ display:grid; align-items:end; padding-block:120px calc(var(--dock-h) + 56px); }
+.sky-frame::before{ content:""; position:absolute; inset:0 calc(-1 * max(16px, env(safe-area-inset-right,0px))) 0 calc(-1 * max(16px, env(safe-area-inset-left,0px))); background:linear-gradient(90deg, var(--shade), transparent 58%); pointer-events:none; }
+.sky-frame > *{ grid-area:1 / 1; position:relative; }
+.hero-copy{ display:grid; gap:22px; max-width:780px; padding-left:clamp(0px, 3vw, 48px); }
+.landing-note{ justify-self:end; display:grid; gap:12px; max-width:400px; padding:24px; border-left:1px solid var(--accent); background:linear-gradient(90deg, rgba(12,10,9,.7), rgba(12,10,9,.2)); }
+.landing-note p:last-child{ color:var(--muted); }
+.scroll-cue{ position:absolute; left:50%; bottom:calc(var(--dock-h) + 22px); transform:translateX(-50%); display:grid; justify-items:center; gap:10px; font:600 10px/1 var(--font-body); letter-spacing:.24em; text-transform:uppercase; color:var(--muted); }
+.scroll-cue i{ display:block; width:1px; height:36px; background:linear-gradient(var(--accent), transparent); animation:cue 2.2s ease-in-out infinite; transform-origin:top; }
+@keyframes cue{ 0%{ transform:scaleY(0); opacity:1; } 60%{ transform:scaleY(1); opacity:1; } 100%{ transform:scaleY(1); opacity:0; } }
+@media (max-width:767px){
+  .sky-frame::before{ background:linear-gradient(0deg, var(--shade) 20%, transparent 70%); }
+  .landing-note{ justify-self:stretch; max-width:none; }
+  .scroll-cue{ display:none; }
+}
+
+/* 02 Fleet */
+.fleet-inner{ display:grid; gap:40px; max-width:1120px; margin-inline:auto; padding-block:34vh 30vh; padding-left:clamp(0px, 3vw, 48px); }
+.chapter-head{ display:grid; gap:18px; }
+.fleet-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap:16px; }
+.fleet-card{
+  display:grid; gap:12px; align-content:start; padding:24px;
+  background:var(--card-veil); border:1px solid var(--border); border-radius:var(--r-card);
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  transition:border-color .25s ease, transform .25s ease, box-shadow .25s ease;
+}
+.fleet-card:hover{ border-color:var(--accent); transform:translateY(-2px); box-shadow:var(--glow-gold); }
+.fleet-card .kicker{ font:600 11px/1 var(--font-body); letter-spacing:.2em; text-transform:uppercase; color:var(--accent); }
+.fleet-card p.desc{ color:var(--muted); font-size:15px; }
+.price{ display:flex; align-items:baseline; gap:8px; margin-top:8px; padding-top:16px; border-top:1px solid var(--border); font:600 22px/1 var(--font-body); font-variant-numeric:tabular-nums; }
+.price span, .price small{ font-size:12px; font-weight:500; color:var(--muted); letter-spacing:.06em; }
+.fleet-foot{ display:flex; flex-wrap:wrap; align-items:center; gap:16px 24px; }
+
+/* 03 Sculpture */
+.sculpt-frame{ display:grid; align-content:center; padding-block:110px calc(var(--dock-h) + 40px); }
+.sculpt-copy{ display:grid; gap:20px; max-width:430px; padding-left:clamp(0px, 3vw, 48px); }
+.spec-list{ display:grid; gap:0; border-top:1px solid var(--border); }
+.spec-list div{ display:flex; justify-content:space-between; gap:16px; padding:12px 0; border-bottom:1px solid var(--border); }
+.spec-list dt{ font:600 11px/1.4 var(--font-body); letter-spacing:.16em; text-transform:uppercase; color:var(--muted); }
+.spec-list dd{ font-weight:600; font-size:14px; text-align:right; font-variant-numeric:tabular-nums; }
+@media (min-width:1024px){ .spec-list.desktop-sr{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); } }
+@media (max-width:767px){
+  .sculpt-frame{ align-content:start; padding-top:96px; }
+  .sculpt-copy{ gap:14px; }
+  .sculpt-copy .lede{ font-size:15px; }
+  .spec-list{ grid-template-columns:repeat(2, minmax(0,1fr)); gap:0 14px; background:rgba(12,10,9,.6); border-radius:12px; padding:6px 14px; border-top:0; }
+  .spec-list div{ display:grid; justify-content:start; gap:3px; padding:8px 0; border-bottom:0; }
+  .spec-list dd{ text-align:left; font-size:13px; }
+}
+
+/* Callouts (desktop) */
+.callouts{ position:fixed; inset:0; z-index:3; pointer-events:none; }
+.callout{ position:absolute; left:0; top:0; opacity:0; will-change:transform, opacity; }
+.callout i{ position:absolute; left:-6px; top:-6px; width:12px; height:12px; border-radius:50%; border:1.5px solid var(--accent-hover); background:rgba(234,179,8,.25); box-shadow:0 0 16px rgba(234,179,8,.6); }
+.callout .cl{ position:absolute; left:34px; top:-20px; display:grid; gap:2px; white-space:nowrap; padding:8px 12px; border-radius:10px; background:rgba(12,10,9,.62); border:1px solid var(--glass-line); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); }
+.callout .cl::before{ content:""; position:absolute; left:-28px; top:50%; width:22px; height:1px; background:var(--accent); }
+.callout b{ font:600 13px/1.3 var(--font-body); }
+.callout span{ font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; }
+.callout.flip .cl{ left:auto; right:34px; }
+.callout.flip .cl::before{ left:auto; right:-28px; }
+@media (max-width:1023px){ .callouts{ display:none; } }
+
+/* 04 Reserve */
+.reserve-frame{ min-height:190vh; display:grid; align-content:end; padding-block:0 12vh; }
+.reserve-grid{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,440px); gap:40px; align-items:end; max-width:1180px; width:100%; margin-inline:auto; }
+.reserve-copy{ display:grid; gap:18px; padding-left:clamp(0px, 3vw, 48px); }
+.trust{ list-style:none; padding:0; display:flex; flex-wrap:wrap; gap:8px 20px; font:600 11px/1.4 var(--font-body); letter-spacing:.16em; text-transform:uppercase; color:var(--muted); }
+.trust li{ display:flex; align-items:center; gap:8px; }
+.trust li::before{ content:""; width:6px; height:6px; border-radius:50%; background:var(--accent); }
+.glass{
+  background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r-panel);
+  -webkit-backdrop-filter:blur(20px) saturate(140%); backdrop-filter:blur(20px) saturate(140%);
+  box-shadow:var(--edge), 0 24px 70px rgba(0,0,0,.5);
+}
+@supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){ .glass{ background:var(--card); } }
+@media (prefers-reduced-transparency:reduce){ .glass{ background:var(--card); -webkit-backdrop-filter:none; backdrop-filter:none; } }
+.reserve-card{ display:grid; gap:18px; padding:28px; }
+.rc-head{ display:grid; gap:6px; }
+.rc-rows{ display:grid; }
+.rc-rows div{ display:flex; justify-content:space-between; align-items:baseline; gap:16px; padding:11px 0; border-bottom:1px solid var(--border); }
+.rc-rows dt{ font-size:13px; color:var(--muted); }
+.rc-rows dd{ font-weight:600; font-size:14px; text-align:right; font-variant-numeric:tabular-nums; }
+.rc-total{ display:flex; justify-content:space-between; align-items:baseline; gap:16px; }
+.rc-total span{ font:600 11px/1 var(--font-body); letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
+.rc-total strong{ font:700 clamp(1.4rem, 1.1rem + 1vw, 1.9rem)/1 var(--font-display); color:var(--accent-hover); font-variant-numeric:tabular-nums; letter-spacing:.02em; }
+.rc-actions{ display:grid; grid-template-columns:1fr auto; gap:10px; }
+.rc-done{ display:grid; gap:14px; padding:18px; border:1px solid var(--accent); border-radius:16px; }
+.rc-done p{ color:var(--muted); font-size:14px; }
+@media (max-width:899px){
+  .reserve-grid{ grid-template-columns:minmax(0,1fr); gap:28px; }
+  .reserve-frame{ padding-bottom:6vh; }
+}
+@media (max-width:420px){ .rc-actions{ grid-template-columns:1fr; } .reserve-card{ padding:22px 18px; } }
+
+.site-footer{ position:relative; z-index:2; display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px 32px; max-width:1180px; margin-inline:auto; padding-block:40px calc(48px + env(safe-area-inset-bottom,0px)); border-top:1px solid var(--border); font-size:13px; color:var(--muted); }
+.site-footer .wordmark{ min-height:0; color:var(--fg); }
+.site-footer p{ max-width:62ch; }
+
+/* Booking dock */
+.dock{
+  position:fixed; z-index:15; left:50%; bottom:calc(18px + env(safe-area-inset-bottom,0px));
+  width:min(1100px, calc(100% - 32px)); transform:translateX(-50%);
+  padding:14px; display:grid; gap:0;
+  transition:transform .55s cubic-bezier(.2,.7,.2,1), opacity .35s ease;
+}
+.dock.is-hidden{ transform:translate(-50%, calc(100% + 48px)); opacity:0; }
+.dock-summary{ display:none; }
+.dock-fields{ display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) auto; gap:12px; align-items:start; }
+.field{ display:grid; gap:6px; min-width:0; }
+.field label{ font:600 10px/1 var(--font-body); letter-spacing:.2em; text-transform:uppercase; color:var(--muted); padding-left:4px; }
+.field input, .field select{
+  -webkit-appearance:none; appearance:none; width:100%; min-width:0; min-height:48px; margin:0;
+  background-color:var(--card); color:var(--fg); border:1px solid var(--input); border-radius:12px;
+  padding:12px 14px; font:500 16px/1.2 var(--font-body); transition:border-color .2s ease;
+}
+.field select{ padding-right:38px; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23CA8A04' stroke-width='1.6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; }
+.field input:hover, .field select:hover{ border-color:var(--muted); }
+.field input:focus-visible, .field select:focus-visible{ border-color:var(--ring); outline:2px solid var(--ring); outline-offset:2px; }
+.field [aria-invalid="true"]{ border-color:var(--danger); }
+.err{ font-size:12px; line-height:1.35; color:var(--danger); padding-left:4px; }
+.dock-submit{ align-self:end; white-space:nowrap; }
+.dock-status{ font-size:13px; color:var(--muted); padding:10px 4px 0; }
+.dock-status:empty{ display:none; }
+.pulse{ animation:pulse 1.2s ease 1; }
+@keyframes pulse{ 0%{ box-shadow:0 0 0 0 rgba(234,179,8,.55); } 100%{ box-shadow:0 0 0 14px rgba(234,179,8,0); } }
+@media (max-width:1023px){
+  .dock{ left:0; right:0; bottom:0; width:auto; transform:none; border-radius:24px 24px 0 0; border-bottom:0;
+    padding:10px max(16px, env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px, env(safe-area-inset-left,0px)); }
+  .dock.is-hidden{ transform:translateY(110%); }
+  .dock-summary{ display:flex; align-items:center; gap:12px; width:100%; min-height:56px; padding:6px 4px; background:none; border:0; color:var(--fg); text-align:left; cursor:pointer; font:inherit; }
+  .ds-text{ display:grid; gap:4px; min-width:0; flex:1; }
+  .ds-label{ font:600 10px/1 var(--font-body); letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
+  .ds-value{ font-weight:600; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .ds-edit{ flex:none; display:inline-flex; align-items:center; min-height:44px; padding:0 18px; border-radius:999px; background:var(--accent); color:var(--on-accent); font:600 11px/1 var(--font-body); letter-spacing:.14em; text-transform:uppercase; }
+  .dock-fields{ display:none; grid-template-columns:repeat(2, minmax(0,1fr)); padding-top:8px; }
+  .dock.open .dock-fields{ display:grid; }
+  .dock.open .ds-edit{ background:transparent; color:var(--fg); border:1px solid var(--input); }
+  .f-loc, .f-type, .dock-submit{ grid-column:1 / -1; }
+}
+
+/* Reduced motion: no sticky scrubbing, every chapter readable in its final state */
+@media (prefers-reduced-motion:reduce){
+  *, *::before, *::after{ animation:none !important; transition-duration:.01ms !important; }
+}
+html.rm #skyline, html.rm #sculpture{ height:auto; }
+html.rm .sticky{ position:relative; height:auto; min-height:100vh; }
+html.rm .sky-frame{ gap:32px; }
+html.rm .sky-frame > *{ grid-area:auto; }
+html.rm #fleet, html.rm #reserve{ min-height:0; }
+html.rm .fleet-inner{ padding-block:20vh; }
+html.rm .reserve-frame{ min-height:100vh; padding-top:20vh; }
+html.rm .scroll-cue{ display:none; }
+</style>
+
+<canvas id="stage" aria-hidden="true"></canvas>
+<div class="veil" aria-hidden="true"></div>
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="head-left">
+    <a class="wordmark" href="#skyline" aria-label="LuxuryRental.ae home">LUXURY RENTAL<em>.AE</em></a>
+    <span class="tag">Concept prototype</span>
+  </div>
+  <nav class="nav" aria-label="Main">
+    <a href="#fleet">Fleet</a>
+    <a href="#sculpture">Featured car</a>
+    <a class="btn btn-primary btn-sm" href="#reserve">Reserve</a>
+  </nav>
+</header>
+
+<nav class="rail" aria-label="Chapters">
+  <ol>
+    <li><a href="#skyline" data-rail="0"><span class="rl">Skyline</span><span class="rn">01</span><span class="rb"></span></a></li>
+    <li><a href="#fleet" data-rail="1"><span class="rl">Fleet</span><span class="rn">02</span><span class="rb"></span></a></li>
+    <li><a href="#sculpture" data-rail="2"><span class="rl">Sculpture</span><span class="rn">03</span><span class="rb"></span></a></li>
+    <li><a href="#reserve" data-rail="3"><span class="rl">Reserve</span><span class="rn">04</span><span class="rb"></span></a></li>
+  </ol>
+</nav>
+
+<main>
+  <section id="skyline" class="chapter" aria-labelledby="h-sky">
+    <div class="sticky sky-frame">
+      <div class="hero-copy shadowed" id="skyA">
+        <p class="eyebrow"><span class="num">01</span>Burj by Night</p>
+        <h1 id="h-sky" class="display">Dubai<br>after dark</h1>
+        <p class="lede">Supercars, luxury SUVs and chauffeur cars, delivered to your door anywhere in Dubai. Salik tolls and full insurance included.</p>
+        <div class="actions">
+          <button type="button" class="btn btn-primary" data-focus-booking>Check availability</button>
+          <a class="btn btn-ghost" href="#fleet">Skip intro</a>
+        </div>
+      </div>
+      <div class="landing-note shadowed" id="skyB">
+        <p class="eyebrow">Rooftop handover</p>
+        <p class="display-sm">Your car is waiting on the roof</p>
+        <p>Valet delivery to hotels, villas and DXB Terminal 3. Keys handed over in person, day or night.</p>
+      </div>
+      <div class="scroll-cue" id="cue" aria-hidden="true"><span>Scroll to descend</span><i></i></div>
+    </div>
+  </section>
+
+  <section id="fleet" class="chapter" aria-labelledby="h-fleet">
+    <div class="fleet-inner">
+      <header class="chapter-head shadowed">
+        <p class="eyebrow"><span class="num">02</span>Velocity Tunnel</p>
+        <h2 id="h-fleet" class="display-md">Choose your speed</h2>
+        <p class="lede">Three ways to drive Dubai. Every car arrives detailed, fuelled and insured.</p>
+      </header>
+      <div class="fleet-grid">
+        <article class="fleet-card">
+          <p class="kicker">Supercars</p>
+          <h3 class="display-sm">V12 and V8 hypercars</h3>
+          <p class="desc">Mid-engine coupés and spiders for the Jumeirah coast road and Jebel Jais.</p>
+          <p class="price"><span>From</span>AED 2,900<small>/ day</small></p>
+        </article>
+        <article class="fleet-card">
+          <p class="kicker">Luxury SUVs</p>
+          <h3 class="display-sm">Seven seats, desert-ready</h3>
+          <p class="desc">Hatta day trips, family airport runs and dinner in Al Qudra.</p>
+          <p class="price"><span>From</span>AED 1,800<small>/ day</small></p>
+        </article>
+        <article class="fleet-card">
+          <p class="kicker">Chauffeur</p>
+          <h3 class="display-sm">Driven, by appointment</h3>
+          <p class="desc">Airport transfers, city hours and evening events with a vetted driver.</p>
+          <p class="price"><span>From</span>AED 450<small>/ hour</small></p>
+        </article>
+      </div>
+      <div class="fleet-foot">
+        <a class="btn btn-ghost" href="#sculpture">See the featured car</a>
+        <p class="fine">Sample prices for this prototype.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="sculpture" class="chapter" aria-labelledby="h-sculpt">
+    <div class="sticky sculpt-frame">
+      <div class="sculpt-copy shadowed">
+        <p class="eyebrow"><span class="num">03</span>Kinetic Sculpture</p>
+        <h2 id="h-sculpt" class="display-md">Every part on display</h2>
+        <p class="lede">Keep scrolling to take the featured car apart. Then put it back together and drive it tonight.</p>
+        <dl class="spec-list desktop-sr">
+          <div><dt>Powertrain</dt><dd>6.5 L V12 hybrid · 1,001 hp</dd></div>
+          <div><dt>Performance</dt><dd>0–100 km/h 2.5 s · 350 km/h</dd></div>
+          <div><dt>Brakes</dt><dd>Carbon-ceramic · 21″ forged wheels</dd></div>
+          <div><dt>Cabin</dt><dd>Two seats · carbon monocoque</dd></div>
+        </dl>
+        <p class="fine">Featured: V12 hybrid hypercar. Sample specs.</p>
+        <div class="actions"><a class="btn btn-primary" href="#reserve">See this car</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="reserve" class="chapter" aria-labelledby="h-res">
+    <div class="reserve-frame">
+      <div class="reserve-grid">
+        <div class="reserve-copy shadowed">
+          <p class="eyebrow"><span class="num">04</span>Reserve</p>
+          <h2 id="h-res" class="display-md">Ready when you land</h2>
+          <p class="lede">Lock in the car now. We confirm within 15 minutes and bring it to your door with a full tank.</p>
+          <ul class="trust">
+            <li>Salik tolls included</li>
+            <li>Comprehensive insurance</li>
+            <li>No hidden fees</li>
+          </ul>
+        </div>
+        <form class="reserve-card glass" id="reserveCard" novalidate aria-labelledby="rc-title">
+          <div class="rc-head">
+            <p class="eyebrow">Your reservation</p>
+            <p class="display-sm" id="rc-title">V12 hybrid hypercar</p>
+          </div>
+          <dl class="rc-rows">
+            <div><dt>Pick-up</dt><dd id="rcLoc">Downtown Dubai</dd></div>
+            <div><dt>Dates</dt><dd id="rcDates">—</dd></div>
+            <div><dt>Daily rate</dt><dd>AED 4,500</dd></div>
+            <div><dt>Salik and insurance</dt><dd>Included</dd></div>
+            <div><dt>Refundable deposit</dt><dd>AED 10,000</dd></div>
+          </dl>
+          <div class="rc-total"><span id="rcDays">Total</span><strong id="rcTotal">AED 0</strong></div>
+          <div class="rc-actions" id="rcActions">
+            <button type="submit" class="btn btn-primary">Reserve now</button>
+            <button type="button" class="btn btn-ghost" id="rcChange">Change dates</button>
+          </div>
+          <div class="rc-done" id="rcDone" hidden>
+            <p class="display-sm">Reservation held</p>
+            <p>In the live site, payment and ID upload open here. This prototype does not take bookings.</p>
+            <button type="button" class="btn btn-ghost btn-sm" id="rcBack">Back to summary</button>
+          </div>
+          <p class="fine">Sample rates. This prototype does not take bookings.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <a class="wordmark" href="#skyline">LUXURY RENTAL<em>.AE</em></a>
+    <p>Concept prototype, October 2026. Cars, prices and specs are samples. Built from the LuxuryRental.ae design system: Burj by Night, Velocity Tunnel and Kinetic Sculpture.</p>
+  </footer>
+</main>
+
+<div class="callouts" id="callouts" aria-hidden="true">
+  <div class="callout" data-anchor="cabin"><i></i><div class="cl"><b>Carbon monocoque</b><span>Two seats, scissor doors</span></div></div>
+  <div class="callout" data-anchor="body"><i></i><div class="cl"><b>0–100 km/h in 2.5 s</b><span>Top speed 350 km/h</span></div></div>
+  <div class="callout" data-anchor="wheel"><i></i><div class="cl"><b>Carbon-ceramic brakes</b><span>21″ forged wheels</span></div></div>
+  <div class="callout flip" data-anchor="power"><i></i><div class="cl"><b>6.5 L V12 hybrid</b><span>1,001 hp combined</span></div></div>
+</div>
+
+<form class="dock glass" id="dock" novalidate aria-label="Check availability">
+  <button type="button" class="dock-summary" id="dockToggle" aria-expanded="false" aria-controls="dockFields">
+    <span class="ds-text"><span class="ds-label">Your trip</span><span class="ds-value" id="dockSummary">Downtown Dubai</span></span>
+    <span class="ds-edit" id="dockToggleLabel">Edit trip</span>
+  </button>
+  <div class="dock-fields" id="dockFields">
+    <div class="field f-loc">
+      <label for="fLoc">Pick-up</label>
+      <select id="fLoc">
+        <option>Downtown Dubai</option>
+        <option>Dubai Marina</option>
+        <option>Palm Jumeirah</option>
+        <option>DXB Airport, Terminal 3</option>
+        <option>Business Bay</option>
+        <option>JBR</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="fFrom">From</label>
+      <input type="date" id="fFrom" required aria-describedby="eFrom">
+      <p class="err" id="eFrom" hidden></p>
+    </div>
+    <div class="field">
+      <label for="fTo">Until</label>
+      <input type="date" id="fTo" required aria-describedby="eTo">
+      <p class="err" id="eTo" hidden></p>
+    </div>
+    <div class="field f-type">
+      <label for="fType">Car</label>
+      <select id="fType">
+        <option>Any car</option>
+        <option>Supercar</option>
+        <option>Luxury SUV</option>
+        <option>Chauffeur</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary dock-submit" id="dockSubmit">Check availability</button>
+  </div>
+  <p class="dock-status" id="dockStatus" role="status"></p>
+</form>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const root = document.documentElement;
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const coarse = matchMedia('(pointer: coarse)').matches;
+const hasGSAP = !!(window.gsap && window.ScrollTrigger);
+if (reduced || !hasGSAP) root.classList.add('rm');
+if (hasGSAP) gsap.registerPlugin(ScrollTrigger);
+
+const clamp01 = v => (v < 0 ? 0 : v > 1 ? 1 : v);
+const sm = (a, b, v) => { const x = clamp01((v - a) / (b - a)); return x * x * (3 - 2 * x); };
+const lerp = (a, b, t) => a + (b - a) * t;
+const narrow = () => innerWidth < 1024;
+
+/* ---------------- Booking dock + reservation ---------------- */
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const RATE = 4500;
+const dock = $('#dock'), fLoc = $('#fLoc'), fFrom = $('#fFrom'), fTo = $('#fTo');
+const eFrom = $('#eFrom'), eTo = $('#eTo'), dockStatus = $('#dockStatus'), dockSubmit = $('#dockSubmit');
+const dockToggle = $('#dockToggle'), dockToggleLabel = $('#dockToggleLabel'), dockSummary = $('#dockSummary');
+const pad2 = n => String(n).padStart(2, '0');
+const toISO = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+const fromISO = s => { if (!s) return null; const [y, m, d] = s.split('-').map(Number); return y && m && d ? new Date(y, m - 1, d) : null; };
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const today = new Date(); today.setHours(0, 0, 0, 0);
+const fmtDay = d => `${DAYS[d.getDay()]} ${d.getDate()}`;
+const fmtFull = d => `${fmtDay(d)} ${MONTHS[d.getMonth()]}`;
+const range = (a, b) => (a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear() ? `${fmtDay(a)} – ${fmtFull(b)}` : `${fmtFull(a)} – ${fmtFull(b)}`);
+const aed = n => 'AED ' + n.toLocaleString('en-US');
+
+fFrom.min = toISO(today);
+fFrom.value = toISO(addDays(today, 1));
+fTo.value = toISO(addDays(today, 4));
+fTo.min = toISO(addDays(today, 2));
+
+let inReserve = false, dockForced = false, statusTimer = 0;
+
+function setErr(input, el, msg) {
+  if (msg) { el.textContent = msg; el.hidden = false; input.setAttribute('aria-invalid', 'true'); }
+  else { el.textContent = ''; el.hidden = true; input.removeAttribute('aria-invalid'); }
+}
+function validate() {
+  const a = fromISO(fFrom.value), b = fromISO(fTo.value);
+  let ok = true;
+  if (!a) { setErr(fFrom, eFrom, 'Choose a pick-up date.'); ok = false; }
+  else if (a < today) { setErr(fFrom, eFrom, 'Pick-up can’t be in the past.'); ok = false; }
+  else setErr(fFrom, eFrom, '');
+  if (!b) { setErr(fTo, eTo, 'Choose a return date.'); ok = false; }
+  else if (a && b <= a) { setErr(fTo, eTo, 'Return must be at least one day after pick-up.'); ok = false; }
+  else setErr(fTo, eTo, '');
+  return ok;
+}
+function syncSummary() {
+  const a = fromISO(fFrom.value), b = fromISO(fTo.value), valid = a && b && b > a;
+  dockSummary.textContent = valid ? `${fLoc.value} · ${range(a, b)}` : fLoc.value;
+  $('#rcLoc').textContent = fLoc.value;
+  if (valid) {
+    const days = Math.round((b - a) / 86400000);
+    $('#rcDates').textContent = range(a, b);
+    $('#rcDays').textContent = `Total, ${days} day${days === 1 ? '' : 's'}`;
+    $('#rcTotal').textContent = aed(days * RATE);
+  }
+}
+fFrom.addEventListener('change', () => {
+  const a = fromISO(fFrom.value);
+  if (a) {
+    fTo.min = toISO(addDays(a, 1));
+    const b = fromISO(fTo.value);
+    if (!b || b <= a) fTo.value = toISO(addDays(a, 3));
+  }
+  validate(); syncSummary();
+});
+fTo.addEventListener('change', () => { validate(); syncSummary(); });
+fLoc.addEventListener('change', syncSummary);
+syncSummary();
+
+function setDockOpen(open) {
+  dock.classList.toggle('open', open);
+  dockToggle.setAttribute('aria-expanded', String(open));
+  dockToggleLabel.textContent = open ? 'Close' : 'Edit trip';
+}
+dockToggle.addEventListener('click', () => setDockOpen(!dock.classList.contains('open')));
+
+function updateDock() {
+  const hide = inReserve && !dockForced;
+  dock.classList.toggle('is-hidden', hide);
+  if (hide) {
+    if (dock.contains(document.activeElement)) document.activeElement.blur();
+    dock.setAttribute('inert', '');
+  } else dock.removeAttribute('inert');
+}
+function pulse(el) {
+  if (reduced) return;
+  el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse');
+}
+function openBooking(field) {
+  if (narrow()) setDockOpen(true);
+  setTimeout(() => { field.focus({ preventScroll: true }); pulse(field); }, 80);
+}
+$$('[data-focus-booking]').forEach(b => b.addEventListener('click', () => openBooking(fLoc)));
+
+dock.addEventListener('submit', e => {
+  e.preventDefault();
+  if (!validate()) { (fFrom.hasAttribute('aria-invalid') ? fFrom : fTo).focus(); return; }
+  const returnToReserve = dockForced;
+  dockSubmit.disabled = true; dockSubmit.setAttribute('aria-busy', 'true'); dockSubmit.textContent = 'Checking…';
+  dockStatus.textContent = '';
+  setTimeout(() => {
+    dockSubmit.disabled = false; dockSubmit.removeAttribute('aria-busy'); dockSubmit.textContent = 'Check availability';
+    syncSummary();
+    const a = fromISO(fFrom.value), b = fromISO(fTo.value);
+    dockStatus.textContent = returnToReserve ? `Updated to ${range(a, b)}.` : `Showing cars for ${range(a, b)}, ${fLoc.value}.`;
+    clearTimeout(statusTimer); statusTimer = setTimeout(() => { dockStatus.textContent = ''; }, 6000);
+    setDockOpen(false);
+    if (returnToReserve) { dockForced = false; updateDock(); pulse($('#reserveCard')); }
+    else goTo('fleet');
+  }, 750);
+});
+
+const rcForm = $('#reserveCard');
+rcForm.addEventListener('submit', e => {
+  e.preventDefault();
+  $('#rcActions').hidden = true; $('#rcDone').hidden = false; $('#rcBack').focus();
+});
+$('#rcBack').addEventListener('click', () => {
+  $('#rcDone').hidden = true; $('#rcActions').hidden = false;
+  rcForm.querySelector('[type="submit"]').focus();
+});
+$('#rcChange').addEventListener('click', () => { dockForced = true; updateDock(); openBooking(fFrom); });
+
+/* ---------------- Scrolling ---------------- */
+let lenis = null;
+if (hasGSAP && !reduced && !coarse && window.Lenis) {
+  lenis = new Lenis({ lerp: 0.085, wheelMultiplier: 0.9 });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add(t => lenis.raf(t * 1000));
+  gsap.ticker.lagSmoothing(0);
+}
+function targetY(id) {
+  const el = document.getElementById(id);
+  if (!el) return null;
+  const top = el.getBoundingClientRect().top + window.scrollY;
+  return id === 'reserve' ? top + el.offsetHeight - innerHeight : top;
+}
+function goTo(id) {
+  const y = targetY(id);
+  if (y == null) return;
+  if (lenis) lenis.scrollTo(y, { duration: 1.8 });
+  else window.scrollTo({ top: y, behavior: reduced ? 'auto' : 'smooth' });
+}
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[href^="#"]');
+  if (!a) return;
+  const id = a.getAttribute('href').slice(1);
+  if (!document.getElementById(id)) return;
+  e.preventDefault();
+  goTo(id);
+});
+
+/* Chapter state: c1..c4 each run 0 → 1 across their chapter */
+const S = { c1: 0, c2: 0, c3: 0, c4: 0 };
+const SNAP = [
+  { c1: 0.06, c2: 0, c3: 0, c4: 0 },
+  { c1: 1, c2: 0.55, c3: 0, c4: 0 },
+  { c1: 1, c2: 1, c3: 0.7, c4: 0 },
+  { c1: 1, c2: 1, c3: 1, c4: 1 }
+];
+let needsRender = true;
+const sections = ['skyline', 'fleet', 'sculpture', 'reserve'].map(id => document.getElementById(id));
+const railLinks = $$('[data-rail]');
+let active = -1;
+function setActive(i) {
+  if (i === active) return;
+  active = i;
+  railLinks.forEach((a, k) => (k === i ? a.setAttribute('aria-current', 'step') : a.removeAttribute('aria-current')));
+  inReserve = i === 3;
+  if (!inReserve) dockForced = false;
+  updateDock();
+  if (reduced || !hasGSAP) { Object.assign(S, SNAP[i]); needsRender = true; }
+}
+
+if (hasGSAP) {
+  sections.forEach((sec, i) => ScrollTrigger.create({
+    trigger: sec, start: 'top 55%', end: 'bottom 55%',
+    onToggle: self => { if (self.isActive) setActive(i); }
+  }));
+  const bar = $('#progress');
+  ScrollTrigger.create({ start: 0, end: 'max', onUpdate: self => { bar.style.transform = `scaleX(${self.progress.toFixed(4)})`; } });
+  if (!reduced) {
+    const scrub = 1;
+    gsap.to(S, { c1: 1, ease: 'none', scrollTrigger: { trigger: '#skyline', start: 'top top', end: 'bottom bottom', scrub } });
+    gsap.to(S, { c2: 1, ease: 'none', scrollTrigger: { trigger: '#fleet', start: 'top bottom', end: 'bottom bottom', scrub } });
+    gsap.to(S, { c3: 1, ease: 'none', scrollTrigger: { trigger: '#sculpture', start: 'top bottom', end: 'bottom bottom', scrub } });
+    gsap.to(S, { c4: 1, ease: 'none', scrollTrigger: { trigger: '#reserve', start: 'top bottom', end: 'bottom bottom', scrub } });
+    gsap.timeline({ scrollTrigger: { trigger: '#skyline', start: 'top top', end: 'bottom bottom', scrub: true } })
+      .to('#cue', { autoAlpha: 0, duration: 0.08 }, 0)
+      .to('#skyA', { autoAlpha: 0, y: -40, duration: 0.18 }, 0.26)
+      .fromTo('#skyB', { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.14 }, 0.72)
+      .to({}, { duration: 0.14 }, 0.86);
+  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => ScrollTrigger.refresh());
+  if ('ResizeObserver' in window) {
+    let lastH = 0, rt = 0;
+    new ResizeObserver(() => {
+      const h = document.documentElement.scrollHeight;
+      if (Math.abs(h - lastH) > 2) { lastH = h; clearTimeout(rt); rt = setTimeout(() => ScrollTrigger.refresh(), 120); }
+    }).observe(document.body);
+  }
+} else {
+  setActive(0);
+  addEventListener('scroll', () => {
+    const mid = innerHeight * 0.55;
+    sections.forEach((s, i) => { const r = s.getBoundingClientRect(); if (r.top <= mid && r.bottom > mid) setActive(i); });
+  }, { passive: true });
+}
+
+/* ---------------- WebGL stage ---------------- */
+function hermite(pts, x) {
+  const n = pts.length;
+  if (x <= pts[0][0]) return pts[0][1];
+  if (x >= pts[n - 1][0]) return pts[n - 1][1];
+  let i = 1; while (x > pts[i][0]) i++;
+  const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], dx = x1 - x0, t = (x - x0) / dx;
+  const m = k => { const a = pts[Math.max(0, k - 1)], b = pts[Math.min(n - 1, k + 1)]; return (b[1] - a[1]) / (b[0] - a[0]); };
+  const m0 = m(i - 1) * dx, m1 = m(i) * dx, t2 = t * t, t3 = t2 * t;
+  return (2 * t3 - 3 * t2 + 1) * y0 + (t3 - 2 * t2 + t) * m0 + (-2 * t3 + 3 * t2) * y1 + (t3 - t2) * m1;
+}
+function mulberry(a) {
+  return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+
+/* The featured car as a light sculpture: every particle knows where it sits assembled and where it floats when exploded. */
+function buildCar(N, T) {
+  const rnd = mulberry(1337);
+  const P = [], E = [], SC = [], COL = [], CMP = [], RN = [], BR = [];
+  const champ = [0.84, 0.82, 0.79], gold = [0.92, 0.70, 0.03], goldS = [0.93, 0.78, 0.40], ice = [0.49, 0.83, 0.99];
+  const amber = [0.85, 0.42, 0.06], white = [0.92, 0.96, 1.0], red = [0.97, 0.22, 0.18];
+  const j = s => (rnd() - 0.5) * s;
+  function add(x, y, z, comp, ex, ey, ez, c, bright) {
+    P.push(x, y, z);
+    E.push(ex + j(0.03), ey + j(0.03), ez + j(0.03));
+    const a = rnd() * Math.PI * 2, r = 2 + rnd() * 10;
+    SC.push(Math.cos(a) * r, 0.3 + rnd() * 7, Math.sin(a) * r);
+    COL.push(c[0], c[1], c[2]); CMP.push(comp); RN.push(rnd()); BR.push(bright);
+  }
+  const topK = [[-2.30, 0.78], [-2.10, 0.90], [-1.60, 0.94], [-1.00, 1.00], [-0.45, 1.14], [0.15, 1.18], [0.62, 1.05], [1.05, 0.80], [1.55, 0.68], [2.00, 0.56], [2.30, 0.44]];
+  const botK = [[-2.30, 0.32], [-1.95, 0.22], [1.90, 0.18], [2.30, 0.22]];
+  const widK = [[-2.30, 0.84], [-1.90, 0.96], [-1.38, 1.00], [-0.60, 0.95], [0.60, 0.93], [1.42, 0.97], [2.00, 0.90], [2.30, 0.76]];
+  const top = x => hermite(topK, x), bot = x => hermite(botK, x), wid = x => hermite(widK, x);
+  const belt = x => Math.min(top(x) - 0.01, 0.80);
+  const hw = (x, y) => {
+    const b = belt(x), bt = bot(x), w = wid(x), tp = top(x);
+    if (y <= b) { const t = clamp01((y - bt) / Math.max(0.01, b - bt)); return w * (0.9 + 0.1 * Math.sin(Math.PI * t)); }
+    return w * (1 - 0.36 * Math.pow(clamp01((y - b) / Math.max(0.01, tp - b)), 1.1));
+  };
+  const WH = [[1.42, 0.36], [-1.38, 0.37]];
+  const inArch = (x, y) => WH.some(([wx, wy]) => Math.hypot(x - wx, y - wy) < 0.47);
+  const glass = (x, y) => y > belt(x) + 0.015 && x > -0.75 && x < 1.08;
+  const roofGlass = x => x > -0.75 && x < 1.08 && top(x) > 0.82;
+  const X0 = -2.28, X1 = 2.28;
+  const n = k => Math.max(8, Math.round(N * k));
+  const line = (count, fn) => { for (let i = 0; i < count; i++) fn(count === 1 ? 0 : i / (count - 1)); };
+
+  // Side skin
+  for (let i = 0, c = n(0.21); i < c;) {
+    const x = X0 + rnd() * (X1 - X0), bt = bot(x), y = bt + rnd() * (top(x) - bt);
+    if (inArch(x, y)) continue;
+    i++;
+    const s = rnd() < 0.5 ? -1 : 1, z = s * hw(x, y);
+    if (glass(x, y)) add(x, y, z, 1, 0, 2.0, s * 0.1, ice, 0);
+    else add(x, y, z, 0, 0, 0.95, s * 0.55, champ, 0);
+  }
+  // Hood, roof, engine cover
+  for (let i = 0, c = n(0.14); i < c; i++) {
+    const x = X0 + rnd() * (X1 - X0), tp = top(x), zf = rnd() * 2 - 1, y = tp - 0.05 * zf * zf, z = zf * hw(x, tp);
+    if (roofGlass(x)) add(x, y, z, 1, 0, 2.05, 0, ice, 0); else add(x, y, z, 0, 0, 1.4, 0, champ, 0);
+  }
+  // Nose and tail faces
+  for (let i = 0, c = n(0.03); i < c; i++) {
+    const front = rnd() < 0.55, x = front ? 2.29 : -2.29, bt = bot(x), y = bt + rnd() * (top(x) - bt);
+    add(x, y, (rnd() * 2 - 1) * hw(x, y) * 0.95, 0, front ? 0.7 : -0.6, 0.95, 0, champ, 0);
+  }
+  // Feature lines, both sides
+  [-1, 1].forEach(s => {
+    line(n(0.06), t => {
+      const x = X0 + t * (X1 - X0), tp = top(x), y = tp - 0.05, z = s * hw(x, tp) * 0.98;
+      if (roofGlass(x)) add(x, y, z, 1, 0, 2.05, s * 0.1, ice, 1); else add(x, y, z, 0, 0, 1.4, s * 0.15, goldS, 1);
+    });
+    line(n(0.05), t => { const x = X0 + t * (X1 - X0), b = belt(x); if (!inArch(x, b)) add(x, b, s * hw(x, b), 0, 0, 0.95, s * 0.55, gold, 1); });
+    line(n(0.045), t => { const x = X0 + t * (X1 - X0), y = bot(x) + 0.05; if (!inArch(x, y)) add(x, y, s * hw(x, y), 0, 0, 0.95, s * 0.55, gold, 0.8); });
+    line(n(0.02), t => { const x = -0.2 - 0.8 * t, y = 0.76 - 0.34 * t + 0.08 * Math.sin(Math.PI * t); add(x, y, s * (hw(x, y) + 0.01), 0, 0, 0.95, s * 0.55, gold, 1); });
+    WH.forEach(([wx, wy]) => line(n(0.012), t => {
+      const a = Math.PI * (0.02 + 0.96 * t), x = wx + Math.cos(a) * 0.47, y = wy + Math.sin(a) * 0.47;
+      if (y >= bot(x)) add(x, y, s * hw(x, y), 0, 0, 0.95, s * 0.55, gold, 1);
+    }));
+    line(n(0.012), t => add(2.16 - 0.14 * t, 0.47 + 0.05 * t, s * (0.48 + 0.36 * t), 4, 0.8, 0.95, 0, white, 1));
+    line(n(0.006), t => add(2.10 + 0.07 * t, 0.48 - 0.08 * t, s * (0.6 - 0.05 * t), 4, 0.8, 0.95, 0, white, 1));
+  });
+  line(n(0.02), t => { const x = -2.2 + 4.4 * t, g = roofGlass(x); add(x, top(x), 0, g ? 1 : 0, 0, g ? 2.05 : 1.4, 0, g ? ice : goldS, 0.6); });
+  line(n(0.012), t => { const x = 1.05, tp = top(x); add(x, tp, (t * 2 - 1) * hw(x, tp), 1, 0, 2.05, 0, ice, 1); });
+  line(n(0.012), t => { const x = 0.12, tp = top(x); add(x, tp, (t * 2 - 1) * hw(x, tp), 1, 0, 2.05, 0, ice, 1); });
+  line(n(0.012), t => add(2.27, bot(2.27) - 0.02, (t * 2 - 1) * 0.82, 0, 0.7, 0.95, 0, gold, 1));
+  for (let f = -2; f <= 2; f++) line(n(0.003), t => add(-2.28, 0.22 + 0.12 * t, f * 0.22, 0, -0.6, 0.95, 0, gold, 0.8));
+  line(n(0.02), t => { const z = (t * 2 - 1) * 0.84; if (Math.abs(z) > 0.06) add(-2.29, 0.72, z, 5, -0.6, 0.95, 0, red, 1); });
+  // Rear wing
+  const wingY = 1.08, strutBase = top(-2.12);
+  line(n(0.018), t => add(-2.20, wingY, (t * 2 - 1) * 0.9, 0, -0.35, 1.75, 0, gold, 1));
+  line(n(0.018), t => add(-1.98, wingY + 0.02, (t * 2 - 1) * 0.9, 0, -0.35, 1.75, 0, gold, 1));
+  for (let i = 0, c = n(0.02); i < c; i++) add(-2.2 + rnd() * 0.22, wingY + 0.01, (rnd() * 2 - 1) * 0.9, 0, -0.35, 1.75, 0, champ, 0);
+  [-1, 1].forEach(s => {
+    line(n(0.006), t => add(-2.12, strutBase + (wingY - strutBase) * t, s * 0.45, 0, -0.35, 1.75, 0, gold, 0.8));
+    line(n(0.006), t => add(-2.22 + 0.26 * t, wingY, s * 0.9, 0, -0.35, 1.75, 0, gold, 1));
+  });
+  // Wheels
+  WH.forEach(([wx, wy]) => [-1, 1].forEach(s => {
+    const zc = s * (hw(wx, 0.42) - 0.1), out = zc + s * 0.13, inn = zc - s * 0.13, ex = wx * 0.15, ez = s * 1.35;
+    const ring = (count, r, z, bright, c) => line(count, t => { const a = t * Math.PI * 2; add(wx + Math.cos(a) * r, wy + Math.sin(a) * r, z, 2, ex, 0, ez, c, bright); });
+    ring(n(0.02), 0.37, out, 0.7, champ);
+    ring(n(0.015), 0.37, inn, 0.3, champ);
+    ring(n(0.016), 0.29, out + s * 0.005, 1, goldS);
+    ring(n(0.008), 0.215, out - s * 0.03, 0.4, amber);
+    for (let k = 0; k < 10; k++) {
+      const a0 = (k / 10) * Math.PI * 2 + (k % 2) * 0.12;
+      line(n(0.0028), t => { const r = 0.07 + 0.22 * t; add(wx + Math.cos(a0) * r, wy + Math.sin(a0) * r, out, 2, ex, 0, ez, goldS, 1); });
+    }
+    for (let k = 0; k < 28; k++) {
+      const a = (k / 28) * Math.PI * 2;
+      line(4, t => add(wx + Math.cos(a) * 0.37, wy + Math.sin(a) * 0.37, inn + (out - inn) * t, 2, ex, 0, ez, champ, 0.2));
+    }
+    line(n(0.004), t => { const a = 0.55 * Math.PI + t * 0.5; add(wx + Math.cos(a) * 0.2, wy + Math.sin(a) * 0.2, out - s * 0.05, 2, ex, 0, ez, amber, 1); });
+  }));
+  // Powertrain, revealed only when exploded
+  const boxEdges = (x0, x1, y0, y1, z0, z1, count, c, bright, ey) => {
+    [[x0, y0, z0, x1, y0, z0], [x0, y1, z0, x1, y1, z0], [x0, y0, z1, x1, y0, z1], [x0, y1, z1, x1, y1, z1],
+     [x0, y0, z0, x0, y1, z0], [x1, y0, z0, x1, y1, z0], [x0, y0, z1, x0, y1, z1], [x1, y0, z1, x1, y1, z1],
+     [x0, y0, z0, x0, y0, z1], [x1, y0, z0, x1, y0, z1], [x0, y1, z0, x0, y1, z1], [x1, y1, z0, x1, y1, z1]]
+      .forEach(e => line(count, t => add(e[0] + (e[3] - e[0]) * t, e[1] + (e[4] - e[1]) * t, e[2] + (e[5] - e[2]) * t, 3, 0, ey, 0, c, bright)));
+  };
+  boxEdges(-1.35, -0.4, 0.3, 0.68, -0.36, 0.36, n(0.006), gold, 1, -0.1);
+  for (let b = -1; b <= 1; b += 2) for (let k = 0; k < 6; k++) {
+    const cx = -1.27 + k * 0.165, cz = b * 0.2;
+    line(n(0.003), t => { const a = t * Math.PI * 2; add(cx + Math.cos(a) * 0.065, 0.72, cz + Math.sin(a) * 0.065, 3, 0, -0.1, 0, goldS, 1); });
+  }
+  for (let i = 0, c = n(0.04); i < c; i++) add(-1.35 + rnd() * 0.95, 0.3 + rnd() * 0.38, (rnd() * 2 - 1) * 0.36, 3, 0, -0.1, 0, amber, 0.2);
+  boxEdges(-0.3, 0.95, 0.24, 0.34, -0.36, 0.36, n(0.005), ice, 0.8, -0.15);
+  WH.forEach(([wx, wy]) => line(n(0.01), t => add(wx, wy, (t * 2 - 1) * 0.85, 3, 0, -0.1, 0, goldS, 0.7)));
+  [-0.32, -0.18, 0.18, 0.32].forEach(z => line(n(0.002), t => { const a = t * Math.PI * 2; add(-2.27, 0.36 + Math.sin(a) * 0.05, z + Math.cos(a) * 0.05, 3, 0, -0.1, 0, amber, 1); }));
+
+  const g = new T.BufferGeometry();
+  g.setAttribute('position', new T.Float32BufferAttribute(P, 3));
+  g.setAttribute('aExplode', new T.Float32BufferAttribute(E, 3));
+  g.setAttribute('aScatter', new T.Float32BufferAttribute(SC, 3));
+  g.setAttribute('aColor', new T.Float32BufferAttribute(COL, 3));
+  g.setAttribute('aComp', new T.Float32BufferAttribute(CMP, 1));
+  g.setAttribute('aRnd', new T.Float32BufferAttribute(RN, 1));
+  g.setAttribute('aBright', new T.Float32BufferAttribute(BR, 1));
+  const anchors = {
+    cabin: { p: [0.3, 1.17, 0], e: [0, 2.05, 0] },
+    body: { p: [1.6, 0.66, 0], e: [0, 1.4, 0] },
+    wheel: { p: [1.42, 0.36, -(hw(1.42, 0.42) + 0.03)], e: [0.21, 0, -1.35] },
+    power: { p: [-0.85, 0.72, 0], e: [0, -0.1, 0] }
+  };
+  return { geometry: g, count: CMP.length, anchors };
+}
+
+const FOG_FN = `
+uniform float uFogD; uniform vec3 uFogC; uniform vec3 uCam;
+vec3 applyFog(vec3 col, vec3 w){ float d = distance(w, uCam); float f = 1.0 - exp(-uFogD * uFogD * d * d); return mix(col, uFogC, f); }`;
+
+function initGL(canvas) {
+  const T = THREE;
+  const renderer = new T.WebGLRenderer({ canvas, antialias: !coarse, powerPreference: 'high-performance' });
+  const LOW = coarse || innerWidth < 768;
+  const PR = Math.min(window.devicePixelRatio || 1, LOW ? 1.5 : 1.75);
+  renderer.setPixelRatio(PR);
+  renderer.setClearColor(0x050407, 1);
+  const scene = new T.Scene();
+  const camera = new T.PerspectiveCamera(40, innerWidth / innerHeight, 0.1, 2600);
+  const rand = mulberry(7);
+  const V = (x, y, z) => new T.Vector3(x, y, z);
+
+  const PAD = V(46, 0, 64), PAD_H = 58, C = V(PAD.x, PAD_H, PAD.z);
+  const common = {
+    uCity: { value: 1 }, uTime: { value: 0 }, uFogD: { value: 0.0021 },
+    uFogC: { value: V(0.045, 0.028, 0.02) }, uCam: { value: camera.position }
+  };
+  const additive = { transparent: true, depthWrite: false, blending: T.AdditiveBlending };
+
+  /* Sky dome with desert haze on the horizon */
+  const sky = new T.Mesh(new T.SphereGeometry(1000, 32, 16), new T.ShaderMaterial({
+    side: T.BackSide, depthWrite: false, depthTest: false, uniforms: { uCity: common.uCity },
+    vertexShader: 'varying vec3 vDir; void main(){ vDir = normalize(position); vec4 p = projectionMatrix * modelViewMatrix * vec4(position, 1.0); gl_Position = p.xyww; }',
+    fragmentShader: `uniform float uCity; varying vec3 vDir;
+      void main(){ float h = vDir.y;
+        vec3 col = mix(vec3(0.16, 0.075, 0.02), vec3(0.012, 0.010, 0.020), smoothstep(-0.02, 0.38, h));
+        col += vec3(0.30, 0.13, 0.03) * exp(-abs(h - 0.01) * 22.0) * 0.6;
+        col = mix(vec3(0.020, 0.018, 0.016), col, uCity);
+        gl_FragColor = vec4(col, 1.0); }`
+  }));
+  sky.renderOrder = -10; sky.frustumCulled = false; scene.add(sky);
+
+  /* Stars */
+  const NST = LOW ? 420 : 900, stPos = new Float32Array(NST * 3), stPh = new Float32Array(NST);
+  for (let i = 0; i < NST; i++) {
+    const th = rand() * Math.PI * 2, y = 0.12 + rand() * 0.88, r = Math.sqrt(1 - y * y);
+    stPos.set([Math.cos(th) * r * 900, y * 900, Math.sin(th) * r * 900], i * 3); stPh[i] = rand();
+  }
+  const stG = new T.BufferGeometry();
+  stG.setAttribute('position', new T.BufferAttribute(stPos, 3));
+  stG.setAttribute('aPh', new T.BufferAttribute(stPh, 1));
+  const stars = new T.Points(stG, new T.ShaderMaterial({
+    ...additive, uniforms: { uCity: common.uCity, uTime: common.uTime, uPR: { value: PR } },
+    vertexShader: 'attribute float aPh; uniform float uTime, uPR; varying float vA; void main(){ gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); gl_PointSize = (1.0 + aPh * 1.3) * uPR; vA = 0.25 + 0.5 * (0.5 + 0.5 * sin(uTime * 0.8 + aPh * 40.0)); }',
+    fragmentShader: 'uniform float uCity; varying float vA; void main(){ float d = length(gl_PointCoord - 0.5); gl_FragColor = vec4(vec3(1.0, 0.95, 0.86) * smoothstep(0.5, 0.0, d) * vA * uCity, 1.0); }'
+  }));
+  stars.frustumCulled = false; scene.add(stars);
+
+  /* City: instanced towers with procedural lit windows */
+  const TOWER_VS = `attribute float aSeed; uniform float uSeedFallback;
+    varying vec3 vW; varying vec3 vN; varying float vSeed;
+    void main(){
+      vec4 wp;
+      #ifdef USE_INSTANCING
+        wp = modelMatrix * instanceMatrix * vec4(position, 1.0); vSeed = aSeed;
+      #else
+        wp = modelMatrix * vec4(position, 1.0); vSeed = uSeedFallback;
+      #endif
+      vW = wp.xyz; vN = normalize(mat3(modelMatrix) * normal);
+      gl_Position = projectionMatrix * viewMatrix * wp;
+    }`;
+  const TOWER_FS = `uniform float uCity; ${FOG_FN}
+    varying vec3 vW; varying vec3 vN; varying float vSeed;
+    float hash(vec3 p){ p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
+    void main(){
+      vec3 col = vec3(0.028, 0.026, 0.032);
+      if (abs(vN.y) < 0.5) {
+        vec2 t = normalize(vec2(-vN.z, vN.x));
+        vec2 cell = vec2(dot(vW.xz, t) / 1.25, vW.y / 1.6);
+        vec2 id = floor(cell), f = fract(cell);
+        float win = step(0.16, f.x) * step(f.x, 0.84) * step(0.2, f.y) * step(f.y, 0.8);
+        float lit = step(0.6, hash(vec3(id, vSeed * 97.0 + floor(vN.x * 3.0 + vN.z * 5.0))));
+        vec3 warm = mix(vec3(1.0, 0.6, 0.2), vec3(1.0, 0.86, 0.62), hash(vec3(id.yx, vSeed * 13.0)));
+        float near = smoothstep(750.0, 220.0, distance(vW, uCam));
+        col += warm * (win * lit * (0.5 + 0.5 * hash(vec3(id, 3.1))) * near + 0.2 * (1.0 - near));
+        col += vec3(0.05, 0.04, 0.035) * win * (1.0 - lit) * near;
+        col += vec3(0.71, 0.33, 0.035) * 0.35 * exp(-vW.y * 0.06);
+      } else { col *= 1.4; }
+      gl_FragColor = vec4(applyFog(col, vW) * uCity, 1.0);
+    }`;
+  const towerMat = seed => new T.ShaderMaterial({ uniforms: { ...common, uSeedFallback: { value: seed } }, vertexShader: TOWER_VS, fragmentShader: TOWER_FS });
+
+  const towers = [], R = LOW ? 13 : 18, SP = 14;
+  for (let i = -R; i <= R; i++) for (let k = -R; k <= R; k++) {
+    const x = i * SP, z = k * SP, dist = Math.hypot(x, z);
+    if (dist < 24 || dist > R * SP) continue;
+    if (Math.abs(x - PAD.x) < 9 && Math.abs(z - PAD.z) < 9) continue;
+    if (rand() < 0.1) continue;
+    const fall = Math.max(0.12, 1 - dist / (R * SP));
+    let h = 5 + Math.pow(rand(), 2) * 130 * fall + rand() * 8;
+    if (Math.hypot(x - PAD.x, z - PAD.z) < 44) h = Math.min(h, PAD_H - 10 - rand() * 24);
+    towers.push([x + (rand() - 0.5) * 2, z + (rand() - 0.5) * 2, 6 + rand() * 4, 6 + rand() * 4, Math.max(4, h)]);
+  }
+  towers.push([PAD.x, PAD.z, 16, 16, PAD_H]);
+  const boxG = new T.BoxGeometry(1, 1, 1); boxG.translate(0, 0.5, 0);
+  const seeds = new Float32Array(towers.length);
+  const city = new T.InstancedMesh(boxG, towerMat(0.5), towers.length);
+  const m4 = new T.Matrix4();
+  towers.forEach((t, k) => { m4.makeScale(t[2], t[4], t[3]); m4.setPosition(t[0], 0, t[1]); city.setMatrixAt(k, m4); seeds[k] = rand(); });
+  boxG.setAttribute('aSeed', new T.InstancedBufferAttribute(seeds, 1));
+  city.frustumCulled = false; scene.add(city);
+
+  /* The supertall: stepped, slightly twisting tiers and a spire */
+  const tall = new T.Group(), tallMat = towerMat(0.81);
+  [[11, 0, 64], [9, 64, 128], [7.2, 128, 178], [5.6, 178, 222], [4.2, 222, 258], [3, 258, 288], [1.8, 288, 312]].forEach(([r, h0, h1], k) => {
+    const g = new T.CylinderGeometry(r * 0.9, r, h1 - h0, 6); g.translate(0, (h0 + h1) / 2, 0);
+    const m = new T.Mesh(g, tallMat); m.rotation.y = k * 0.3; tall.add(m);
+  });
+  const spireG = new T.CylinderGeometry(0.2, 1.3, 52, 6); spireG.translate(0, 338, 0);
+  tall.add(new T.Mesh(spireG, tallMat));
+  scene.add(tall);
+
+  /* Aviation lights on the tallest roofs */
+  const beac = [[0, 365, 0]];
+  towers.forEach(t => { if (t[4] > 46) beac.push([t[0], t[4] + 0.6, t[1]]); });
+  const bG = new T.BufferGeometry();
+  bG.setAttribute('position', new T.Float32BufferAttribute(beac.flat(), 3));
+  bG.setAttribute('aPh', new T.Float32BufferAttribute(beac.map(() => rand()), 1));
+  const beacons = new T.Points(bG, new T.ShaderMaterial({
+    ...additive, uniforms: { uCity: common.uCity, uTime: common.uTime, uPR: { value: PR } },
+    vertexShader: 'attribute float aPh; uniform float uTime, uPR; varying float vB; void main(){ vec4 mv = modelViewMatrix * vec4(position, 1.0); gl_Position = projectionMatrix * mv; gl_PointSize = 3.0 * uPR * clamp(260.0 / -mv.z, 0.8, 3.0); float f = fract(uTime * 0.45 + aPh); vB = smoothstep(0.0, 0.08, f) * (1.0 - smoothstep(0.22, 0.36, f)); }',
+    fragmentShader: 'uniform float uCity; varying float vB; void main(){ float d = length(gl_PointCoord - 0.5); gl_FragColor = vec4(vec3(0.97, 0.28, 0.22) * smoothstep(0.5, 0.0, d) * vB * uCity * 1.4, 1.0); }'
+  }));
+  beacons.frustumCulled = false; scene.add(beacons);
+
+  /* Streets with moving traffic */
+  const ground = new T.Mesh(new T.PlaneGeometry(3200, 3200), new T.ShaderMaterial({
+    uniforms: { ...common },
+    vertexShader: 'varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }',
+    fragmentShader: `uniform float uCity, uTime; ${FOG_FN}
+      varying vec3 vW;
+      float ln(float v, float sp, float w){ float f = abs(fract(v / sp + 0.5) - 0.5) * sp; return 1.0 - smoothstep(0.0, w, f); }
+      void main(){
+        float gx = vW.x + 7.0, gz = vW.z + 7.0;
+        float mnr = max(ln(gx, 14.0, 0.22), ln(gz, 14.0, 0.22));
+        float maj = max(ln(gx, 42.0, 0.7), ln(gz, 42.0, 0.7));
+        float l1 = ln(gx - 1.4, 42.0, 0.3) * step(0.78, fract((vW.z + uTime * 22.0) / 11.0));
+        float l2 = ln(gx + 1.4, 42.0, 0.3) * step(0.78, fract((vW.z - uTime * 19.0) / 13.0));
+        float l3 = ln(gz - 1.4, 42.0, 0.3) * step(0.78, fract((vW.x + uTime * 20.0) / 12.0));
+        float l4 = ln(gz + 1.4, 42.0, 0.3) * step(0.78, fract((vW.x - uTime * 24.0) / 10.0));
+        vec3 col = vec3(0.012, 0.010, 0.010);
+        col += vec3(0.71, 0.33, 0.035) * (maj * 0.5 + mnr * 0.16);
+        col += vec3(1.0, 0.86, 0.62) * (l1 + l3) * 1.1 + vec3(0.98, 0.25, 0.2) * (l2 + l4) * 0.9;
+        col *= 1.0 - smoothstep(260.0, 420.0, length(vW.xz)) * 0.6;
+        gl_FragColor = vec4(applyFog(col, vW) * uCity, 1.0);
+      }`
+  }));
+  ground.rotation.x = -Math.PI / 2; scene.add(ground);
+
+  /* Floor under the car: helipad → road → studio turntable */
+  const floorU = { uPad: { value: 1 }, uRoad: { value: 0 }, uStudio: { value: 0 }, uHead: { value: 0 }, uTravel: { value: 0 } };
+  const floor = new T.Mesh(new T.PlaneGeometry(90, 90), new T.ShaderMaterial({
+    ...additive, uniforms: floorU,
+    vertexShader: 'varying vec2 vP; void main(){ vP = position.xy; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+    fragmentShader: `uniform float uPad, uRoad, uStudio, uHead, uTravel; varying vec2 vP;
+      float ring(float r, float at, float w){ return 1.0 - smoothstep(0.0, w, abs(r - at)); }
+      void main(){
+        float r = length(vP), ang = atan(vP.y, vP.x);
+        vec3 gold = vec3(0.92, 0.70, 0.03), ice = vec3(0.49, 0.83, 0.99), champ = vec3(0.84, 0.83, 0.82);
+        vec3 col = vec3(0.0);
+        float pad = ring(r, 6.4, 0.1) + 0.45 * ring(r, 5.5, 0.05) + 0.7 * step(0.5, fract(ang / 6.2831853 * 48.0)) * ring(r, 7.3, 0.06);
+        col += gold * pad * uPad;
+        float fade = 1.0 - smoothstep(8.0, 40.0, abs(vP.x));
+        float edges = ring(abs(vP.y), 2.6, 0.05);
+        float centre = step(0.55, fract((vP.x + uTravel) / 3.2)) * ring(vP.y, 0.0, 0.05);
+        float side = step(0.8, fract((vP.x + uTravel) / 1.6)) * ring(abs(vP.y), 5.2, 0.04);
+        col += ice * (edges * 0.55 + centre * 0.9 + side * 0.4) * fade * uRoad;
+        float tick = step(0.86, fract(ang / 6.2831853 * 72.0)) * (1.0 - smoothstep(0.0, 0.02, abs(r - 4.9) - 0.18));
+        float rings = ring(r, 4.6, 0.03) + ring(r, 5.3, 0.02) * 0.7 + ring(r, 8.0, 0.025) * 0.5 + ring(r, 12.0, 0.03) * 0.3;
+        col += champ * (rings * 0.55 + tick * 0.6) * uStudio;
+        col += champ * exp(-r * r / 9.0) * 0.12 * max(uStudio, max(uPad, uRoad));
+        col += vec3(0.85, 0.93, 1.0) * exp(-pow(vP.x - 6.5, 2.0) / 14.0 - vP.y * vP.y / 3.0) * step(2.0, vP.x) * 0.45 * uHead;
+        col *= 1.0 - smoothstep(16.0, 44.0, r);
+        gl_FragColor = vec4(col, 1.0);
+      }`
+  }));
+  floor.rotation.x = -Math.PI / 2; floor.position.set(C.x, C.y + 0.02, C.z); scene.add(floor);
+
+  /* Velocity Tunnel streaks */
+  const NS = LOW ? 600 : 1400, L = 120;
+  const sAttr = { aA: new Float32Array(NS * 2), aR: new Float32Array(NS * 2), aX: new Float32Array(NS * 2), aE: new Float32Array(NS * 2), aS: new Float32Array(NS * 2), aH: new Float32Array(NS * 2) };
+  for (let k = 0; k < NS; k++) {
+    const a = rand() * Math.PI * 2, r = 2.6 + Math.pow(rand(), 0.7) * 9, x0 = rand() * L, s = rand(), h = rand() < 0.16 ? 1 : 0;
+    for (let e = 0; e < 2; e++) { const q = k * 2 + e; sAttr.aA[q] = a; sAttr.aR[q] = r; sAttr.aX[q] = x0; sAttr.aE[q] = e; sAttr.aS[q] = s; sAttr.aH[q] = h; }
+  }
+  const sG = new T.BufferGeometry();
+  sG.setAttribute('position', new T.BufferAttribute(new Float32Array(NS * 6), 3));
+  Object.entries(sAttr).forEach(([k, v]) => sG.setAttribute(k, new T.BufferAttribute(v, 1)));
+  const streakU = { uTravel: { value: 0 }, uSpeed: { value: 0 }, uOpacity: { value: 0 }, uLen: { value: L } };
+  const streaks = new T.LineSegments(sG, new T.ShaderMaterial({
+    ...additive, uniforms: streakU,
+    vertexShader: `attribute float aA, aR, aX, aE, aS, aH; uniform float uTravel, uSpeed, uOpacity, uLen; varying float vA; varying float vH;
+      void main(){
+        float x = mod(aX - uTravel * (0.55 + 0.9 * aS), uLen) - uLen * 0.5;
+        x += aE * (0.3 + uSpeed * (2.0 + 6.0 * aS));
+        vec3 p = vec3(x, sin(aA) * aR, cos(aA) * aR);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+        vA = mix(1.0, 0.05, aE) * (1.0 - smoothstep(uLen * 0.28, uLen * 0.5, abs(x))) * uOpacity * (0.35 + 0.65 * aS);
+        vH = aH;
+      }`,
+    fragmentShader: 'varying float vA; varying float vH; void main(){ gl_FragColor = vec4(mix(vec3(0.62, 0.88, 1.0), vec3(0.95, 0.72, 0.12), vH) * vA, 1.0); }'
+  }));
+  streaks.position.set(C.x, C.y + 0.9, C.z); streaks.frustumCulled = false; scene.add(streaks);
+
+  /* The car */
+  const rig = new T.Group(); rig.position.copy(C); scene.add(rig);
+  const carData = buildCar(LOW ? 1900 : 6500, T);
+  const carU = { uExplode: { value: 0 }, uForm: { value: 0 }, uHead: { value: 0 }, uTime: common.uTime, uSize: { value: LOW ? 2.6 : 2.2 }, uPR: { value: PR } };
+  const car = new T.Points(carData.geometry, new T.ShaderMaterial({
+    ...additive, uniforms: carU,
+    vertexShader: `attribute vec3 aExplode, aScatter, aColor; attribute float aComp, aRnd, aBright;
+      uniform float uExplode, uForm, uHead, uTime, uSize, uPR;
+      varying vec3 vColor; varying float vAlpha;
+      void main(){
+        float e = clamp(uExplode * 1.3 - aRnd * 0.3, 0.0, 1.0); e = e * e * (3.0 - 2.0 * e);
+        vec3 p = position + aExplode * e;
+        p.y += sin(uTime * 1.3 + aRnd * 40.0) * 0.035 * e;
+        float f = clamp(uForm * 1.35 - aRnd * 0.35, 0.0, 1.0); f = f * f * (3.0 - 2.0 * f);
+        p = mix(aScatter, p, f);
+        vec4 mv = modelViewMatrix * vec4(p, 1.0);
+        gl_Position = projectionMatrix * mv;
+        float isHead = step(3.5, aComp) * step(aComp, 4.5);
+        float isPower = step(2.5, aComp) * step(aComp, 3.5);
+        float size = uSize * (0.75 + 0.8 * aBright) * (1.0 + isHead * uHead * 1.6);
+        gl_PointSize = max(1.0, size * uPR * (10.0 / max(0.5, -mv.z)));
+        float a = mix(0.32, 0.8, aBright);
+        a *= mix(1.0, e, isPower);
+        a *= mix(1.0, 0.45 + 1.2 * uHead, isHead);
+        a *= mix(0.55, 1.0, f);
+        vColor = aColor; vAlpha = a;
+      }`,
+    fragmentShader: 'varying vec3 vColor; varying float vAlpha; void main(){ float d = length(gl_PointCoord - 0.5); float m = smoothstep(0.5, 0.0, d); gl_FragColor = vec4(vColor * m * m * vAlpha, 1.0); }'
+  }));
+  car.frustumCulled = false; rig.add(car);
+
+  /* Headlight glow and beams */
+  const headU = { uHead: { value: 0 }, uPR: { value: PR } };
+  const hG = new T.BufferGeometry();
+  hG.setAttribute('position', new T.Float32BufferAttribute([2.12, 0.49, 0.68, 2.12, 0.49, -0.68], 3));
+  const glows = new T.Points(hG, new T.ShaderMaterial({
+    ...additive, uniforms: headU,
+    vertexShader: 'uniform float uHead, uPR; void main(){ vec4 mv = modelViewMatrix * vec4(position, 1.0); gl_Position = projectionMatrix * mv; gl_PointSize = uPR * 70.0 * uHead * (6.0 / max(1.0, -mv.z)); }',
+    fragmentShader: 'uniform float uHead; void main(){ float d = length(gl_PointCoord - 0.5); gl_FragColor = vec4(vec3(0.85, 0.94, 1.0) * exp(-d * d * 18.0) * uHead, 1.0); }'
+  }));
+  glows.frustumCulled = false; rig.add(glows);
+  const coneG = new T.ConeGeometry(1.5, 8, 32, 1, true); coneG.rotateZ(Math.PI / 2); coneG.translate(4, 0, 0);
+  const beamMat = new T.ShaderMaterial({
+    ...additive, side: T.DoubleSide, uniforms: headU,
+    vertexShader: 'varying float vV; void main(){ vV = uv.y; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+    fragmentShader: 'uniform float uHead; varying float vV; void main(){ gl_FragColor = vec4(vec3(0.8, 0.9, 1.0) * pow(vV, 1.6) * uHead * 0.16, 1.0); }'
+  });
+  [0.68, -0.68].forEach(z => { const b = new T.Mesh(coneG, beamMat); b.position.set(2.12, 0.49, z); b.rotation.z = -0.06; rig.add(b); });
+  const beams = rig.children.filter(o => o.isMesh);
+
+  /* Camera choreography */
+  let rs = 1, hs = 1, curve = null;
+  const LOOK_TOWER = V(0, 85, 0);
+  const R1 = Math.hypot(7, 8);
+  const az1 = Math.atan2(8, 7), az2 = Math.atan2(2.2, -7.5), az3 = az2 + 2.35, az4 = az3 + 1.62;
+  const camPos = V(0, 0, 0), camTgt = V(0, 0, 0), tmp = V(0, 0, 0);
+  const orbit = (out, az, r, h) => out.set(C.x + Math.cos(az) * r * rs, C.y + h * hs, C.z + Math.sin(az) * r * rs);
+  function buildCurve() {
+    curve = new T.CatmullRomCurve3([V(-70, 232, 365), V(-28, 168, 245), V(40, 118, 172), V(C.x + 34, C.y + 28, C.z + 46), orbit(V(0, 0, 0), az1, R1, 2.2)], false, 'centripetal');
+  }
+  function resize() {
+    const w = innerWidth, h = innerHeight, aspect = w / h;
+    renderer.setSize(w, h, false);
+    camera.aspect = aspect; camera.fov = w < 768 ? 50 : 40; camera.updateProjectionMatrix();
+    rs = aspect >= 1.2 ? 1 : Math.min(1.9, 1.2 / aspect); hs = Math.sqrt(rs);
+    buildCurve();
+  }
+  resize();
+
+  const tmpV = V(0, 0, 0), centreV = V(0, 0, 0);
+  const callouts = $$('.callout').map(el => ({ el, a: carData.anchors[el.dataset.anchor] }));
+  let calloutsShown = true;
+  function placeCallouts(explode) {
+    const show = sm(0.6, 0.92, explode);
+    if (narrow() || show < 0.002) {
+      if (calloutsShown) { callouts.forEach(c => { c.el.style.opacity = '0'; }); calloutsShown = false; }
+      return;
+    }
+    calloutsShown = true;
+    const ee = (() => { const x = clamp01(explode * 1.3 - 0.15); return x * x * (3 - 2 * x); })();
+    centreV.set(0, 0.8, 0).applyMatrix4(rig.matrixWorld).project(camera);
+    const cx = (centreV.x * 0.5 + 0.5) * innerWidth;
+    callouts.forEach(({ el, a }) => {
+      tmpV.set(a.p[0] + a.e[0] * ee, a.p[1] + a.e[1] * ee, a.p[2] + a.e[2] * ee).applyMatrix4(rig.matrixWorld).project(camera);
+      const x = (tmpV.x * 0.5 + 0.5) * innerWidth, y = (-tmpV.y * 0.5 + 0.5) * innerHeight;
+      el.classList.toggle('flip', x < cx);
+      el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+      el.style.opacity = (tmpV.z < 1 ? show : 0).toFixed(3);
+    });
+  }
+
+  let travel = 0, shown = false;
+  function frame(dt, time) {
+    const { c1, c2, c3, c4 } = S;
+    if (!reduced) common.uTime.value = time;
+    const cityK = 1 - sm(0.1, 0.6, c2);
+    const tunnel =Math.max(sm(0.15, 0.4, c2) * (1 - 0.7 * sm(0.8, 1, c2)) * (1 - sm(0, 0.25, c3)), sm(0.55, 0.8, c4) * 0.85);
+    const speed = Math.max(sm(0.12, 0.45, c2) * (1 - 0.6 * sm(0.8, 1, c2)) * (1 - sm(0, 0.25, c3)), sm(0.55, 0.85, c4) * 1.15);
+    const explode = sm(0.25, 0.6, c3) * (1 - sm(0.04, 0.36, c4));
+    const head = sm(0.38, 0.52, c4), launch = sm(0.55, 0.9, c4);
+    if (!reduced) travel += dt * (6 + 75 * speed);
+
+    common.uCity.value = cityK;
+    common.uFogD.value = 0.0021 + (1 - cityK) * 0.004;
+    const cityOn = cityK > 0.003;
+    city.visible = ground.visible = tall.visible = beacons.visible = stars.visible = cityOn;
+    streaks.visible = tunnel > 0.003;
+    streakU.uOpacity.value = tunnel; streakU.uSpeed.value = speed; streakU.uTravel.value = travel;
+    floorU.uPad.value = 1 - sm(0.05, 0.4, c2);
+    floorU.uRoad.value = Math.max(sm(0.3, 0.5, c2) * (1 - sm(0, 0.3, c3)), sm(0.6, 0.85, c4));
+    floorU.uStudio.value = sm(0.1, 0.4, c3) * (1 - 0.7 * sm(0.6, 0.85, c4));
+    floorU.uHead.value = head; floorU.uTravel.value = travel * 0.6;
+    carU.uExplode.value = explode; carU.uForm.value = sm(0.5, 0.92, c1); carU.uHead.value = head;
+    headU.uHead.value = head;
+    glows.visible = head > 0.003; beams.forEach(b => { b.visible = head > 0.003; });
+    rig.position.x = C.x + 0.45 * launch;
+
+    if (c2 <= 0.0001) {
+      curve.getPoint(0.5 - 0.5 * Math.cos(Math.PI * c1), camPos);
+      camTgt.lerpVectors(LOOK_TOWER, tmp.set(C.x, C.y + 0.6, C.z), sm(0.3, 0.95, c1));
+    } else if (c3 <= 0.0001) {
+      const t = sm(0, 0.45, c2);
+      orbit(camPos, lerp(az1, az2, t), lerp(R1, 7.8, t), lerp(2.2, 1.7, t));
+      camTgt.set(C.x + lerp(0, 2.5, t), C.y + lerp(0.6, 0.8, t), C.z);
+      if (!reduced) { camPos.y += Math.sin(time * 31) * 0.012 * speed; camPos.z += Math.sin(time * 23) * 0.012 * speed; }
+    } else if (c4 <= 0.0001) {
+      const t = sm(0, 0.8, c3);
+      orbit(camPos, lerp(az2, az3, t), lerp(7.8, 10.2, t), lerp(1.7, 2.7, t));
+      camTgt.set(C.x + lerp(2.5, 0, t), C.y + 0.8 + 0.7 * explode, C.z);
+    } else {
+      const t = sm(0, 0.5, c4);
+      orbit(camPos, lerp(az3, az4, t), lerp(10.2, 7.4, t) + launch * 1.4, lerp(2.7, 1.15, t) - launch * 0.2);
+      camTgt.set(C.x + lerp(0, 0.9, t), C.y + 0.8 + 0.7 * explode - 0.25 * t, C.z);
+    }
+    camera.position.copy(camPos);
+    camera.lookAt(camTgt);
+
+    const w2 = sm(0, 0.4, c2), w3 = sm(0, 0.4, c3), w4 = sm(0, 0.4, c4);
+    const W = [1 - w2, w2 * (1 - w3), w2 * w3 * (1 - w4), w2 * w3 * w4];
+    const O = innerWidth < 768 ? [[0, 0.1], [0, 0.25], [0, -0.12], [0, 0.2]] : [[-0.07, 0], [0, 0.27], [-0.15, 0.07], [0.13, 0.1]];
+    let ox = 0, oy = 0;
+    W.forEach((w, i) => { ox += w * O[i][0]; oy += w * O[i][1]; });
+    camera.setViewOffset(innerWidth, innerHeight, ox * innerWidth, oy * innerHeight, innerWidth, innerHeight);
+
+    sky.position.copy(camera.position); stars.position.copy(camera.position);
+    renderer.render(scene, camera);
+    placeCallouts(explode);
+    if (!shown) { shown = true; canvas.classList.add('on'); }
+  }
+  return { frame, resize };
+}
+
+let stage = null;
+try {
+  if (window.THREE) stage = initGL($('#stage'));
+} catch (err) {
+  console.warn('3D stage unavailable, showing the static version.', err);
+  stage = null;
+}
+if (!stage) root.classList.add('no-gl');
+else {
+  if (!reduced && hasGSAP) {
+    gsap.ticker.add((time, deltaMs) => stage.frame(Math.min(deltaMs / 1000, 0.05), time));
+  } else {
+    const loop = () => { if (needsRender) { needsRender = false; stage.frame(0, 0); } requestAnimationFrame(loop); };
+    loop();
+  }
+  addEventListener('resize', () => { stage.resize(); needsRender = true; });
+}
+
+if (location.hash && sections.some(s => '#' + s.id === location.hash)) setTimeout(() => goTo(location.hash.slice(1)), 400);
+})();
+</script>
