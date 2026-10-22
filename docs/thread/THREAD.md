@@ -1,7 +1,7 @@
 # Project Thread: LuxuryRental.ae
 
 The full working conversation between Zubair (Adz Tech Solutions) and Claude, 22–23 October 2026 (Asia/Dubai).
-Zubair's messages are verbatim. Claude's replies are reproduced as sent, except the requirements list in section 7, which lives in its own file. Behind-the-scenes tool work is summarised in *italics*.
+Zubair's messages are verbatim. Claude's replies are reproduced as sent, except the requirements list in section 7, which lives in its own file, and sections 10–11, where the replies are condensed. Behind-the-scenes tool work is summarised in *italics*.
 
 ---
 
@@ -314,3 +314,43 @@ Got it. I've saved your answers to the project, and I'll wait for your next inst
 *The GitHub login in the cloud workspace was invalid, Zubair's computer wasn't linked, and no GitHub connector was available. Zubair chose to receive a zipped repo now and have it pushed once his computer is linked. Repo name: `luxuryrental-ae`, private.*
 
 *This repository is the result.*
+
+---
+
+## 10. Repo on GitHub
+
+**Zubair** (attaching the zipped repo):
+> Please go through the attachement. Its a new website project we have started. I have taken this from the Chat mode. Please create a new Repo and have all these files there. And lets continue the thread from this attachement ahaed
+
+*In a Claude Code cloud session, Claude unpacked the zip and checked the git history (6 commits, intact). The session's GitHub app was not allowed to create repositories (403), so Claude asked Zubair to create an empty private repo.*
+
+**Zubair:**
+> i have created luxuryrental-ae repo. Please check and upload
+
+*Claude attached `dev-aafiyahtech/luxuryrental-ae`, confirmed it was empty, and pushed `main` with all 6 original commits unchanged.*
+
+**Claude (condensed):** The repo is live on `main` with the full history. The thread ended with Zubair's answers saved and Claude waiting for the next instruction. Suggested next steps were the logo, fleet and top 5, the image-based car approach and the booking rules.
+
+---
+
+## 11. Project plan
+
+**Zubair:**
+> great now you have the answers to your questions. And Now we have all the skills and agents needed for the project.
+>
+> Please prepare the plan for this project
+>
+> Use suitable agents and skills to prepare the plan
+>
+> We shall be using vercel for production.
+
+*Claude ran seven specialist agents in parallel, each reading the brief, design system and prototype: Software Architect, DevOps Automator, Technical Artist (`image` skill), Pricing Analyst, Legal Compliance Checker, UX Architect (`ui-ux-pro-max`, `site-architecture`, `cro` skills) and SEO Specialist. The Pricing Analyst and SEO Specialist researched the Dubai market on the web. Claude loaded the `launch` skill for phasing and the launch checklist, resolved the points where the sections disagreed, and combined everything into [docs/plan/PROJECT-PLAN.md](../plan/PROJECT-PLAN.md), with the sections in [docs/plan/workstreams/](../plan/workstreams/).*
+
+**Claude (condensed):**
+- **Plan:** launch the full site and booking-request flow on **Thu 26 Nov 2026**, with the homepage chapters as stills. Switch on the cinematic WebGL homepage on **Thu 17 Dec**, before the holiday peak. Payments, analytics and real photos come in Phase 2 (Jan–Feb 2027), and Arabic in Phase 3 (Mar–Apr).
+- **Cars without 3D:** three AI studio images per car. The gold-dust particles are sampled from each car's own image, so a new car takes about an hour of work and no code.
+- **Fleet:** 16 cars, 2 per brand. Top 5: Revuelto, Cullinan Series II, Chiron Super Sport (from a partner, on request), 296 GTS, 750S Spider. Prices run from about AED 1,600 to 7,500 a day including VAT.
+- **Stack:** Vercel Pro (required for commercial use), Next.js, Sanity, Neon Postgres in Frankfurt, Resend. Running cost is about US$30–75 a month at launch, then US$20–60.
+- **Effort:** about 95 ideal days for launch across 7 parallel lanes, plus about 27 for the cinematic stage.
+- **Blocking:** the plan is waiting on Zubair's answers in §9 by Fri 30 Oct. The most urgent are the logo name, fleet confirmation, Bugatti sourcing, prices, the WhatsApp number, account ownership and DNS access.
+

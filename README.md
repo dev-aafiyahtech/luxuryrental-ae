@@ -2,7 +2,7 @@
 
 The world's most beautiful, futuristic luxury car rental website for **Luxuryrentals**, Dubai Silicon Oasis, Dubai.
 
-**Status (23 Oct 2026):** concept direction approved. First homepage prototype built. Client requirements captured; waiting for the next brief.
+**Status (23 Oct 2026):** project plan v1 ready for approval: [docs/plan/PROJECT-PLAN.md](docs/plan/PROJECT-PLAN.md). Target go-live **Thu 26 Nov 2026** on Vercel, with the cinematic homepage switched on **Thu 17 Dec 2026**.
 
 ## Direction
 
@@ -38,6 +38,9 @@ docs/
     MASTER.md                          Design system: source of truth for every page
   brief/requirements-checklist.md      What the client needs to supply
   brief/requirements-answers.md        The client's answers (23 Oct 2026)
+  plan/PROJECT-PLAN.md                 Project plan: scope, decisions, timeline, budget, launch checklist
+  plan/workstreams/                    The 7 specialist sections behind the plan (architecture, Vercel,
+                                       car visuals, fleet and pricing, booking rules, UX, SEO)
 prototype/
   index.html                           Standalone prototype; open in a browser
   artifact-source.html                 The same page as published to Claude (no html/head/body wrapper)
@@ -60,13 +63,12 @@ tools/
 | 22 Oct 2026 | Silent Thunder removed; the finale becomes Kinetic Sculpture reassembly + Velocity Tunnel launch |
 | 23 Oct 2026 | First prototype published; direction approved by Zubair |
 | 23 Oct 2026 | Client answers captured: 16 cars from 8 brands, pick a top 5, estimate pricing, WhatsApp bookings, no 3D budget (use AI images), simulate payments, English first with Arabic planned |
+| 23 Oct 2026 | Repo moved to GitHub (`dev-aafiyahtech/luxuryrental-ae`); Vercel confirmed for production |
+| 23 Oct 2026 | Project plan v1 drafted: image-sampled particle cars instead of 3D, booking requests handed to WhatsApp, Vercel Pro + Sanity + Neon (Frankfurt), launch 26 Nov, cinematic 17 Dec. Awaiting Zubair's approval and the answers in plan §9 |
 
 ## Open items
 
-- **No 3D models and no 3D budget.** The fleet changes often, so the car scenes need an image-based approach that works with AI-generated car images.
-- SVG logo, fleet of 16 cars, top-5 hero picks, price estimates.
-- Assumed booking rules, policies, cancellation terms and chauffeur pricing.
-- Simulated payments; simulated About, FAQ and contact copy with placeholders.
+The decisions needed from Zubair are listed in order in [plan §9](docs/plan/PROJECT-PLAN.md#9-decisions-needed-from-zubair). The most urgent are the logo name, fleet confirmation (with 5 phone photos per car), Bugatti sourcing, prices, the WhatsApp number, account ownership and DNS access.
 
 ## Owner
 

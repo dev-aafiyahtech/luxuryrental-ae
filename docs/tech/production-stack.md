@@ -2,6 +2,8 @@
 
 Recommended 22 Oct 2026, then revised the same day with the UI/UX Pro Max skill (see [tools/ui-ux-pro-max.md](../../tools/ui-ux-pro-max.md)).
 
+> **Superseded in part on 23 Oct 2026 by the [project plan](../plan/PROJECT-PLAN.md#4-decisions).** The 3D asset row (Blender → glTF) is replaced by AI images with image-sampled particles ([car visuals](../plan/workstreams/03-car-visuals.md)). Booking is a request handed to WhatsApp, and payments use a mock adapter until the gateway is chosen. Hosting is Vercel Pro, with Neon Postgres in Frankfurt and Resend for email. The full stack is in the [architecture section](../plan/workstreams/01-architecture.md).
+
 **Approach:** a custom-coded site with real-time 3D, not a template or no-code builder.
 
 | Layer | Choice | Why |
@@ -36,5 +38,5 @@ Recommended 22 Oct 2026, then revised the same day with the UI/UX Pro Max skill 
 - Booking section loads in under 2.5 s, even if cinematic parts load later.
 - Dates + car → "Reserve" in three taps or fewer.
 
-## Open item (from client answers, 23 Oct 2026)
-The client has **no 3D models and no 3D budget**, and the fleet changes often. The 3D-car parts of this stack need an image-based alternative. See [requirements-answers.md](../brief/requirements-answers.md).
+## Open item (from client answers, 23 Oct 2026): resolved
+The client has **no 3D models and no 3D budget**, and the fleet changes often. Resolved in the plan: each car is a few AI studio images, and the particle car is sampled from them. See [03 Car visuals](../plan/workstreams/03-car-visuals.md).
