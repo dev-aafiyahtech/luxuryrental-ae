@@ -4,6 +4,7 @@ import Link from "next/link";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { ArrowRight, CalendarDays, PencilLine } from "lucide-react";
 import { categories } from "@/content/brands";
 import { getCar } from "@/content/cars";
@@ -15,7 +16,7 @@ import { BottomSheet } from "./BottomSheet";
 import { DateChips } from "./DateChips";
 import { DateRangePicker } from "./DateRangePicker";
 import { TimeSelect } from "./TimeSelect";
-import { useDockHeight, useMediaQuery, useNow } from "./hooks";
+import { useDockHeight, useMediaQuery, useNow, usePortalTarget } from "./hooks";
 import { bumpTime, deliveryZones, earliestAfter, isReplyOutOfHours, maxDate } from "./lib";
 
 export interface DockProps {
@@ -46,7 +47,8 @@ export function Dock({ hidden, className }: DockProps) {
   const [type, setType] = useState("");
   const [sheet, setSheet] = useState<null | "dates" | "trip">(null);
   const ready = hydrated && now > 0;
-  useDockHeight(ref, !hidden);
+  const target = usePortalTarget();
+  useDockHeight(ref, !hidden && !!target);
 
   const nowDate = new Date(now);
   const today = ready ? todayInDubai(nowDate) : "";
@@ -128,7 +130,8 @@ export function Dock({ hidden, className }: DockProps) {
   const fieldLabel = "ps-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted";
   const dateButton = "flex min-h-11 w-full items-center gap-2 rounded-xl border border-input bg-card px-3 text-start text-[15px] font-medium tabular hover:border-muted";
 
-  return (
+  if (!target) return null;
+  return createPortal(
     <>
       <div ref={ref} hidden={hidden} className={clsx("pointer-events-none fixed inset-x-0 bottom-0 z-[var(--z-dock)] px-3 pb-[max(12px,env(safe-area-inset-bottom))] sm:px-4 lg:pb-5", className)}>
         {/* Desktop panel */}
@@ -209,6 +212,7 @@ export function Dock({ hidden, className }: DockProps) {
           </div>
         </div>
       </BottomSheet>
-    </>
+    </>,
+    target,
   );
 }

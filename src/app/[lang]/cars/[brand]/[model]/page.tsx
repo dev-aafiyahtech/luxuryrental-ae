@@ -44,7 +44,7 @@ function metaFor(car: Car, today: string, t: T) {
 export async function generateMetadata({ params }: PageProps<"/[lang]/cars/[brand]/[model]">): Promise<Metadata> {
   const { brand, model } = await params;
   const car = getCarByPath(brand, model);
-  if (!car) return {};
+  if (!car) notFound();
   const [t, href, today] = await Promise.all([getT("fleet"), getHref(), getToday()]);
   const { title, description } = metaFor(car, today, t);
   const url = href(carPath(car));
@@ -90,10 +90,8 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
 
   // Mobile sticky bar: chauffeur-first for the Phantom, concierge for Bugatti, Reserve otherwise.
   const sticky = car.chauffeurFirst && car.chauffeur
-    ? { price: t("car.stickyPriceHour", { price: formatAED(car.chauffeur.hourly) }), note: t("car.chauffeurPanelPrice", { price: formatAED(car.chauffeur.hourly), hours: rules.chauffeur.minHours }).split(" · ")[1], ctaLabel: t("car.bookChauffeur"), ctaHref: href(`/book/trip?car=${car.slug}&service=chauffeur`) }
-    : car.rates.onRequest
-      ? { price: t("car.stickyOnRequest", { price: formatAED(price) }), note: t("car.inclVat"), ctaLabel: t("car.request"), ctaHref: href(`/book/trip?car=${car.slug}`) }
-      : { price: t("car.stickyPrice", { price: formatAED(price) }), note: t("car.inclVat"), ctaLabel: t("car.reserve"), ctaHref: href(`/book/trip?car=${car.slug}`) };
+    ? { price: t("car.stickyHour", { price: formatAED(car.chauffeur.hourly) }), note: t("car.stickyNoteHour", { hours: rules.chauffeur.minHours }), ctaLabel: t("car.stickyChauffeurCta"), ctaHref: href(`/book/trip?car=${car.slug}&service=chauffeur`) }
+    : { price: t("car.stickyDay", { price: formatAED(price) }), note: car.rates.onRequest ? t("car.stickyNoteRequest") : t("car.stickyNote"), ctaLabel: car.rates.onRequest ? t("car.request") : t("car.reserve"), ctaHref: href(`/book/trip?car=${car.slug}`) };
 
   return (
     <>
@@ -141,7 +139,18 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
               </h1>
               <p className="lede">{car.tagline}</p>
               <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-                <PriceFrom car={car} today={today} size="lg" />
+                {car.chauffeurFirst && car.chauffeur ? (
+                  <div className="grid gap-1">
+                    <p className="flex flex-wrap items-baseline gap-x-2 gap-y-1 tabular">
+                      <span className="text-[12px] font-medium uppercase tracking-[0.08em] text-muted">{t("car.from")}</span>
+                      <span className="text-2xl font-semibold">{formatAED(car.chauffeur.hourly)}</span>
+                      <span className="text-[12px] text-muted">{t("car.perHourChauffeur")}</span>
+                    </p>
+                    <p className="text-[13px] text-muted tabular">{t("car.selfDriveFrom", { price: formatAED(price) })}</p>
+                  </div>
+                ) : (
+                  <PriceFrom car={car} today={today} size="lg" />
+                )}
                 {car.chauffeur && (
                   <p className="flex items-center gap-2 text-sm text-champagne">
                     <UserRound className="h-4 w-4 text-accent" aria-hidden="true" />

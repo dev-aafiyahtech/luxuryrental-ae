@@ -9,7 +9,7 @@ import { fromPrice, lowestFrom } from "@/lib/pricing";
 import { formatDayLong } from "@/lib/dates";
 import { formatAED, formatNumber } from "@/lib/format";
 import { feeGroups, ladderRows, nextSeasonChange, pricingCars, pricingMeta, seasonRows, validOffers, dayMonth } from "@/content/pages/pricing";
-import { commonKmPerDay, factsUpdated, monthStamp, tierName } from "@/content/pages/shared";
+import { commonKmPerDay, factsUpdated, monthStamp, seasonLabel, tierName } from "@/content/pages/shared";
 import { ContentHero, CtaBand, KeyFacts, LastUpdated, OfferNotice, Section, WhatsAppButton } from "@/components/content/blocks";
 import { FactTable, CellNote } from "@/components/content/FactTable";
 import { JsonLd, breadcrumbLd, graph } from "@/components/content/JsonLd";
@@ -72,7 +72,7 @@ export default async function PricingPage() {
           <KeyFacts
             label="Prices at a glance"
             items={[
-              { label: "Daily rates from", value: formatAED(lowestFrom(selfDrive, today)), note: `${season.name} season` },
+              { label: "Daily rates from", value: formatAED(lowestFrom(selfDrive, today)), note: seasonLabel(season).replace(/^./, (ch) => ch.toUpperCase()) },
               { label: "Deposits from", value: formatAED(Math.min(...cars.map((c) => c.rates.deposit))), note: "Refundable card hold" },
               { label: "Included", value: `${km} km / day`, note: "On most cars" },
               { label: "VAT", value: `${site.vatRate}% included`, note: "In every price shown" },
@@ -89,8 +89,8 @@ export default async function PricingPage() {
         intro={
           <>
             <p>
-              Today, {formatDayLong(today)}, is in the <strong className="text-fg">{season.name.toLowerCase()}</strong> season
-              {change ? <>; the {change.season.name.toLowerCase()} season starts on {dayMonth(change.date)}</> : null}. The &ldquo;Today&rdquo; column shows the daily rate for a pickup today.
+              Today, {formatDayLong(today)}, is in the <strong className="text-fg">{seasonLabel(season)}</strong>
+              {change ? <>; the {seasonLabel(change.season)} starts on {dayMonth(change.date)}</> : null}. The &ldquo;Today&rdquo; column shows the daily rate for a pickup today.
             </p>
           </>
         }

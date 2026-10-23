@@ -22,7 +22,7 @@ export function BrandModelCard({ car, today, href, t }: { car: Car; today: strin
   return (
     <article className="card card-hover group relative grid overflow-hidden" data-car={car.slug}>
       <div className="relative">
-        <CarArt car={car} view="hero" className="aspect-[16/10] w-full" sizes="(min-width: 1024px) 50vw, 100vw" />
+        <CarArt car={car} view="hero" className="aspect-[2/1] w-full" sizes="(min-width: 1024px) 50vw, 100vw" />
         {car.heroRank && <span className="badge absolute start-4 top-4">{t("car.featured")}</span>}
       </div>
       <div className="grid gap-4 p-6 md:p-8">

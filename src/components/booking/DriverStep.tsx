@@ -112,11 +112,11 @@ export function DriverStep() {
           </Section>
         )}
 
-        <Section legend={t("driver.notes")}>
+        <div className="grid gap-5 border-t border-line pt-6">
           <Field id="driver-notes" label={t("driver.notes")} optional hint={t("driver.notesHint")}>
             <textarea id="driver-notes" className="input" rows={3} value={d.notes ?? ""} onChange={(e) => set({ notes: e.target.value })} aria-describedby="driver-notes-hint" maxLength={600} />
           </Field>
-        </Section>
+        </div>
 
         <div className="card flex items-start gap-3 p-4">
           <FileCheck2 className="mt-0.5 h-5 w-5 flex-none text-accent" aria-hidden="true" />

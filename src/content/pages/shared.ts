@@ -179,3 +179,9 @@ export const peakWeekendMinDays = () => {
   while (dayOfWeek(d) !== 5) d = addDays(d, 1);
   return minDaysFor(flagshipCars()[0], d);
 };
+
+/** "standard season", "peak season", "festive peak season" (lower case, for sentences). */
+export const seasonLabel = (s: Season) => {
+  const name = s.name.toLowerCase();
+  return name.endsWith("season") ? name : `${name} season`;
+};

@@ -20,7 +20,7 @@ export function CarStickyBar({ price, note, ctaLabel, ctaHref, watchId, external
     return () => io.disconnect();
   }, [watchId]);
 
-  const cta = "btn btn-primary btn-sm flex-none";
+  const cta = "btn btn-primary btn-sm flex-none px-5";
   return (
     <div
       className={clsx(
@@ -30,8 +30,8 @@ export function CarStickyBar({ price, note, ctaLabel, ctaHref, watchId, external
       aria-hidden={hidden || undefined}
     >
       <p className="grid min-w-0 gap-0.5">
-        <span className="truncate text-[15px] font-semibold tabular">{price}</span>
-        {note && <span className="truncate text-[11px] text-muted">{note}</span>}
+        {note && <span className="truncate text-[11px] uppercase tracking-[0.08em] text-muted">{note}</span>}
+        <span className="truncate text-[16px] font-semibold tabular">{price}</span>
       </p>
       {external ? (
         <a href={ctaHref} target="_blank" rel="noopener noreferrer" className={cta} tabIndex={hidden ? -1 : undefined}>{ctaLabel}</a>

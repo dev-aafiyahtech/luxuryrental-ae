@@ -126,9 +126,6 @@
     "seatsUnit": "seats",
     "bookingLabel": "Book the {model}",
     "reserveEyebrow": "Your request",
-    "stickyPrice": "From {price} / day",
-    "stickyPriceHour": "From {price} / hour",
-    "stickyOnRequest": "On request · from {price} / day",
     "kineticLede": "The {model}, taken apart into the numbers that matter.",
     "parts": {
       "powertrain": "Powertrain",
@@ -236,7 +233,15 @@
       "deposit": "{amount} deposit, card hold"
     },
     "replyPromise": "Sending a request is free and nothing is charged here.",
-    "linksTitle": "Keep exploring"
+    "linksTitle": "Keep exploring",
+    "stickyDay": "{price} / day",
+    "stickyHour": "{price} / hour",
+    "stickyNote": "From · incl. VAT",
+    "stickyNoteHour": "From · {hours} h minimum",
+    "stickyNoteRequest": "On request · from, incl. VAT",
+    "perHourChauffeur": "/ hour with chauffeur",
+    "selfDriveFrom": "Self-drive on approval, from {price} / day",
+    "stickyChauffeurCta": "Book chauffeur"
   },
   "brand": {
     "title": "Rent a {brand} in Dubai",

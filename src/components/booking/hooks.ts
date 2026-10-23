@@ -148,3 +148,12 @@ export function useDockHeight(ref: RefObject<HTMLElement | null>, active = true)
     };
   }, [ref, active]);
 }
+
+/**
+ * document.body once hydrated (null before). Fixed bars render into it through a portal:
+ * <main> is its own stacking context, so a fixed bar inside it would sit under the footer.
+ */
+export function usePortalTarget(): HTMLElement | null {
+  const hydrated = useHydrated();
+  return hydrated ? document.body : null;
+}

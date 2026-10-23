@@ -106,6 +106,7 @@
     "free": "Free",
     "included": "Included",
     "deposit": "Refundable deposit, held on your card at handover",
+    "depositShort": "Refundable deposit",
     "depositNote": "A hold, not a payment. Released {days} days after return, less any fines or tolls.",
     "noDeposit": "No security deposit for chauffeur bookings.",
     "km": "{km} km included, then AED {fee} per km",
@@ -172,7 +173,7 @@
     "datesTitle": "Your dates",
     "done": "Done",
     "continue": "Continue your {car} request",
-    "replies": "We reply on WhatsApp within about an hour, 09:00–22:00.",
+    "replies": "We reply on WhatsApp, usually within 1 hour, 09:00–22:00.",
     "repliesOoh": "Replies from 09:00. You can still send your request now."
   },
   "flow": {
@@ -493,6 +494,8 @@
     "emailActions": "One-click actions (signed links, single use)",
     "emailNote": "In production these links open a confirmation page; the change happens only when you press the button there.",
     "openCustomer": "Customer's status page",
+    "consentAck": "Terms acknowledged",
+    "consentMarketing": "Marketing",
     "done": "Updated {ref}: {status}.",
     "failed": "Couldn't update {ref}: {error}"
   },

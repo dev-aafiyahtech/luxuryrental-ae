@@ -295,7 +295,7 @@ export function TripStep() {
               )}
             </Section>
 
-            <Section legend={t("trip.pickupZone")}>
+            <Section legend={t("trip.pickup")}>
               <ZoneFields
                 prefix="trip"
                 list={deliveryZones}

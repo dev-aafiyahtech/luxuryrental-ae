@@ -300,7 +300,7 @@ export function ConciergePanel({ car, today, t, href, className }: { car: Car; t
   return (
     <div className={clsx("glass grid gap-5 p-6", className)}>
       <div className="grid gap-2">
-        <p className="eyebrow"><span className="num">H</span>{t("car.conciergeEyebrow")}</p>
+        <p className="eyebrow">{t("car.conciergeEyebrow")}</p>
         <p className="display-sm">{t("car.conciergeTitle")}</p>
         <p className="font-semibold tabular text-accent-hover">{t("car.conciergePrice", { price })}</p>
         <p className="text-[14px] text-muted">{t("car.conciergeBody")}</p>

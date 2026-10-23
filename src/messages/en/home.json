@@ -86,9 +86,18 @@
     "eyebrow": "How it works",
     "title": "Three steps to the keys",
     "steps": {
-      "pick": { "title": "Pick a car and dates", "body": "Choose from {cars} cars and tell us where to bring it: your hotel, your villa or the arrivals hall at DXB or DWC." },
-      "request": { "title": "Send a request, nothing is charged", "body": "Add your details and send the request. Nothing is charged on this website." },
-      "confirm": { "title": "Confirm on WhatsApp", "body": "{reply} Once we confirm, pay at handover or by secure link." }
+      "pick": {
+        "title": "Pick a car and dates",
+        "body": "Choose from {cars} cars and tell us where to bring it: your hotel, your villa or the arrivals hall at DXB or DWC."
+      },
+      "request": {
+        "title": "Send a request, nothing is charged",
+        "body": "Add your details and send the request. Nothing is charged on this website."
+      },
+      "confirm": {
+        "title": "Confirm on WhatsApp",
+        "body": "{reply} Once we confirm, pay at handover or by secure link."
+      }
     },
     "cta": "Start a request"
   },
@@ -96,9 +105,18 @@
     "eyebrow": "Delivery",
     "title": "Delivered across Dubai",
     "lede": "We're based in Dubai Silicon Oasis and bring the car to you, wherever you're staying.",
-    "base": { "title": "Our office", "body": "Collect and return at Dubai Silicon Oasis at no charge." },
-    "city": { "title": "Anywhere in Dubai", "body": "Free for rentals of {days} days or more, {fee} each way for shorter ones." },
-    "airport": { "title": "DXB and DWC", "body": "Meet-and-greet at arrivals, {fee} each way, airport parking included. We track your flight." },
+    "base": {
+      "title": "Our office",
+      "body": "Collect and return at Dubai Silicon Oasis at no charge."
+    },
+    "city": {
+      "title": "Anywhere in Dubai",
+      "body": "Free for rentals of {days} days or more, {fee} each way for shorter ones."
+    },
+    "airport": {
+      "title": "DXB and DWC",
+      "body": "Meet-and-greet at arrivals, {fee} each way, airport parking included. We track your flight."
+    },
     "cta": "Delivery zones and fees"
   },
   "trust": {
@@ -115,7 +133,8 @@
     },
     "deposit": {
       "q": "Is there a deposit?",
-      "a": "Yes. A refundable hold of {from} to {to} is placed on your card at handover, depending on the car, and shown separately from the price. We release it {days} days after the rental ends."
+      "a": "Yes. A refundable hold of {from} to {to} is placed on your card at handover, depending on the car, and shown separately from the price. We release it {days} days after the rental ends.",
+      "hyper": "Bugatti: {amount}, released after {days} days."
     },
     "airport": {
       "q": "Can you deliver to the airport?",

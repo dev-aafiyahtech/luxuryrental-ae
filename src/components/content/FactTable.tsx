@@ -98,7 +98,7 @@ export function FactTable({
                         "border-b border-line bg-card px-4 py-3.5 align-top transition-colors first:ps-5 last:pe-5 group-last/row:border-b-0 group-hover/row:bg-elevated/40",
                         alignCls(columns[i]),
                         i === 0 ? "font-semibold text-fg" : "text-champagne",
-                        i === 0 && !stack && "sticky start-0 z-[1] min-w-[11rem] border-e",
+                        i === 0 && !stack && "sticky start-0 z-[1] min-w-[8.5rem] border-e sm:min-w-[11rem]",
                         i > 0 && !stack && "whitespace-nowrap",
                         stack && i === 0 && "max-md:border-b max-md:bg-elevated/50 max-md:text-[15px]",
                         stack && i > 0 && "max-md:flex max-md:items-baseline max-md:justify-between max-md:gap-4 max-md:text-end max-md:before:shrink-0 max-md:before:text-start max-md:before:text-[11px] max-md:before:font-semibold max-md:before:uppercase max-md:before:tracking-[0.14em] max-md:before:text-muted max-md:before:content-[attr(data-label)] max-md:last:border-b-0",

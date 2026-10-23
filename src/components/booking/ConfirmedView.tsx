@@ -160,7 +160,7 @@ export function ConfirmedView() {
               { label: t("review.when"), value: <span className="tabular">{lines.when}</span> },
               { label: t("review.handover"), value: lines.where },
               { label: t("quote.total"), value: <span className="font-semibold tabular">{record.quote.onRequest ? `${t("quote.totalFrom")} ` : ""}{formatAED(record.quote.total)} <span className="font-normal text-muted">{t("quote.inclVat")}</span></span> },
-              { label: t("quote.deposit"), value: record.quote.deposit ? <span className="tabular">{formatAED(record.quote.deposit)}</span> : "" },
+              { label: t("quote.depositShort"), value: record.quote.deposit ? <span className="tabular">{formatAED(record.quote.deposit)}</span> : "" },
             ]}
           />
           {car && <p className="fine">{t("quote.nothingCharged")}</p>}

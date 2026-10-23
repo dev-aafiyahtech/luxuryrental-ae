@@ -2,6 +2,7 @@
 
 import clsx from "clsx";
 import { useCallback, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { ChevronUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { Car } from "@/content/types";
@@ -16,7 +17,7 @@ import { BottomSheet } from "./BottomSheet";
 import { ErrorSummary, type FormError } from "./ErrorSummary";
 import { QuoteTable, TotalText } from "./QuoteTable";
 import { FinishOnWhatsApp, StepHeader } from "./bits";
-import { useDockHeight, useDraftQuote, useFlowCar, useReducedMotion } from "./hooks";
+import { useDockHeight, useDraftQuote, useFlowCar, usePortalTarget, useReducedMotion } from "./hooks";
 import { fullDraftMessage, packageText, stepPath, zoneName, type StepId } from "./lib";
 
 /** Short "when" and "where" lines for a draft. */
@@ -63,8 +64,10 @@ export function QuoteSummary({ car, trip, quote, service, className }: { car: Ca
 export function ActionBar({ quote, formId, label, busy, onDetails, disabled }: { quote: Quote | null; formId: string; label: string; busy?: boolean; onDetails: () => void; disabled?: boolean }) {
   const t = useT("booking");
   const ref = useRef<HTMLDivElement>(null);
-  useDockHeight(ref);
-  return (
+  const target = usePortalTarget();
+  useDockHeight(ref, !!target);
+  if (!target) return null;
+  return createPortal(
     <div ref={ref} className="fixed inset-x-0 bottom-0 z-[var(--z-dock)] border-t border-line bg-card/95 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-12px_40px_rgba(0,0,0,0.5)] lg:hidden">
       <div className="container-site flex items-center gap-3">
         <button type="button" onClick={onDetails} className="grid min-h-12 min-w-0 flex-1 justify-items-start rounded-xl px-1 text-start" aria-haspopup="dialog">
@@ -81,7 +84,8 @@ export function ActionBar({ quote, formId, label, busy, onDetails, disabled }: {
           {label}
         </button>
       </div>
-    </div>
+    </div>,
+    target,
   );
 }
 
