@@ -29,7 +29,9 @@ export function ContactForm() {
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
   const timer = useRef<number | undefined>(undefined);
-  const refs = { name: useRef<HTMLInputElement>(null), mobile: useRef<HTMLInputElement>(null), message: useRef<HTMLTextAreaElement>(null) };
+  const nameRef = useRef<HTMLInputElement>(null);
+  const mobileRef = useRef<HTMLInputElement>(null);
+  const messageRef = useRef<HTMLTextAreaElement>(null);
   const statusRef = useRef<HTMLDivElement>(null);
 
   // Clear the pending "send" if the page unmounts or is hidden by <Activity>.
@@ -50,7 +52,8 @@ export function ContactForm() {
     setErrors(next);
     const first = (["name", "mobile", "message"] as Field[]).find((f) => next[f]);
     if (first) {
-      refs[first].current?.focus();
+      const target = first === "name" ? nameRef.current : first === "mobile" ? mobileRef.current : messageRef.current;
+      target?.focus();
       return;
     }
     setBusy(true);
@@ -87,20 +90,20 @@ export function ContactForm() {
 
       <div className="field">
         <label htmlFor={`${id}-name`}>Name</label>
-        <input ref={refs.name} id={`${id}-name`} name="name" className="input" autoComplete="name" value={values.name} onChange={set("name")} aria-invalid={!!errors.name || undefined} aria-describedby={describedBy("name")} />
+        <input ref={nameRef} id={`${id}-name`} name="name" className="input" autoComplete="name" value={values.name} onChange={set("name")} aria-invalid={!!errors.name || undefined} aria-describedby={describedBy("name")} />
         {errors.name && <p id={`${id}-name-error`} className="field-error">{errors.name}</p>}
       </div>
 
       <div className="field">
         <label htmlFor={`${id}-mobile`}>Mobile or WhatsApp</label>
-        <input ref={refs.mobile} id={`${id}-mobile`} name="mobile" type="tel" inputMode="tel" className="input" autoComplete="tel" placeholder="+971 50 123 4567" value={values.mobile} onChange={set("mobile")} aria-invalid={!!errors.mobile || undefined} aria-describedby={describedBy("mobile", true)} />
+        <input ref={mobileRef} id={`${id}-mobile`} name="mobile" type="tel" inputMode="tel" className="input" autoComplete="tel" placeholder="+971 50 123 4567" value={values.mobile} onChange={set("mobile")} aria-invalid={!!errors.mobile || undefined} aria-describedby={describedBy("mobile", true)} />
         <p id={`${id}-mobile-hint`} className="field-hint">With the country code.</p>
         {errors.mobile && <p id={`${id}-mobile-error`} className="field-error">{errors.mobile}</p>}
       </div>
 
       <div className="field">
         <label htmlFor={`${id}-message`}>Message</label>
-        <textarea ref={refs.message} id={`${id}-message`} name="message" rows={5} className="input" value={values.message} onChange={set("message")} aria-invalid={!!errors.message || undefined} aria-describedby={describedBy("message", true)} />
+        <textarea ref={messageRef} id={`${id}-message`} name="message" rows={5} className="input" value={values.message} onChange={set("message")} aria-invalid={!!errors.message || undefined} aria-describedby={describedBy("message", true)} />
         <p id={`${id}-message-hint`} className="field-hint">The car and dates help us answer faster. Please don&apos;t include card details.</p>
         {errors.message && <p id={`${id}-message-error`} className="field-error">{errors.message}</p>}
       </div>

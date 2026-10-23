@@ -14,8 +14,8 @@ export function whatsappHref(text?: string): string {
 function handoverText(trip: TripDraft): string {
   if (trip.service === "chauffeur") return `Pickup: ${getZone(trip.pickup.zone)?.name ?? trip.pickup.zone}${trip.pickup.address ? `, ${trip.pickup.address}` : ""}`;
   if (trip.handover === "collect") return "Handover: Collect at Dubai Silicon Oasis";
-  const zone = getZone(trip.pickup.zone)?.name ?? trip.pickup.zone;
-  return `Handover: Delivery to ${zone}${trip.pickup.address ? `, ${trip.pickup.address}` : ""}${trip.pickup.flight ? ` (flight ${trip.pickup.flight})` : ""}`;
+  const zone = trip.pickup.zone === "dubai" ? "in Dubai" : `to ${getZone(trip.pickup.zone)?.name ?? trip.pickup.zone}`;
+  return `Handover: Delivery ${zone}${trip.pickup.address ? `, ${trip.pickup.address}` : ""}${trip.pickup.flight ? ` (flight ${trip.pickup.flight})` : ""}`;
 }
 
 /** Message for a stored booking request. */
