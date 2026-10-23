@@ -30,7 +30,7 @@ export const aboutPage = {
   cta: `Browse all ${word(cars.length)} cars with their daily rates, deposits and included kilometres, then send a request for your dates.`,
   story: [
     `${site.businessName} is a car rental company based in Dubai Silicon Oasis. We keep a small fleet on purpose: ${word(cars.length)} cars from ${word(brands.length)} brands, from the ${cheapest.name} to the ${halo.name}. We would rather know every car in detail than list hundreds we have never driven.`,
-    `[Founder name] started the company after renting cars in Dubai as a customer. Prices were often shown without VAT, the deposit appeared at the handover, and a booking could turn out to be a different car. We set up ${site.businessName} to work the other way round.`,
+    `Renting a luxury car should not come with surprises: a price that grows when VAT is added, a deposit nobody mentioned, or a different car on the day. ${site.businessName} is set up to work the other way round.`,
     `Every price on this site includes VAT, and the deposit sits next to it before you ask for anything. You send a request. A member of our team checks the car, your dates and your licence, then confirms on WhatsApp. Nothing is booked until we say so, and nothing is charged on this website.`,
     `The cars are kept at our office in Dubai Silicon Oasis, beside the Dubai–Al Ain Road. From there we deliver across Dubai, meet flights at DXB and DWC, and drive out to Sharjah, Abu Dhabi and Hatta. Rentals of ${dubai.freeFromDays} days or more are delivered free anywhere in Dubai.`,
     `Some trips are better with a driver. The ${listJoin(chauffeur)} come with a chauffeur by the hour, for weddings, business days and airport arrivals.`,

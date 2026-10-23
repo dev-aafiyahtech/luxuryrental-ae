@@ -375,3 +375,29 @@ Got it. I've saved your answers to the project, and I'll wait for your next inst
 
 **Claude (condensed):** Answers saved. Waiting for Zubair's review of the plan.
 
+---
+
+## 13. Front-end demo
+
+**Zubair:**
+> let me go through the plan once again. Please be on standby
+
+**Zubair:**
+> ok The plan looks good.
+>
+> The first step is to work on the front end only. Simulate all the flow.
+>
+> ---
+>
+> All the the steps you have suggested are ok
+>
+> Prioratize the front end. Anything bakend and production related do them later
+>
+> The first objective is the working demo (simulation) of the site
+>
+> And begin
+
+*Claude scaffolded a Next.js 16.4 app in the repo (Cache Components, built-in locale routing, Tailwind 4 tokens from MASTER.md), wrote the shared data and logic (the approved fleet and rates, rules, zones, a pure pricing engine, a localStorage booking store that mimics the planned API, WhatsApp message builders, gold line-art car placeholders drawn from body profiles) and a frontend guide, then ran five agents in parallel: homepage (Frontend Developer), fleet and car pages (Frontend Developer), booking flow with ops desk and mock payment (Frontend Developer), content pages and copy (Frontend Developer with the copywriting and schema skills), and the logo (Brand Guardian with the brand and design skills). Container restarts and usage limits interrupted the agents several times; work was checkpointed to GitHub and resumed each time (Zubair: "I hit my usage limit while you were working, but it has reset now. Please continue from where you left off." and later "Try again"). Claude then integrated and checked everything: typecheck, lint, production build, every route at 390 and 1440 px, and the end-to-end booking walk.*
+
+**Claude (condensed):** The demo is built and every flow works in the browser: the cinematic homepage, 30 fleet and car pages, the booking request flow with WhatsApp hand-off, a simulated ops desk, a request status page, a mock payment, and the chauffeur, delivery, pricing, requirements, about, FAQ, contact and draft legal pages, under the new "Corner" logo. AI car images need an image-generation account; gold line-art placeholders fill the image slots until then. How to run it and a demo walk-through are in the README.
+

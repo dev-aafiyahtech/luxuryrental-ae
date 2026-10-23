@@ -72,6 +72,15 @@ If you need a change in one of these, keep it minimal and additive, and say so i
 - Prices are AED including 5% VAT. The deposit is a refundable card hold shown separately.
 - Car images are illustrations until AI images or photos arrive; label them.
 
+## Known gaps (demo phase)
+
+- **CSS modules** return no class names with the current Turbopack + Tailwind loader rule in `next.config.ts`; use Tailwind classes (or fix the rule before relying on modules).
+- Some rule values from workstream 05 that `rules.ts` doesn't hold yet live in `extraRules` in `src/content/pages/shared.ts` (airport waiting fee, late-return %, advance %, refund timing, loss of use). Move them into `rules.ts` when the real rules are confirmed.
+- Dynamic pages read `params` inside `<Suspense>` (Next 16.4 instant navigation), so an unknown slug renders the 404 page with `noindex` but an HTTP 200. Fix with the backend work.
+- The Dock and the car page's mobile bar render into `<body>` after hydration (portals), so they aren't in the server HTML.
+- Booking steps need JavaScript (no Server Actions yet); without it they show a placeholder.
+- The homepage keeps the prototype's orbiting camera; decision D-13 (side-on sculpture for image-based cars) applies when AI images arrive.
+
 ## Ownership during parallel work
 
 | Workstream | Owns |

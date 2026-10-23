@@ -46,6 +46,7 @@ export function PayView() {
     return (
       <div className="container-narrow grid gap-6 pb-24 pt-10">
         {banner}
+        <h1 className="display-md">{t("status.lookupTitle")}</h1>
         <Notice tone="warning" title={t("pay.notFound")} />
         <Link href={href("/booking")} className="btn btn-secondary w-fit">{t("status.lookupTitle")}</Link>
       </div>

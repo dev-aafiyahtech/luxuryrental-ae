@@ -2,7 +2,7 @@
 
 The world's most beautiful, futuristic luxury car rental website for **Luxuryrentals**, Dubai Silicon Oasis, Dubai.
 
-**Status (23 Oct 2026):** project plan v1 ready for approval: [docs/plan/PROJECT-PLAN.md](docs/plan/PROJECT-PLAN.md). Target go-live **Thu 26 Nov 2026** on Vercel, with the cinematic homepage switched on **Thu 17 Dec 2026**.
+**Status (23 Oct 2026):** plan approved ([docs/plan/PROJECT-PLAN.md](docs/plan/PROJECT-PLAN.md)). The **front-end demo** is built: every page and the full booking flow run in the browser, with bookings, the ops team and payments simulated. Backend and production (Vercel, CMS, database, payment gateway) come next.
 
 ## Direction
 
@@ -17,9 +17,31 @@ One continuous scroll story in four chapters, built from three themes:
 
 Black and gold, Syncopate + Montserrat, dark only. Full spec: [docs/design-system/luxuryrental-ae/MASTER.md](docs/design-system/luxuryrental-ae/MASTER.md).
 
+## Run the demo
+
+Needs Node.js 20.9 or later.
+
+```bash
+npm install
+npm run dev        # then open http://localhost:3000
+```
+
+Checks: `npx tsc --noEmit`, `npx eslint src`, `npx next build`, and with the dev server running `node qa/scripts/audit.mjs` (every route at 390 and 1440 px). How the code is organised and the rules for changing it: [docs/dev/FRONTEND-GUIDE.md](docs/dev/FRONTEND-GUIDE.md).
+
+**What's simulated.** Booking requests, ops actions and payments are stored in the browser (`src/lib/booking/store.ts`), so everything works without a server, but each browser has its own data. Every page shows a demo bar. The WhatsApp buttons open a real chat with +971 52 965 2722. Car pictures are gold line-art illustrations in the slots the AI images will fill.
+
+**Demo walk-through**
+1. Home: scroll the four chapters (night skyline, Velocity Tunnel, Kinetic Sculpture with the top-5 tabs, Reserve). "Pause motion" sits in the chapter rail.
+2. Fleet (`/cars`): filter by type, price or chauffeur; open a brand or a car.
+3. Car page: pick "This weekend" in the reserve card, then **Reserve**. The request takes four steps (trip, extras, driver, review), then **Send booking request**.
+4. Confirmation: reference number, **Confirm on WhatsApp**, add to calendar, **Track this request**.
+5. Open **Ops view** (top bar) in a second tab and press **Confirm**. The customer's status page updates live.
+6. On the status page, **Pay advance (demo)**: try a failed, then a successful demo payment. No card details are collected.
+7. Also try: the Phantom (chauffeur first), a Bugatti (price on request), `/book/review?fail=1` (send error and retry), and the dock's "Edit trip" on a phone.
+
 ## View the prototype
 
-Open `prototype/index.html` in a browser. It needs an internet connection to load Three.js, GSAP, Lenis and Google Fonts from their CDNs.
+The original concept prototype is still in `prototype/`: open `prototype/index.html` in a browser. It needs an internet connection to load Three.js, GSAP, Lenis and Google Fonts from their CDNs.
 
 The hosted version is a private Claude artifact: https://claude.ai/artifact/A9w1rnorC61uzhPxaMGs6f
 
@@ -42,13 +64,25 @@ docs/
   plan/PROJECT-PLAN.md                 Project plan: scope, decisions, timeline, budget, launch checklist
   plan/workstreams/                    The 7 specialist sections behind the plan (architecture, Vercel,
                                        car visuals, fleet and pricing, booking rules, UX, SEO)
+src/
+  app/[lang]/                          All pages (English at /, Arabic planned at /ar)
+  components/                          UI, layout, car, booking, fleet, home, content, brand
+  content/                             Fleet, brands, zones, rules, site settings, copy (future CMS data)
+  lib/                                 Pricing engine, dates, simulated booking store, WhatsApp links
+  scene/                               WebGL homepage: skyline, tunnel, particle car per body style
+  messages/en/                         UI strings per feature
+public/brand/                          Logo pack and icons
+docs/dev/FRONTEND-GUIDE.md             How the front end is built; rules for changes
+docs/brand/logo.md                     Logo usage sheet (source in docs/brand/source/)
 prototype/
   index.html                           Standalone prototype; open in a browser
   artifact-source.html                 The same page as published to Claude (no html/head/body wrapper)
 qa/
   README.md                            What was tested and what was fixed afterwards
   screenshots/                         Desktop, mobile and reduced-motion renders
-  scripts/shoot.mjs                    Playwright render script
+  scripts/audit.mjs                    Every route at 390 and 1440 px: status, console errors, overflow, H1
+  scripts/snap.mjs                     Screenshot one page of the running dev server
+  scripts/shoot.mjs                    Playwright render script (prototype)
   scripts/contrast.py                  WCAG contrast check for the palette
 tools/
   ui-ux-pro-max.md                     Skill used to generate the design system, with commands
@@ -67,10 +101,15 @@ tools/
 | 23 Oct 2026 | Repo moved to GitHub (`dev-aafiyahtech/luxuryrental-ae`); Vercel confirmed for production |
 | 23 Oct 2026 | Project plan v1 drafted: image-sampled particle cars instead of 3D, booking requests handed to WhatsApp, Vercel Pro + Sanity + Neon (Frankfurt), launch 26 Nov, cinematic 17 Dec. Awaiting Zubair's approval and the answers in plan §9 |
 | 23 Oct 2026 | Plan answers: wordmark "LuxuryRental.ae"; AI images for all 16 cars; Bugatti partner confirmed; top 5 and launch prices approved; WhatsApp +971 52 965 2722; Zubair owns Vercel; DNS access later. Zubair is reviewing the plan |
+| 23 Oct 2026 | Plan approved. First objective: a front-end-only working demo with every flow simulated; backend and production later |
+| 23 Oct 2026 | Front-end demo built: Next.js 16.4, cinematic homepage ported from the prototype, 16 car pages, booking flow with simulated ops desk and payment, content and draft legal pages, logo "Corner" (LR. monogram, gold .ae) |
 
 ## Open items
 
-The decisions needed from Zubair are listed in order in [plan §9](docs/plan/PROJECT-PLAN.md#9-decisions-needed-from-zubair). The most urgent are the logo name, fleet confirmation (with 5 phone photos per car), Bugatti sourcing, prices, the WhatsApp number, account ownership and DNS access.
+- **AI car images:** need an image-generation account (e.g. Gemini or Flux) to produce the 16 sets; until then the line-art placeholders stand in.
+- **Remaining plan §9 questions:** prototype promises (Salik, reply time), payments wording, DSO collection, legal entity, licence and TRN numbers, insurer terms, deposit method, the real legal documents. See [plan §9](docs/plan/PROJECT-PLAN.md#9-decisions-needed-from-zubair).
+- **Logo questions:** minimum size (180 px recommended), lowercase gold ".ae", the OG tagline "Delivered across Dubai", who designs the Arabic lockup. See [docs/brand/logo.md](docs/brand/logo.md).
+- **Content questions:** chauffeur overtime billing, chauffeur trips between emirates, DSO collection and signage, DXB return fee, the real About story.
 
 ## Owner
 

@@ -79,6 +79,7 @@ export function ConfirmedView() {
   if (!ref) {
     return (
       <div className="container-narrow grid gap-6 pb-24 pt-12">
+        <h1 className="display-md">{t("status.lookupTitle")}</h1>
         <Notice tone="info" title={t("confirmed.noRef")} />
         <Link href={href("/booking")} className="btn btn-secondary w-fit">{t("status.lookupTitle")}</Link>
       </div>
