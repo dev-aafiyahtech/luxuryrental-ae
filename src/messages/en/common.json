@@ -1,0 +1,54 @@
+{
+  "demo": {
+    "bar": "Demo site: bookings and payments are simulated. Nothing is booked or charged.",
+    "ops": "Ops view",
+    "reset": "Reset demo"
+  },
+  "nav": {
+    "label": "Main",
+    "fleet": "Fleet",
+    "chauffeur": "Chauffeur",
+    "delivery": "Delivery",
+    "pricing": "Pricing",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "reserve": "Reserve",
+    "menu": "Menu",
+    "close": "Close menu",
+    "whatsapp": "Chat on WhatsApp",
+    "skip": "Skip to content",
+    "brands": "Brands",
+    "types": "Types"
+  },
+  "footer": {
+    "fleet": "Fleet",
+    "services": "Services",
+    "company": "Company",
+    "legal": "Legal",
+    "about": "About",
+    "airport": "Airport handover",
+    "requirements": "Rental requirements",
+    "terms": "Terms of rental",
+    "privacy": "Privacy notice",
+    "cookies": "Cookie policy",
+    "cancellation": "Cancellation and refunds",
+    "termsOfUse": "Website terms of use",
+    "accessibility": "Accessibility",
+    "vat": "Prices in AED, including 5% VAT.",
+    "images": "Car images are illustrations until our photos are ready.",
+    "trademarks": "Ferrari, Lamborghini, Rolls-Royce, Bugatti, McLaren, Bentley, Aston Martin and Maserati are trademarks of their owners. Luxuryrentals is not affiliated with or endorsed by them.",
+    "licence": "Trade licence {licence} · RTA permit {rta} · VAT TRN {trn}",
+    "rights": "© 2026 {name}. All rights reserved."
+  },
+  "car": {
+    "from": "From",
+    "perDay": "/ day",
+    "onRequest": "Price on request",
+    "illustrative": "Illustration. Our car images are being prepared.",
+    "reserve": "Reserve",
+    "details": "See details",
+    "chauffeurAvailable": "Chauffeur available",
+    "newArrival": "New arrival",
+    "featured": "Featured"
+  }
+}

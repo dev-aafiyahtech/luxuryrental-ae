@@ -5,3 +5,10 @@ node_modules/
 .env.*
 .vercel/
 .next/
+/out/
+/build
+/coverage
+*.pem
+*.tsbuildinfo
+next-env.d.ts
+npm-debug.log*
