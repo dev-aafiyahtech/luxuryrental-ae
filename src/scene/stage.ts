@@ -61,7 +61,7 @@ export function createStage(opts: StageOptions): Stage {
   }
   let pixelRatio = Math.min(window.devicePixelRatio || 1, budget.maxPixelRatio);
   renderer.setPixelRatio(pixelRatio);
-  renderer.setClearColor(0x050407, 1);
+  renderer.setClearColor(0x0f2424, 1);
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 2600);

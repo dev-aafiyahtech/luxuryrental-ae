@@ -14,9 +14,9 @@ export const sky = {
     void main(){ vDir = normalize(position); vec4 p = projectionMatrix * modelViewMatrix * vec4(position, 1.0); gl_Position = p.xyww; }`,
   fragment: /* glsl */ `uniform float uCity; varying vec3 vDir;
     void main(){ float h = vDir.y;
-      vec3 col = mix(vec3(0.16, 0.075, 0.02), vec3(0.012, 0.010, 0.020), smoothstep(-0.02, 0.38, h));
-      col += vec3(0.30, 0.13, 0.03) * exp(-abs(h - 0.01) * 22.0) * 0.6;
-      col = mix(vec3(0.020, 0.018, 0.016), col, uCity);
+      vec3 col = mix(vec3(0.10, 0.17, 0.15), vec3(0.016, 0.045, 0.047), smoothstep(-0.02, 0.38, h));
+      col += vec3(0.30, 0.27, 0.19) * exp(-abs(h - 0.01) * 22.0) * 0.6;
+      col = mix(vec3(0.090, 0.190, 0.190), col, uCity);
       gl_FragColor = vec4(col, 1.0); }`,
 };
 
@@ -47,18 +47,18 @@ export const tower = {
     varying vec3 vW; varying vec3 vN; varying float vSeed;
     float hash(vec3 p){ p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
     void main(){
-      vec3 col = vec3(0.028, 0.026, 0.032);
+      vec3 col = vec3(0.024, 0.055, 0.055);
       if (abs(vN.y) < 0.5) {
         vec2 t = normalize(vec2(-vN.z, vN.x));
         vec2 cell = vec2(dot(vW.xz, t) / 1.25, vW.y / 1.6);
         vec2 id = floor(cell), f = fract(cell);
         float win = step(0.16, f.x) * step(f.x, 0.84) * step(0.2, f.y) * step(f.y, 0.8);
         float lit = step(0.6, hash(vec3(id, vSeed * 97.0 + floor(vN.x * 3.0 + vN.z * 5.0))));
-        vec3 warm = mix(vec3(1.0, 0.6, 0.2), vec3(1.0, 0.86, 0.62), hash(vec3(id.yx, vSeed * 13.0)));
+        vec3 warm = mix(vec3(0.96, 0.78, 0.50), vec3(1.0, 0.93, 0.82), hash(vec3(id.yx, vSeed * 13.0)));
         float near = smoothstep(750.0, 220.0, distance(vW, uCam));
         col += warm * (win * lit * (0.5 + 0.5 * hash(vec3(id, 3.1))) * near + 0.2 * (1.0 - near));
-        col += vec3(0.05, 0.04, 0.035) * win * (1.0 - lit) * near;
-        col += vec3(0.71, 0.33, 0.035) * 0.35 * exp(-vW.y * 0.06);
+        col += vec3(0.045, 0.085, 0.085) * win * (1.0 - lit) * near;
+        col += vec3(0.55, 0.50, 0.36) * 0.35 * exp(-vW.y * 0.06);
       } else { col *= 1.4; }
       gl_FragColor = vec4(applyFog(col, vW) * uCity, 1.0);
     }`,
@@ -88,8 +88,8 @@ export const ground = {
       float l2 = ln(gx + 1.4, 42.0, 0.3) * step(0.78, fract((vW.z - uTime * 19.0) / 13.0));
       float l3 = ln(gz - 1.4, 42.0, 0.3) * step(0.78, fract((vW.x + uTime * 20.0) / 12.0));
       float l4 = ln(gz + 1.4, 42.0, 0.3) * step(0.78, fract((vW.x - uTime * 24.0) / 10.0));
-      vec3 col = vec3(0.012, 0.010, 0.010);
-      col += vec3(0.71, 0.33, 0.035) * (maj * 0.5 + mnr * 0.16);
+      vec3 col = vec3(0.014, 0.035, 0.035);
+      col += vec3(0.55, 0.50, 0.36) * (maj * 0.5 + mnr * 0.16);
       col += vec3(1.0, 0.86, 0.62) * (l1 + l3) * 1.1 + vec3(0.98, 0.25, 0.2) * (l2 + l4) * 0.9;
       col *= 1.0 - smoothstep(260.0, 420.0, length(vW.xz)) * 0.6;
       gl_FragColor = vec4(applyFog(col, vW) * uCity, 1.0);
@@ -103,7 +103,7 @@ export const floor = {
     float ring(float r, float at, float w){ return 1.0 - smoothstep(0.0, w, abs(r - at)); }
     void main(){
       float r = length(vP), ang = atan(vP.y, vP.x);
-      vec3 gold = vec3(0.92, 0.70, 0.03), ice = vec3(0.49, 0.83, 0.99), champ = vec3(0.84, 0.83, 0.82);
+      vec3 gold = vec3(0.92, 0.83, 0.62), ice = vec3(0.62, 0.88, 0.88), champ = vec3(0.96, 0.92, 0.86);
       vec3 col = vec3(0.0);
       float pad = ring(r, 6.4, 0.1) + 0.45 * ring(r, 5.5, 0.05) + 0.7 * step(0.5, fract(ang / 6.2831853 * 48.0)) * ring(r, 7.3, 0.06);
       col += gold * pad * uPad;
@@ -133,7 +133,7 @@ export const streaks = {
       vA = mix(1.0, 0.05, aE) * (1.0 - smoothstep(uLen * 0.28, uLen * 0.5, abs(x))) * uOpacity * (0.35 + 0.65 * aS);
       vH = aH;
     }`,
-  fragment: /* glsl */ `varying float vA; varying float vH; void main(){ gl_FragColor = vec4(mix(vec3(0.62, 0.88, 1.0), vec3(0.95, 0.72, 0.12), vH) * vA, 1.0); }`,
+  fragment: /* glsl */ `varying float vA; varying float vH; void main(){ gl_FragColor = vec4(mix(vec3(0.66, 0.90, 0.90), vec3(0.92, 0.83, 0.62), vH) * vA, 1.0); }`,
 };
 
 /**

@@ -68,7 +68,7 @@ export function ActionBar({ quote, formId, label, busy, onDetails, disabled }: {
   useDockHeight(ref, !!target);
   if (!target) return null;
   return createPortal(
-    <div ref={ref} className="fixed inset-x-0 bottom-0 z-[var(--z-dock)] border-t border-line bg-card/95 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-12px_40px_rgba(0,0,0,0.5)] lg:hidden">
+    <div ref={ref} className="fixed inset-x-0 bottom-0 z-[var(--z-dock)] border-t border-line bg-card/95 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-12px_40px_rgba(10,28,28,0.5)] lg:hidden">
       <div className="container-site flex items-center gap-3">
         <button type="button" onClick={onDetails} className="grid min-h-12 min-w-0 flex-1 justify-items-start rounded-xl px-1 text-start" aria-haspopup="dialog">
           <span className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">

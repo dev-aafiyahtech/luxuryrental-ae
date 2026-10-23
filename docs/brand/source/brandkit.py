@@ -18,10 +18,10 @@ from fontTools.pens.svgPathPen import SVGPathPen
 from fontTools.pens.transformPen import TransformPen
 from fontTools.ttLib import TTFont
 
-GOLD = "#CA8A04"      # accent (MASTER.md §3)
-GOLD_HI = "#EAB308"   # accent hover, metallic highlight only
-IVORY = "#FAFAF9"     # foreground
-INK = "#0C0A09"       # background
+GOLD = "#EBDAB0"      # Antique Gold: accent (MASTER.md §3)
+GOLD_HI = "#F6EBCF"   # accent hover, metallic highlight only
+IVORY = "#F4EADE"     # Alabaster: foreground
+INK = "#2C5252"       # Sea Moss: background
 TITLE = "LuxuryRental.ae"
 
 CAP = 1374
@@ -262,15 +262,15 @@ def favicon32(fg=IVORY, ac=GOLD, bg=INK):
 
 
 def metallic(art, pad=50):
-    """Extra only (never the primary): brushed-gold gradient on black."""
+    """Extra only (never the primary): brushed antique-gold gradient on Sea Moss."""
     x0, y0, _, _ = art.bbox
     vb = [x0 - pad, y0 - pad, art.w + 2 * pad, art.h + 2 * pad]
     vbs = " ".join(_num(v, 1) for v in vb)
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{vbs}" role="img"><title>{TITLE}</title>'
             f'<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">'
-            f'<stop offset="0" stop-color="#F6D77A"/><stop offset=".38" stop-color="{GOLD_HI}"/>'
-            f'<stop offset=".52" stop-color="#8F5E02"/><stop offset=".64" stop-color="{GOLD}"/>'
-            f'<stop offset="1" stop-color="#F1CB5C"/></linearGradient></defs>'
+            f'<stop offset="0" stop-color="#F8F0DC"/><stop offset=".38" stop-color="{GOLD_HI}"/>'
+            f'<stop offset=".52" stop-color="#9C8455"/><stop offset=".64" stop-color="{GOLD}"/>'
+            f'<stop offset="1" stop-color="#F2E2BC"/></linearGradient></defs>'
             f'<rect x="{_num(vb[0],1)}" y="{_num(vb[1],1)}" width="{_num(vb[2],1)}" height="{_num(vb[3],1)}" fill="{INK}"/>'
             f'<path fill="url(#g)" d="{"".join(art.fg + art.ac)}"/></svg>')
 
@@ -279,7 +279,7 @@ def metallic(art, pad=50):
 SCHEMES = {
     "primary": (IVORY, GOLD, INK),
     "white": (IVORY, IVORY, None),
-    "black": (INK, INK, None),
+    "moss": (INK, INK, None),
     "gold": (GOLD, GOLD, None),
 }
 
@@ -312,13 +312,13 @@ def build(font_path, out_dir):
     W = art_single(wm)
     M = art_single(mono)
     files = {
-        # primary: ivory letters, gold accent, on #0C0A09 with the clear space built in
+        # primary: Alabaster letters, Antique Gold accent, on Sea Moss with the clear space built in
         "logo-horizontal.svg": svg(H, "primary", pad=100),
         "logo-stacked.svg": svg(S, "primary", pad=150),
         "wordmark.svg": svg(W, "primary", pad=100),
         "monogram.svg": svg(M, "primary", pad=50),
     }
-    for c in ("white", "black", "gold"):
+    for c in ("white", "moss", "gold"):
         files[f"logo-horizontal-{c}.svg"] = svg(H, c)
         files[f"monogram-{c}.svg"] = svg(M, c)
     files["favicon.svg"] = favicon16()

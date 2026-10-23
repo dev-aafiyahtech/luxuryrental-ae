@@ -111,7 +111,7 @@ export function KineticCallouts({ car, t, id }: { car: Car; t: T; id: string }) 
             <span
               key={c.part}
               aria-hidden="true"
-              className="absolute grid h-6 w-6 -translate-x-1/2 sm:h-7 sm:w-7 -translate-y-1/2 place-items-center rounded-full border border-accent bg-bg/85 font-display text-[9px] font-bold text-accent-hover shadow-[0_0_0_5px_rgba(202,138,4,0.14),0_0_24px_rgba(234,179,8,0.35)] rtl:translate-x-1/2"
+              className="absolute grid h-6 w-6 -translate-x-1/2 sm:h-7 sm:w-7 -translate-y-1/2 place-items-center rounded-full border border-accent bg-bg/85 font-display text-[9px] font-bold text-accent-hover shadow-[0_0_0_5px_rgba(235,218,176,0.14),0_0_24px_rgba(246,235,207,0.35)] rtl:translate-x-1/2"
               style={{ insetInlineStart: `${m.x}%`, top: `${m.y}%` }}
             >
               {String(i + 1).padStart(2, "0")}

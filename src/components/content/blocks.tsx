@@ -30,17 +30,17 @@ export function HeroBackdrop() {
   ];
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-      <div className="absolute -top-40 end-[-10%] h-[520px] w-[720px] rounded-full bg-[radial-gradient(closest-side,rgba(180,83,9,0.28),rgba(180,83,9,0.06)_60%,transparent)]" />
+      <div className="absolute -top-40 end-[-10%] h-[520px] w-[720px] rounded-full bg-[radial-gradient(closest-side,rgba(184,151,90,0.28),rgba(184,151,90,0.06)_60%,transparent)]" />
       <svg viewBox="0 0 1440 600" preserveAspectRatio="xMaxYMid slice" className="absolute inset-0 h-full w-full rtl:-scale-x-100 [mask-image:linear-gradient(90deg,transparent_15%,#000_70%)]">
         <defs>
           <linearGradient id="hb-gold" x1="0" x2="1" y1="0" y2="0">
-            <stop offset="0" stopColor="#ca8a04" stopOpacity="0" />
-            <stop offset="0.75" stopColor="#eab308" />
-            <stop offset="1" stopColor="#fde68a" />
+            <stop offset="0" stopColor="#ebdab0" stopOpacity="0" />
+            <stop offset="0.75" stopColor="#f6ebcf" />
+            <stop offset="1" stopColor="#f8f0dc" />
           </linearGradient>
           <linearGradient id="hb-ice" x1="0" x2="1" y1="0" y2="0">
-            <stop offset="0" stopColor="#7dd3fc" stopOpacity="0" />
-            <stop offset="1" stopColor="#e0f2fe" />
+            <stop offset="0" stopColor="#a5d8dc" stopOpacity="0" />
+            <stop offset="1" stopColor="#f4fbfb" />
           </linearGradient>
         </defs>
         <g transform="rotate(-9 1440 300)">
@@ -138,7 +138,7 @@ export function CtaBand({ title, text, actions, id = "next" }: { title: string; 
   return (
     <section aria-labelledby={`${id}-title`} className="container-site pb-20 pt-4 md:pb-28">
       <div className="relative isolate overflow-hidden rounded-[var(--radius-panel)] border border-accent/30 bg-card p-7 [box-shadow:var(--shadow-edge)] md:p-14">
-        <div aria-hidden="true" className="absolute -bottom-40 end-[-15%] -z-10 h-[420px] w-[640px] rounded-full bg-[radial-gradient(closest-side,rgba(202,138,4,0.22),transparent)]" />
+        <div aria-hidden="true" className="absolute -bottom-40 end-[-15%] -z-10 h-[420px] w-[640px] rounded-full bg-[radial-gradient(closest-side,rgba(235,218,176,0.22),transparent)]" />
         <div className="grid gap-6 md:grid-cols-[minmax(0,1.3fr)_auto] md:items-end md:gap-12">
           <div className="grid gap-4">
             <h2 id={`${id}-title`} className={h2Class}>{title}</h2>

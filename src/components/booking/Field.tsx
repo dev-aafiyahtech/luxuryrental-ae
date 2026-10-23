@@ -41,7 +41,7 @@ export function Checkbox({ id, checked, onChange, children, error, hint, require
         <input
           id={id}
           type="checkbox"
-          className="mt-3 h-5 w-5 flex-none cursor-pointer accent-[#ca8a04]"
+          className="mt-3 h-5 w-5 flex-none cursor-pointer accent-[#ebdab0]"
           checked={checked}
           onChange={(e) => onChange(e.target.checked)}
           onBlur={onBlur}

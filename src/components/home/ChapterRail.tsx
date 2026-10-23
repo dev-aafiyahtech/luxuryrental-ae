@@ -17,7 +17,7 @@ export function ChapterRail() {
   return (
     <>
       <nav aria-label={t("rail.label")} className={clsx("fixed end-5 top-1/2 z-[var(--z-rail)] -translate-y-1/2 transition-[opacity,visibility] duration-300 max-lg:hidden", hiddenCls)}>
-        <ol className="grid gap-1.5 p-0 [list-style:none] [text-shadow:0_1px_10px_rgba(12,10,9,.95),0_0_2px_rgba(12,10,9,.9)]">
+        <ol className="grid gap-1.5 p-0 [list-style:none] [text-shadow:0_1px_10px_rgba(24,51,51,.95),0_0_2px_rgba(24,51,51,.9)]">
           {CHAPTERS.map((id, i) => (
             <li key={id}>
               <a
@@ -36,7 +36,7 @@ export function ChapterRail() {
           <button
             type="button"
             onClick={togglePaused}
-            className="ms-auto mt-4 flex min-h-11 items-center justify-end gap-2.5 rounded-full border border-line bg-[rgba(12,10,9,.55)] px-4 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted backdrop-blur-sm transition-colors hover:border-accent hover:text-fg"
+            className="ms-auto mt-4 flex min-h-11 items-center justify-end gap-2.5 rounded-full border border-line bg-[rgba(24,51,51,.55)] px-4 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted backdrop-blur-sm transition-colors hover:border-accent hover:text-fg"
           >
             <Icon className="size-3.5" aria-hidden="true" />
             {pauseLabel}
@@ -50,7 +50,7 @@ export function ChapterRail() {
           onClick={togglePaused}
           aria-label={pauseLabel}
           className={clsx(
-            "fixed bottom-[calc(var(--home-dock)+12px)] end-4 z-[var(--z-rail)] flex size-11 items-center justify-center rounded-full border border-line bg-[rgba(12,10,9,.7)] text-fg backdrop-blur-sm transition-[opacity,visibility,border-color] duration-300 hover:border-accent lg:hidden",
+            "fixed bottom-[calc(var(--home-dock)+12px)] end-4 z-[var(--z-rail)] flex size-11 items-center justify-center rounded-full border border-line bg-[rgba(24,51,51,.7)] text-fg backdrop-blur-sm transition-[opacity,visibility,border-color] duration-300 hover:border-accent lg:hidden",
             (hiddenCls || reserveVisible) && "pointer-events-none invisible opacity-0",
           )}
         >

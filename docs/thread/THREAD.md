@@ -401,3 +401,16 @@ Got it. I've saved your answers to the project, and I'll wait for your next inst
 
 **Claude (condensed):** The demo is built and every flow works in the browser: the cinematic homepage, 30 fleet and car pages, the booking request flow with WhatsApp hand-off, a simulated ops desk, a request status page, a mock payment, and the chauffeur, delivery, pricing, requirements, about, FAQ, contact and draft legal pages, under the new "Corner" logo. AI car images need an image-generation account; gold line-art placeholders fill the image slots until then. How to run it and a demo walk-through are in the README.
 
+
+---
+
+## 14. New colour palette
+
+**Zubair:**
+> great. Instead of Black color in the color pallet use the attached color pallete.
+
+*Attached: a palette card with Sea Moss `#2C5252` (background and brand), Antique Gold `#EBDAB0` (call to action) and Alabaster `#F4EADE` (typography and space).*
+
+*Claude replaced the black and gold tokens with the new palette, derived deeper Sea Moss shades for cards, panels and scrims, and checked every text pair for WCAG contrast (darker surfaces were chosen after lighter ones failed for muted text and errors). It then recoloured the components that used fixed colours, re-tinted the WebGL night scene (sky, towers, fog, floor, streaks, particle car) to deep sea-moss with antique-gold light, regenerated the whole logo pack from its source (the single-colour black files became Sea Moss files), and updated the design system, logo sheet, contrast script and guides.*
+
+**Claude (condensed):** The site now runs on Sea Moss, Antique Gold and Alabaster. Gold buttons keep dark Sea Moss text (9.6:1); white text on Antique Gold would be 1.4:1, so it's never used. On light backgrounds the logo uses the Sea Moss version, because Antique Gold on Alabaster is only 1.2:1.

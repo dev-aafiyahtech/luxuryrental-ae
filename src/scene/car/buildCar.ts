@@ -44,11 +44,11 @@ export interface CarBuild {
 }
 
 type RGB = readonly [number, number, number];
-const champ: RGB = [0.84, 0.82, 0.79];
-const gold: RGB = [0.92, 0.7, 0.03];
-const goldS: RGB = [0.93, 0.78, 0.4];
-const ice: RGB = [0.49, 0.83, 0.99];
-const amber: RGB = [0.85, 0.42, 0.06];
+const champ: RGB = [0.96, 0.92, 0.86];
+const gold: RGB = [0.9, 0.78, 0.5];
+const goldS: RGB = [0.96, 0.9, 0.74];
+const ice: RGB = [0.62, 0.88, 0.88];
+const amber: RGB = [0.72, 0.58, 0.34];
 const white: RGB = [0.92, 0.96, 1.0];
 const red: RGB = [0.97, 0.22, 0.18];
 

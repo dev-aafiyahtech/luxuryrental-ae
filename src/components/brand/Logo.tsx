@@ -34,7 +34,7 @@ export function Logo({ className, compact = false }: { className?: string; compa
       className={clsx("block h-auto max-w-full text-fg", className ?? (compact ? MONOGRAM_SIZE : LOCKUP_SIZE))}
     >
       <path fill="currentColor" d={art.letters} />
-      <path fill="var(--color-accent, #CA8A04)" d={art.accent} />
+      <path fill="var(--color-accent, #EBDAB0)" d={art.accent} />
     </svg>
   );
 }

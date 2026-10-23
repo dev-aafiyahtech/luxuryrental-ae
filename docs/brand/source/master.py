@@ -27,12 +27,12 @@ body = [
     grp("logo-horizontal_white", H, 200, 1300, bk.IVORY, bk.IVORY),
     grp("logo-horizontal_gold", H, 200, 1650, bk.GOLD, bk.GOLD),
     f'<rect x="100" y="1900" width="2600" height="400" fill="{bk.IVORY}"/>',
-    grp("logo-horizontal_black", H, 200, 2000, bk.INK, bk.INK),
+    grp("logo-horizontal_moss", H, 200, 2000, bk.INK, bk.INK),
     f'<g id="favicon-16-cut" transform="translate(3100 1300) scale(20)">{fav}</g>',
     f'<g id="favicon-32-cut" transform="translate(3600 1300) scale(10)">{fav32}</g>',
 ]
 svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4600 2500"><title>LuxuryRental.ae logo master</title>'
-       f'<rect width="4600" height="2500" fill="#1C1917"/>{"".join(body)}</svg>')
+       f'<rect width="4600" height="2500" fill="#244747"/>{"".join(body)}</svg>')
 out = sys.argv[1]
 open(out, "w").write(svg)
 print(out, len(svg))

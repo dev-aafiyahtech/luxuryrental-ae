@@ -36,7 +36,7 @@ Next.js 16.4 (App Router, Turbopack, **Cache Components on**), React 19.3, TypeS
 
 ## Design system
 
-Source of truth: `docs/design-system/luxuryrental-ae/MASTER.md`. Dark only, black and gold, Syncopate for headlines (uppercase), Montserrat for body.
+Source of truth: `docs/design-system/luxuryrental-ae/MASTER.md`. Dark only: Sea Moss `#2C5252` background, Antique Gold `#EBDAB0` for calls to action, Alabaster `#F4EADE` for type. Syncopate for headlines (uppercase), Montserrat for body. Never hard-code hex colours in components; use the tokens.
 
 - Tokens are Tailwind theme colours: `bg card elevated fg muted accent accent-hover on-accent ring line input danger success warning info ice champagne amber` (e.g. `bg-card text-muted border-line`).
 - Component classes in `src/app/globals.css`: `.btn .btn-primary .btn-secondary .btn-ghost .btn-sm .btn-block`, `.card .card-hover .glass`, `.field .input .field-hint .field-error`, `.eyebrow .display .display-md .display-sm .lede .fine .label .tabular`, `.spec-list .trust .badge .notice`, `.container-site .container-narrow .prose-legal`.

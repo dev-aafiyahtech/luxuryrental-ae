@@ -49,7 +49,7 @@ export function SculptureTabs({ tabs, panels }: { tabs: { brand: string; model: 
             onKeyDown={(e) => onKeyDown(e, i)}
             className={clsx(
               "inline-flex min-h-11 flex-none items-center whitespace-nowrap rounded-full border px-4 text-[11px] font-semibold uppercase tracking-[0.14em] backdrop-blur-sm transition-colors duration-200",
-              i === selected ? "border-accent bg-[rgba(202,138,4,.16)] text-fg" : "border-line bg-[rgba(12,10,9,.5)] text-muted hover:border-input hover:text-fg",
+              i === selected ? "border-accent bg-[rgba(235,218,176,.16)] text-fg" : "border-line bg-[rgba(24,51,51,.5)] text-muted hover:border-input hover:text-fg",
             )}
           >
             <span className="sr-only">{tab.brand} </span>

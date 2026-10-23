@@ -43,7 +43,7 @@ export function buildWorld(scene: THREE.Scene, camera: THREE.PerspectiveCamera, 
     uCity: { value: 1 },
     uTime: { value: 0 },
     uFogD: { value: 0.0021 },
-    uFogC: { value: new THREE.Vector3(0.045, 0.028, 0.02) },
+    uFogC: { value: new THREE.Vector3(0.03, 0.075, 0.075) },
     uCam: { value: camera.position },
   };
   const prUniforms: { value: number }[] = [];

@@ -15,7 +15,7 @@ One continuous scroll story in four chapters, built from three themes:
 | 03 | Sculpture | **Kinetic Sculpture**: the featured car comes apart into floating components with spec callouts |
 | 04 | Reserve | The car reassembles, its headlights ignite, it launches into the tunnel and the reservation card rises |
 
-Black and gold, Syncopate + Montserrat, dark only. Full spec: [docs/design-system/luxuryrental-ae/MASTER.md](docs/design-system/luxuryrental-ae/MASTER.md).
+Sea Moss `#2C5252`, Antique Gold `#EBDAB0` and Alabaster `#F4EADE` (changed from black and gold on 23 Oct 2026), Syncopate + Montserrat, dark only. Full spec: [docs/design-system/luxuryrental-ae/MASTER.md](docs/design-system/luxuryrental-ae/MASTER.md).
 
 ## Run the demo
 
@@ -28,7 +28,7 @@ npm run dev        # then open http://localhost:3000
 
 Checks: `npx tsc --noEmit`, `npx eslint src`, `npx next build`, and with the dev server running `node qa/scripts/audit.mjs` (every route at 390 and 1440 px). How the code is organised and the rules for changing it: [docs/dev/FRONTEND-GUIDE.md](docs/dev/FRONTEND-GUIDE.md).
 
-**What's simulated.** Booking requests, ops actions and payments are stored in the browser (`src/lib/booking/store.ts`), so everything works without a server, but each browser has its own data. Every page shows a demo bar. The WhatsApp buttons open a real chat with +971 52 965 2722. Car pictures are gold line-art illustrations in the slots the AI images will fill.
+**What's simulated.** Booking requests, ops actions and payments are stored in the browser (`src/lib/booking/store.ts`), so everything works without a server, but each browser has its own data. Every page shows a demo bar. The WhatsApp buttons open a real chat with +971 52 965 2722. Car pictures are antique-gold line-art illustrations in the slots the AI images will fill.
 
 **Demo walk-through**
 1. Home: scroll the four chapters (night skyline, Velocity Tunnel, Kinetic Sculpture with the top-5 tabs, Reserve). "Pause motion" sits in the chapter rail.
@@ -103,6 +103,7 @@ tools/
 | 23 Oct 2026 | Plan answers: wordmark "LuxuryRental.ae"; AI images for all 16 cars; Bugatti partner confirmed; top 5 and launch prices approved; WhatsApp +971 52 965 2722; Zubair owns Vercel; DNS access later. Zubair is reviewing the plan |
 | 23 Oct 2026 | Plan approved. First objective: a front-end-only working demo with every flow simulated; backend and production later |
 | 23 Oct 2026 | Front-end demo built: Next.js 16.4, cinematic homepage ported from the prototype, 16 car pages, booking flow with simulated ops desk and payment, content and draft legal pages, logo "Corner" (LR. monogram, gold .ae) |
+| 23 Oct 2026 | Palette changed from black and gold to Sea Moss `#2C5252` (background and brand), Antique Gold `#EBDAB0` (calls to action) and Alabaster `#F4EADE` (type). Tokens, components, the WebGL night scene and the whole logo pack recoloured; every text pair re-checked for contrast |
 
 ## Open items
 

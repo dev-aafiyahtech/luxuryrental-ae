@@ -163,7 +163,7 @@ export async function AfterChapters({ today }: { today: string }) {
           </header>
           <div className="grid gap-3">
             {faqs.map((f) => (
-              <details key={f.id} className="card group transition-colors open:border-[rgba(202,138,4,.5)]">
+              <details key={f.id} className="card group transition-colors open:border-[rgba(235,218,176,.5)]">
                 <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 rounded-card px-5 py-4 font-semibold [&::-webkit-details-marker]:hidden">
                   {f.q}
                   <ChevronDown className="size-5 flex-none text-accent-hover transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />

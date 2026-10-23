@@ -44,29 +44,29 @@ export function DeliveryMap({ focus = "all", className, id = "map" }: { focus?: 
           </desc>
           <defs>
             <linearGradient id={`${id}-sea`} x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stopColor="#7dd3fc" stopOpacity="0.10" />
-              <stop offset="1" stopColor="#7dd3fc" stopOpacity="0.02" />
+              <stop offset="0" stopColor="#a5d8dc" stopOpacity="0.10" />
+              <stop offset="1" stopColor="#a5d8dc" stopOpacity="0.02" />
             </linearGradient>
             <radialGradient id={`${id}-glow`}>
-              <stop offset="0" stopColor="#eab308" stopOpacity="0.45" />
-              <stop offset="1" stopColor="#eab308" stopOpacity="0" />
+              <stop offset="0" stopColor="#f6ebcf" stopOpacity="0.45" />
+              <stop offset="1" stopColor="#f6ebcf" stopOpacity="0" />
             </radialGradient>
             <pattern id={`${id}-grid`} width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M40 0H0V40" fill="none" stroke="#fafaf9" strokeOpacity="0.04" />
+              <path d="M40 0H0V40" fill="none" stroke="#f4eade" strokeOpacity="0.04" />
             </pattern>
             <marker id={`${id}-arrow`} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-              <path d="M0 0L10 5L0 10z" fill="#ca8a04" />
+              <path d="M0 0L10 5L0 10z" fill="#ebdab0" />
             </marker>
           </defs>
 
           <rect width="800" height="600" fill={`url(#${id}-grid)`} />
           {/* Sea (north-west of the coast) */}
           <path d="M0 0H800V0L812 36C700 92 640 140 560 186S420 262 360 296 200 380 -10 470Z" fill={`url(#${id}-sea)`} />
-          <path d="M812 36C700 92 640 140 560 186S420 262 360 296 200 380 -10 470" fill="none" stroke="#7dd3fc" strokeOpacity="0.45" strokeWidth="1.5" />
+          <path d="M812 36C700 92 640 140 560 186S420 262 360 296 200 380 -10 470" fill="none" stroke="#a5d8dc" strokeOpacity="0.45" strokeWidth="1.5" />
           <text x="150" y="150" className="fill-ice/50" fontSize="15" letterSpacing="5" style={{ textTransform: "uppercase" }}>Arabian Gulf</text>
 
           {/* Palm Jumeirah, schematic */}
-          <g stroke="#7dd3fc" strokeOpacity="0.55" fill="none" strokeWidth="1.4">
+          <g stroke="#a5d8dc" strokeOpacity="0.55" fill="none" strokeWidth="1.4">
             <path d="M318 302L300 270" />
             <path d="M276 268a26 26 0 1 0 46 -14" />
           </g>
@@ -74,14 +74,14 @@ export function DeliveryMap({ focus = "all", className, id = "map" }: { focus?: 
           {/* Dubai zone */}
           <path
             d="M196 392C250 360 330 316 420 270S560 190 640 140L700 196C690 300 680 380 640 420C540 440 420 430 300 430C250 430 210 420 196 392Z"
-            fill="#ca8a04" fillOpacity={focus === "all" ? 0.07 : 0.04} stroke="#ca8a04" strokeOpacity="0.5" strokeDasharray="6 6"
+            fill="#ebdab0" fillOpacity={focus === "all" ? 0.07 : 0.04} stroke="#ebdab0" strokeOpacity="0.5" strokeDasharray="6 6"
           />
           <text x="470" y="412" className="fill-accent" fontSize="13" fontWeight="600" letterSpacing="3" style={{ textTransform: "uppercase" }}>
             Dubai · free from {dubaiFee?.freeFromDays} days
           </text>
 
           {/* Routes from the base */}
-          <g fill="none" stroke="#ca8a04" strokeWidth="1.4" strokeLinecap="round">
+          <g fill="none" stroke="#ebdab0" strokeWidth="1.4" strokeLinecap="round">
             {places.map((p) => (
               <path key={p.key} d={`M${dso.x} ${dso.y}Q${(dso.x + p.x) / 2} ${Math.min(dso.y, p.y) - 40} ${p.x} ${p.y}`} strokeOpacity={highlight(p.key) ? 0.75 : 0.22} strokeDasharray={highlight(p.key) ? undefined : "3 6"} />
             ))}
@@ -98,9 +98,9 @@ export function DeliveryMap({ focus = "all", className, id = "map" }: { focus?: 
             return (
               <g key={p.key} opacity={on ? 1 : 0.55}>
                 {p.airport ? (
-                  <rect x={p.x - 6} y={p.y - 6} width="12" height="12" rx="2" transform={`rotate(45 ${p.x} ${p.y})`} fill={on ? "#eab308" : "#a8a29e"} />
+                  <rect x={p.x - 6} y={p.y - 6} width="12" height="12" rx="2" transform={`rotate(45 ${p.x} ${p.y})`} fill={on ? "#f6ebcf" : "#c3cec6"} />
                 ) : (
-                  <circle cx={p.x} cy={p.y} r="5" fill={on ? "#fafaf9" : "#a8a29e"} />
+                  <circle cx={p.x} cy={p.y} r="5" fill={on ? "#f4eade" : "#c3cec6"} />
                 )}
                 <text x={tx} y={p.y - 4} textAnchor={anchor} className="fill-fg" fontSize="17" fontWeight="600">{p.label}</text>
                 <text x={tx} y={p.y + 16} textAnchor={anchor} className="fill-muted" fontSize="14">{p.sub}</text>
@@ -118,14 +118,14 @@ export function DeliveryMap({ focus = "all", className, id = "map" }: { focus?: 
 
           {/* Base */}
           <circle cx={dso.x} cy={dso.y} r="46" fill={`url(#${id}-glow)`} />
-          <circle cx={dso.x} cy={dso.y} r="11" fill="#0c0a09" stroke="#eab308" strokeWidth="2.5" />
-          <circle cx={dso.x} cy={dso.y} r="4.5" fill="#eab308" />
+          <circle cx={dso.x} cy={dso.y} r="11" fill="#183333" stroke="#f6ebcf" strokeWidth="2.5" />
+          <circle cx={dso.x} cy={dso.y} r="4.5" fill="#f6ebcf" />
           <text x={dso.x + 20} y={dso.y + 2} className="fill-accent-hover" fontSize="17" fontWeight="700">Our base</text>
           <text x={dso.x + 20} y={dso.y + 22} className="fill-champagne" fontSize="14">Dubai Silicon Oasis · {fee("dso")}</text>
 
           {/* North arrow */}
           <g transform="translate(748 520)" className="fill-muted">
-            <path d="M0 -26L8 0H-8Z" fill="#a8a29e" />
+            <path d="M0 -26L8 0H-8Z" fill="#c3cec6" />
             <text y="20" textAnchor="middle" fontSize="13" fontWeight="600">N</text>
           </g>
         </svg>

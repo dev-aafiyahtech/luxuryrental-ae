@@ -44,10 +44,10 @@ Liquid Glass is used **only** for the floating booking panel and nav. The skill 
 - Progress indicator + "Skip intro" link always visible.
 - DOM reading order is complete without JS/3D (SEO + screen readers).
 - **Chapter colour strategy (progressive reveal, building intensity)**, used for scene lighting only, never for text:
-  - Ch 0: midnight black + amber city glow `#B45309`
-  - Ch 1: ice-white / cold-blue streaks `#7DD3FC`
-  - Ch 2: champagne-silver studio light `#D6D3D1`
-  - Ch 3: full gold `#EAB308`
+  - Ch 0: deep sea-moss night + antique-bronze city glow `#B8975A`
+  - Ch 1: ice / pale-teal streaks `#A5D8DC`
+  - Ch 2: champagne studio light `#E3D9C8`
+  - Ch 3: full Antique Gold `#EBDAB0`
 
 ### Car detail page
 
@@ -57,27 +57,41 @@ Liquid Glass is used **only** for the floating booking panel and nav. The skill 
 
 ---
 
-## 3. Colour Palette (dark, adapted from skill)
+## 3. Colour Palette (Sea Moss, Antique Gold, Alabaster)
 
-The skill's luxury palette is light-mode (`#FAFAF9` background). It is inverted here for the dark, futuristic direction. The skill had darkened the accent from `#CA8A04` to `#A16207` for a light background. On dark, the original `#CA8A04` passes contrast, so it is restored.
+**Updated 23 Oct 2026.** Zubair replaced the black base with a three-colour brand palette:
 
-| Role | Hex | CSS Variable | Verified contrast |
+| Brand colour | Hex | Role |
+|------|-----|------|
+| **Sea Moss** | `#2C5252` | Background and brand |
+| **Antique Gold** | `#EBDAB0` | Calls to action |
+| **Alabaster** | `#F4EADE` | Typography and space |
+
+The site stays dark: Sea Moss is the page background, and cards, panels and the WebGL night scene use deeper shades of the same green. Earlier versions used black `#0C0A09` with gold `#CA8A04`; those values are retired.
+
+| Role | Hex | Tailwind token | Verified contrast |
 |------|-----|--------------|-------------------|
-| Background | `#0C0A09` | `--color-background` | — |
-| Card / Surface | `#1C1917` | `--color-card` | — |
-| Elevated surface | `#292524` | `--color-elevated` | — |
-| Foreground (text) | `#FAFAF9` | `--color-foreground` | 18.9:1 on bg · 16.7:1 on card |
-| Muted text | `#A8A29E` | `--color-muted-foreground` | 7.8:1 on bg · 6.0:1 on elevated |
-| Accent / CTA (gold) | `#CA8A04` | `--color-accent` | 6.7:1 on bg (as text) |
-| On Accent | `#0C0A09` | `--color-on-accent` | 6.7:1 on gold |
-| Accent hover | `#EAB308` | `--color-accent-hover` | 10.3:1 with dark text |
-| Focus ring | `#EAB308` | `--color-ring` | 9.1:1 on card (needs 3:1) |
-| Border (decorative) | `#44403C` | `--color-border` | — |
-| Input border | `#78716C` | `--color-input` | 3.7:1 on card (needs 3:1) |
-| Destructive | `#F87171` | `--color-destructive` | 6.3:1 on card |
-| Success | `#4ADE80` | `--color-success` | 10.0:1 on card |
+| Background (Sea Moss) | `#2C5252` | `bg` | — |
+| Card / Surface | `#244747` | `card` | — |
+| Elevated surface | `#1D3C3C` | `elevated` | — |
+| Deepest surface (scrims, wheels, footer) | `#183333` | `deep` | — |
+| Foreground (Alabaster) | `#F4EADE` | `fg` | 7.3:1 on bg · 8.6:1 on card · 10.0:1 on elevated |
+| Muted text | `#C3CEC6` | `muted` | 5.3:1 on bg · 6.3:1 on card |
+| Accent / CTA (Antique Gold) | `#EBDAB0` | `accent` | 6.2:1 on bg · 7.4:1 on card (as text) |
+| On Accent | `#1B3434` | `on-accent` | 9.6:1 on gold |
+| Accent hover | `#F6EBCF` | `accent-hover` | 11.2:1 with dark text |
+| Focus ring | `#EBDAB0` | `ring` | 6.2:1 on bg (needs 3:1) |
+| Border (decorative) | `#4A7372` | `line` | — |
+| Input border | `#8DAEA8` | `input` | 4.2:1 on card (needs 3:1) |
+| Destructive | `#FCA5A5` | `danger` | 4.5:1 on bg · 5.4:1 on card |
+| Success | `#86EFAC` | `success` | 7.2:1 on card |
+| Warning | `#FDBA74` | `warning` | 6.0:1 on card |
+| Info | `#A5F3FC` | `info` | 8.1:1 on card |
+| Scene accents (glow only, never text) | `#A5D8DC` ice · `#E3D9C8` champagne · `#B8975A` antique bronze | `ice` `champagne` `amber` | — |
 
-> ⚠️ **Never put white text on gold.** `#FFFFFF` on `#CA8A04` = 2.9:1 (fails WCAG AA). Gold buttons always use dark text.
+Run `python3 qa/scripts/contrast.py` after any colour change.
+
+> ⚠️ **Never put white or Alabaster text on gold.** `#FFFFFF` on `#EBDAB0` = 1.4:1 (fails WCAG AA). Gold buttons always use dark Sea Moss text (`on-accent`).
 
 ---
 
@@ -117,9 +131,9 @@ The skill's luxury palette is light-mode (`#FAFAF9` background). It is inverted 
 | `--radius-card` | 16px |
 | `--radius-panel` | 24px |
 
-**Depth on dark:** shadows barely read on `#0C0A09`. Use hairline borders + light, not drop shadows:
-- `--glow-gold: 0 0 0 1px #CA8A0466, 0 8px 32px #CA8A0426` (hover/featured)
-- `--edge: inset 0 1px 0 #FAFAF914` (top highlight on panels)
+**Depth on dark:** shadows barely read on Sea Moss. Use hairline borders + light, not drop shadows:
+- `--shadow-glow: 0 0 0 1px rgba(235, 218, 176, 0.45), 0 8px 32px rgba(235, 218, 176, 0.14)` (hover/featured)
+- `--shadow-edge: inset 0 1px 0 rgba(244, 234, 222, 0.1)` (top highlight on panels)
 
 ---
 
@@ -128,8 +142,8 @@ The skill's luxury palette is light-mode (`#FAFAF9` background). It is inverted 
 ```css
 /* Primary button — gold, dark text */
 .btn-primary {
-  background: var(--color-accent);       /* #CA8A04 */
-  color: var(--color-on-accent);         /* #0C0A09 */
+  background: var(--color-accent);       /* #EBDAB0 Antique Gold */
+  color: var(--color-on-accent);         /* #1B3434 */
   min-height: 48px;
   padding: 14px 28px;
   border-radius: var(--radius-btn);
@@ -144,7 +158,7 @@ The skill's luxury palette is light-mode (`#FAFAF9` background). It is inverted 
 .btn-secondary {
   background: transparent;
   color: var(--color-foreground);
-  border: 1px solid var(--color-input);  /* #78716C */
+  border: 1px solid var(--color-input);  /* #8DAEA8 */
   min-height: 48px; padding: 14px 28px; border-radius: var(--radius-btn);
   transition: border-color 200ms ease; cursor: pointer;
 }
@@ -175,9 +189,9 @@ The skill's luxury palette is light-mode (`#FAFAF9` background). It is inverted 
 
 /* Booking panel — the only Liquid Glass surface */
 .booking-panel {
-  background: rgba(28, 25, 23, 0.55);
+  background: rgba(29, 60, 60, 0.62);
   backdrop-filter: blur(20px) saturate(140%);
-  border: 1px solid rgba(250, 250, 249, 0.08);
+  border: 1px solid rgba(244, 234, 222, 0.12);
   border-radius: var(--radius-panel);
   box-shadow: var(--edge);
 }

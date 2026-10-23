@@ -5,7 +5,7 @@ import { rules } from "@/content/rules";
 import { getHref } from "@/i18n/dictionaries";
 import { whatsappHref } from "@/lib/whatsapp";
 import { extraRules } from "@/content/pages/shared";
-import { ContentHero, Section, h3Class } from "@/components/content/blocks";
+import { ContentHero, Section } from "@/components/content/blocks";
 import { ContactForm } from "@/components/content/ContactForm";
 import { DeliveryMap } from "@/components/content/DeliveryMap";
 import { JsonLd, absoluteUrl, breadcrumbLd, businessRef, graph } from "@/components/content/JsonLd";
@@ -51,7 +51,7 @@ export default async function ContactPage() {
               rel="noopener"
               className="group relative isolate grid gap-5 overflow-hidden rounded-[var(--radius-panel)] border border-accent/40 bg-card p-7 no-underline transition-[border-color,box-shadow] duration-200 [box-shadow:var(--shadow-edge)] hover:border-accent hover:[box-shadow:var(--shadow-glow)] md:p-9"
             >
-              <span aria-hidden="true" className="absolute -end-24 -top-24 -z-10 h-64 w-64 rounded-full bg-[radial-gradient(closest-side,rgba(202,138,4,0.25),transparent)]" />
+              <span aria-hidden="true" className="absolute -end-24 -top-24 -z-10 h-64 w-64 rounded-full bg-[radial-gradient(closest-side,rgba(235,218,176,0.25),transparent)]" />
               <span className="grid h-14 w-14 place-items-center rounded-full border border-line bg-elevated">
                 <WhatsAppIcon className="h-7 w-7 text-fg" />
               </span>

@@ -11,7 +11,7 @@ export function ChauffeurCrossSell({ href, t, headingLevel = "h2" }: { href: (pa
   const phantom = getCar("rolls-royce-phantom");
   const minHourly = Math.min(...chauffeurCars().map((c) => c.chauffeur!.hourly));
   return (
-    <article className="card card-hover group relative grid content-between overflow-hidden border-accent/40 bg-[radial-gradient(120%_80%_at_100%_0%,rgba(202,138,4,0.16),transparent_60%)]">
+    <article className="card card-hover group relative grid content-between overflow-hidden border-accent/40 bg-[radial-gradient(120%_80%_at_100%_0%,rgba(235,218,176,0.16),transparent_60%)]">
       {phantom && <CarArt car={phantom} view="side" className="aspect-[4/3] w-full opacity-90" />}
       <div className="grid gap-3 p-5">
         <p className="eyebrow"><span className="num">VIP</span>{t("crossSell.eyebrow")}</p>

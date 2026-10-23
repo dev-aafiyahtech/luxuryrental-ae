@@ -58,11 +58,11 @@ def icon(size, width_frac, rx=0, bg=bk.INK):
 
 og = canvas(1200, 630,
             '<defs><radialGradient id="h" cx="600" cy="660" r="560" gradientUnits="userSpaceOnUse">'
-            '<stop offset="0" stop-color="#CA8A04" stop-opacity=".22"/><stop offset="1" stop-color="#CA8A04" stop-opacity="0"/>'
+            '<stop offset="0" stop-color="#EBDAB0" stop-opacity=".22"/><stop offset="1" stop-color="#EBDAB0" stop-opacity="0"/>'
             '</radialGradient></defs><rect width="1200" height="630" fill="url(#h)"/>'
             + place(H, 760, 600, 282)
-            + '<rect x="560" y="378" width="80" height="2" fill="#CA8A04"/>'
-            + text_regular("DELIVERED ACROSS DUBAI", 15, 0.32, 600, 432, "#A8A29E"))
+            + '<rect x="560" y="378" width="80" height="2" fill="#EBDAB0"/>'
+            + text_regular("DELIVERED ACROSS DUBAI", 15, 0.32, 600, 432, "#C3CEC6"))
 
 jobs = [
     ("favicon-16.png", bk.favicon16().replace('viewBox="0 0 16 16"', 'viewBox="0 0 16 16" width="16" height="16"'), 16, 16, True),
@@ -137,7 +137,7 @@ export function Logo({{ className, compact = false }}: {{ className?: string; co
       className={{clsx("block h-auto max-w-full text-fg", className ?? (compact ? MONOGRAM_SIZE : LOCKUP_SIZE))}}
     >
       <path fill="currentColor" d={{art.letters}} />
-      <path fill="var(--color-accent, #CA8A04)" d={{art.accent}} />
+      <path fill="var(--color-accent, #EBDAB0)" d={{art.accent}} />
     </svg>
   );
 }}

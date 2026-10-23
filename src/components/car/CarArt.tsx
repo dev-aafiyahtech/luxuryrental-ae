@@ -65,13 +65,13 @@ function LineArt({ car, className, label }: { car: Car; className?: string; labe
         <defs>
           <radialGradient id={`${id}-bg`} cx="50%" cy="78%" r="70%">
             <stop offset="0%" stopColor={paint} stopOpacity="0.22" />
-            <stop offset="45%" stopColor="#b45309" stopOpacity="0.08" />
-            <stop offset="100%" stopColor="#0c0a09" stopOpacity="0" />
+            <stop offset="45%" stopColor="#b8975a" stopOpacity="0.08" />
+            <stop offset="100%" stopColor="#183333" stopOpacity="0" />
           </radialGradient>
           <linearGradient id={`${id}-gold`} x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#b45309" />
-            <stop offset="45%" stopColor="#eab308" />
-            <stop offset="100%" stopColor="#fde68a" />
+            <stop offset="0%" stopColor="#b8975a" />
+            <stop offset="45%" stopColor="#f6ebcf" />
+            <stop offset="100%" stopColor="#f8f0dc" />
           </linearGradient>
           <linearGradient id={`${id}-fill`} x1="0" y1="1" x2="0" y2="0">
             <stop offset="0%" stopColor={paint} stopOpacity="0.05" />
@@ -85,29 +85,29 @@ function LineArt({ car, className, label }: { car: Car; className?: string; labe
         <g transform="scale(1,-1)">
           {/* floor */}
           <ellipse cx="0" cy="-0.02" rx={(nose - tail) * 0.56} ry="0.07" fill="#000" opacity="0.7" />
-          <line x1={tail - 0.6} y1="0" x2={nose + 0.6} y2="0" stroke="#44403c" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+          <line x1={tail - 0.6} y1="0" x2={nose + 0.6} y2="0" stroke="#4a7372" strokeWidth="1" vectorEffect="non-scaling-stroke" />
           {/* body */}
           <path d={body} fill={`url(#${id}-fill)`} stroke={`url(#${id}-gold)`} strokeWidth="1.6" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
           <g clipPath={`url(#${id}-clip)`}>
-            <path d={glass} fill="rgba(125,211,252,0.10)" stroke="#7dd3fc" strokeOpacity="0.7" strokeWidth="1" vectorEffect="non-scaling-stroke" />
-            <line x1={tail} y1={p.glass.belt} x2={nose} y2={p.glass.belt - 0.12} stroke="#ca8a04" strokeOpacity="0.6" strokeWidth="1" vectorEffect="non-scaling-stroke" />
-            <line x1={tail} y1={interp(p.bottom, 0) + 0.12} x2={nose} y2={interp(p.bottom, 0) + 0.1} stroke="#ca8a04" strokeOpacity="0.35" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+            <path d={glass} fill="rgba(165,216,220,0.10)" stroke="#a5d8dc" strokeOpacity="0.7" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+            <line x1={tail} y1={p.glass.belt} x2={nose} y2={p.glass.belt - 0.12} stroke="#ebdab0" strokeOpacity="0.6" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+            <line x1={tail} y1={interp(p.bottom, 0) + 0.12} x2={nose} y2={interp(p.bottom, 0) + 0.1} stroke="#ebdab0" strokeOpacity="0.35" strokeWidth="1" vectorEffect="non-scaling-stroke" />
           </g>
           {/* lamps */}
-          <line x1={nose - 0.02} y1={interp(p.top, nose - 0.25) - 0.08} x2={nose - 0.3} y2={interp(p.top, nose - 0.3) - 0.04} stroke="#e0f2fe" strokeWidth="2.2" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-          <line x1={tail + 0.02} y1={interp(p.top, tail + 0.2) - 0.12} x2={tail + 0.22} y2={interp(p.top, tail + 0.22) - 0.08} stroke="#f87171" strokeWidth="2.2" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+          <line x1={nose - 0.02} y1={interp(p.top, nose - 0.25) - 0.08} x2={nose - 0.3} y2={interp(p.top, nose - 0.3) - 0.04} stroke="#f4fbfb" strokeWidth="2.2" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+          <line x1={tail + 0.02} y1={interp(p.top, tail + 0.2) - 0.12} x2={tail + 0.22} y2={interp(p.top, tail + 0.22) - 0.08} stroke="#fca5a5" strokeWidth="2.2" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
           {p.wing && <path d={`M${tail + 0.05},${interp(p.top, tail + 0.3) + 0.2} L${tail + 0.38},${interp(p.top, tail + 0.3) + 0.22}`} stroke={`url(#${id}-gold)`} strokeWidth="1.6" vectorEffect="non-scaling-stroke" />}
           {/* wheels */}
           {p.wheels.map(([x, y, r], i) => (
             <g key={i}>
-              <circle cx={x} cy={y} r={r + 0.06} fill="#0c0a09" />
-              <circle cx={x} cy={y} r={r} fill="#0c0a09" stroke="#d6d3d1" strokeOpacity="0.8" strokeWidth="1.4" vectorEffect="non-scaling-stroke" />
-              <circle cx={x} cy={y} r={r * 0.74} fill="none" stroke="#eab308" strokeWidth="1.2" vectorEffect="non-scaling-stroke" />
+              <circle cx={x} cy={y} r={r + 0.06} fill="#183333" />
+              <circle cx={x} cy={y} r={r} fill="#183333" stroke="#e3d9c8" strokeOpacity="0.8" strokeWidth="1.4" vectorEffect="non-scaling-stroke" />
+              <circle cx={x} cy={y} r={r * 0.74} fill="none" stroke="#f6ebcf" strokeWidth="1.2" vectorEffect="non-scaling-stroke" />
               {Array.from({ length: 10 }, (_, k) => {
                 const a = (k / 10) * Math.PI * 2;
-                return <line key={k} x1={x + Math.cos(a) * r * 0.2} y1={y + Math.sin(a) * r * 0.2} x2={x + Math.cos(a) * r * 0.72} y2={y + Math.sin(a) * r * 0.72} stroke="#ca8a04" strokeOpacity="0.8" strokeWidth="0.8" vectorEffect="non-scaling-stroke" />;
+                return <line key={k} x1={x + Math.cos(a) * r * 0.2} y1={y + Math.sin(a) * r * 0.2} x2={x + Math.cos(a) * r * 0.72} y2={y + Math.sin(a) * r * 0.72} stroke="#ebdab0" strokeOpacity="0.8" strokeWidth="0.8" vectorEffect="non-scaling-stroke" />;
               })}
-              <circle cx={x} cy={y} r={r * 0.16} fill="#b45309" />
+              <circle cx={x} cy={y} r={r * 0.16} fill="#b8975a" />
             </g>
           ))}
         </g>

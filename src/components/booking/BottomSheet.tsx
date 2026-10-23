@@ -58,7 +58,7 @@ export function BottomSheet({ open, onClose, title, children, footer, size = "md
         if (e.target === e.currentTarget) e.currentTarget.close();
       }}
       className={clsx(
-        "fixed inset-0 z-[var(--z-sheet)] m-0 mt-auto max-h-[92dvh] w-full max-w-none flex-col overflow-hidden rounded-t-[24px] border border-b-0 border-line bg-card p-0 text-fg shadow-[0_-24px_70px_rgba(0,0,0,0.6)] backdrop:bg-bg/75",
+        "fixed inset-0 z-[var(--z-sheet)] m-0 mt-auto max-h-[92dvh] w-full max-w-none flex-col overflow-hidden rounded-t-[24px] border border-b-0 border-line bg-card p-0 text-fg shadow-[0_-24px_70px_rgba(10,28,28,0.6)] backdrop:bg-bg/75",
         "md:m-auto md:max-h-[88dvh] md:rounded-[24px] md:border-b",
         size === "lg" ? "md:max-w-[760px]" : "md:max-w-[540px]",
         "open:flex [&:not([open])]:hidden",

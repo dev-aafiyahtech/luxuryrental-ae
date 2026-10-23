@@ -45,7 +45,7 @@ export async function HomeChapters({ top, today }: { top: Car[]; today: string }
         <p className="text-sm leading-relaxed text-champagne max-md:hidden">
           <span className="font-semibold text-fg">{car.name}.</span> {car.tagline}
         </p>
-        <dl className="spec-list lg:group-data-[stage=gl]/home:sr-only max-md:grid-cols-2 max-md:gap-x-3.5 max-md:rounded-xl max-md:border-t-0 max-md:bg-[rgba(12,10,9,.6)] max-md:px-3.5 max-md:py-1.5 max-md:[&>div]:grid max-md:[&>div]:content-start max-md:[&>div]:justify-start max-md:[&>div]:gap-[3px] max-md:[&>div]:border-b-0 max-md:[&>div]:py-2 max-md:[&_dd]:text-start max-md:[&_dd]:text-[13px]">
+        <dl className="spec-list lg:group-data-[stage=gl]/home:sr-only max-md:grid-cols-2 max-md:gap-x-3.5 max-md:rounded-xl max-md:border-t-0 max-md:bg-[rgba(24,51,51,.6)] max-md:px-3.5 max-md:py-1.5 max-md:[&>div]:grid max-md:[&>div]:content-start max-md:[&>div]:justify-start max-md:[&>div]:gap-[3px] max-md:[&>div]:border-b-0 max-md:[&>div]:py-2 max-md:[&_dd]:text-start max-md:[&_dd]:text-[13px]">
           {rows.map((r) => (
             <div key={r.label}>
               <dt>{r.label}</dt>
@@ -88,7 +88,7 @@ export async function HomeChapters({ top, today }: { top: Car[]; today: string }
           </div>
           <div
             data-sky-b=""
-            className="shadowed relative grid max-w-[400px] gap-3 justify-self-stretch border-s border-accent bg-[linear-gradient(90deg,rgba(12,10,9,.84),rgba(12,10,9,.6))] p-6 backdrop-blur-[6px] [grid-area:1/1] md:justify-self-end rtl:bg-[linear-gradient(270deg,rgba(12,10,9,.84),rgba(12,10,9,.6))] motion-safe:invisible motion-safe:opacity-0 motion-reduce:justify-self-start motion-reduce:[grid-area:auto]"
+            className="shadowed relative grid max-w-[400px] gap-3 justify-self-stretch border-s border-accent bg-[linear-gradient(90deg,rgba(24,51,51,.84),rgba(24,51,51,.6))] p-6 backdrop-blur-[6px] [grid-area:1/1] md:justify-self-end rtl:bg-[linear-gradient(270deg,rgba(24,51,51,.84),rgba(24,51,51,.6))] motion-safe:invisible motion-safe:opacity-0 motion-reduce:justify-self-start motion-reduce:[grid-area:auto]"
           >
             <p className="eyebrow">{t("sky.noteEyebrow")}</p>
             <p className="display-sm">{t("sky.noteTitle")}</p>

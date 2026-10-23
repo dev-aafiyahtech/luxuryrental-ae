@@ -1,29 +1,32 @@
 @import "tailwindcss";
 
 /* LuxuryRental.ae design tokens (docs/design-system/luxuryrental-ae/MASTER.md).
-   Dark only, black and gold. Every text pair here is contrast-checked (qa/scripts/contrast.py).
+   Palette (23 Oct 2026): Sea Moss #2C5252 (background and brand), Antique Gold #EBDAB0
+   (calls to action), Alabaster #F4EADE (type and space). Surfaces sit slightly deeper than
+   the background. Every text pair is contrast-checked (qa/scripts/contrast.py).
    Layout rule: use logical properties only (ms/me/ps/pe/start/end, margin-inline...),
    never left/right, so the Arabic (RTL) build needs no CSS rewrite. */
 
 @theme static {
-  --color-bg: #0c0a09;
-  --color-card: #1c1917;
-  --color-elevated: #292524;
-  --color-fg: #fafaf9;
-  --color-muted: #a8a29e;
-  --color-accent: #ca8a04;
-  --color-accent-hover: #eab308;
-  --color-on-accent: #0c0a09;
-  --color-ring: #eab308;
-  --color-line: #44403c;
-  --color-input: #78716c;
-  --color-danger: #f87171;
-  --color-success: #4ade80;
-  --color-warning: #fbbf24;
-  --color-info: #7dd3fc;
-  --color-ice: #7dd3fc;
-  --color-champagne: #d6d3d1;
-  --color-amber: #b45309;
+  --color-bg: #2c5252; /* Sea Moss */
+  --color-card: #244747;
+  --color-elevated: #1d3c3c;
+  --color-deep: #183333;
+  --color-fg: #f4eade; /* Alabaster */
+  --color-muted: #c3cec6;
+  --color-accent: #ebdab0; /* Antique Gold */
+  --color-accent-hover: #f6ebcf;
+  --color-on-accent: #1b3434;
+  --color-ring: #ebdab0;
+  --color-line: #4a7372;
+  --color-input: #8daea8;
+  --color-danger: #fca5a5;
+  --color-success: #86efac;
+  --color-warning: #fdba74;
+  --color-info: #a5f3fc;
+  --color-ice: #a5d8dc;
+  --color-champagne: #e3d9c8;
+  --color-amber: #b8975a; /* antique bronze, for glows and gradients */
 
   --font-display: var(--font-syncopate), "Eurostile", "Arial Black", system-ui, sans-serif;
   --font-body: var(--font-montserrat), "Helvetica Neue", Arial, system-ui, sans-serif;
@@ -32,17 +35,17 @@
   --radius-card: 16px;
   --radius-panel: 24px;
 
-  --shadow-glow: 0 0 0 1px rgba(202, 138, 4, 0.4), 0 8px 32px rgba(202, 138, 4, 0.15);
-  --shadow-edge: inset 0 1px 0 rgba(250, 250, 249, 0.08);
+  --shadow-glow: 0 0 0 1px rgba(235, 218, 176, 0.45), 0 8px 32px rgba(235, 218, 176, 0.14);
+  --shadow-edge: inset 0 1px 0 rgba(244, 234, 222, 0.1);
 }
 
 :root {
   color-scheme: dark;
-  --glass: rgba(28, 25, 23, 0.55);
-  --glass-line: rgba(250, 250, 249, 0.08);
-  --card-veil: rgba(28, 25, 23, 0.8);
-  --shade: rgba(12, 10, 9, 0.78);
-  --scrim-text: linear-gradient(0deg, rgba(12, 10, 9, 0.9), rgba(12, 10, 9, 0.35) 60%, transparent);
+  --glass: rgba(29, 60, 60, 0.62);
+  --glass-line: rgba(244, 234, 222, 0.12);
+  --card-veil: rgba(36, 71, 71, 0.85);
+  --shade: rgba(24, 51, 51, 0.78);
+  --scrim-text: linear-gradient(0deg, rgba(24, 51, 51, 0.92), rgba(24, 51, 51, 0.4) 60%, transparent);
   --header-h: 72px;
   --dock-h: 0px; /* set to the dock's height on pages that show it */
   /* z-index scale */
@@ -73,7 +76,7 @@
   img, svg, canvas, video { display: block; max-width: 100%; }
   button, input, select, textarea { font: inherit; color: inherit; }
   :focus-visible { outline: 2px solid var(--color-ring); outline-offset: 3px; border-radius: 6px; }
-  ::selection { background: rgba(202, 138, 4, 0.35); }
+  ::selection { background: rgba(235, 218, 176, 0.35); }
   [hidden] { display: none !important; }
 }
 
@@ -96,7 +99,7 @@
   .fine { font-size: 12px; color: var(--color-muted); letter-spacing: 0.02em; }
   .label { font: 600 11px/1.2 var(--font-body); letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted); }
   .tabular { font-variant-numeric: tabular-nums; }
-  .shadowed { text-shadow: 0 2px 24px rgba(12, 10, 9, 0.85); }
+  .shadowed { text-shadow: 0 2px 24px rgba(24, 51, 51, 0.85); }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
   /* Buttons */
@@ -125,7 +128,7 @@
   .glass {
     background: var(--glass); border: 1px solid var(--glass-line); border-radius: var(--radius-panel);
     -webkit-backdrop-filter: blur(20px) saturate(140%); backdrop-filter: blur(20px) saturate(140%);
-    box-shadow: var(--shadow-edge), 0 24px 70px rgba(0, 0, 0, 0.5);
+    box-shadow: var(--shadow-edge), 0 24px 70px rgba(10, 28, 28, 0.5);
   }
   @supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) { .glass { background: var(--color-card); } }
 
@@ -139,7 +142,7 @@
   }
   select.input {
     padding-inline-end: 38px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23CA8A04' stroke-width='1.6'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23EBDAB0' stroke-width='1.6'/%3E%3C/svg%3E");
     background-repeat: no-repeat; background-position: right 14px center;
   }
   :dir(rtl) select.input { background-position: left 14px center; }
@@ -162,12 +165,12 @@
   .trust li::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--color-accent); }
 
   /* Badges: text, never colour alone */
-  .badge { display: inline-flex; align-items: center; gap: 6px; min-height: 24px; padding: 4px 10px; border-radius: 999px; font: 600 11px/1 var(--font-body); letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-accent-hover); border: 1px solid rgba(202, 138, 4, 0.4); background: rgba(28, 25, 23, 0.85); }
+  .badge { display: inline-flex; align-items: center; gap: 6px; min-height: 24px; padding: 4px 10px; border-radius: 999px; font: 600 11px/1 var(--font-body); letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-accent-hover); border: 1px solid rgba(235, 218, 176, 0.4); background: rgba(36, 71, 71, 0.85); }
   .badge-muted { color: var(--color-muted); border-color: var(--color-line); }
 
   /* Notices */
   .notice { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--color-line); background: var(--color-card); font-size: 14px; line-height: 1.5; }
-  .notice-info { border-color: rgba(125, 211, 252, 0.4); }
+  .notice-info { border-color: rgba(165, 216, 220, 0.4); }
   .notice-warning { border-color: rgba(251, 191, 36, 0.5); }
   .notice-danger { border-color: rgba(248, 113, 113, 0.6); }
   .notice-success { border-color: rgba(74, 222, 128, 0.5); }
@@ -181,5 +184,5 @@
   .glass { background: var(--color-card); -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
 @media (prefers-contrast: more) {
-  :root { --color-muted: #d6d3d1; }
+  :root { --color-muted: #e3d9c8; }
 }
