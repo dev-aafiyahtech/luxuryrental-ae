@@ -22,6 +22,7 @@ export const metadata: Metadata = {
   title: { default: "Luxury Car Rental in Dubai, Delivered | LuxuryRental.ae", template: "%s | LuxuryRental.ae" },
   description: "16 cars from Ferrari, Lamborghini, Rolls-Royce, Bugatti and more, delivered across Dubai including DXB. Request online, confirm on WhatsApp.",
   robots: site.demo ? { index: false, follow: false } : undefined,
+  openGraph: { type: "website", siteName: "LuxuryRental.ae", images: [{ url: "/brand/og-template.png", width: 1200, height: 630, alt: "LuxuryRental.ae" }] },
 };
 
 export const viewport: Viewport = {

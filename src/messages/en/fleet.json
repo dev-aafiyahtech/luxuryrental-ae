@@ -204,7 +204,9 @@
       "extraKm": "Extra km",
       "extraKmValue": "{amount} per km",
       "minimum": "Minimum rental",
-      "fromDay": "from {price}"
+      "fromDay": "from {price}",
+      "depositNote": "Card hold, released {days} days after return",
+      "kmDay": "{day} km a day"
     },
     "chauffeurLede": "With a professional chauffeur. {included}",
     "chauffeurCaption": "Chauffeur rates for the {car}, in AED including 5% VAT",

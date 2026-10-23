@@ -65,8 +65,13 @@ function fromMinutes(mins: number): { date: string; time: string } {
 
 /** Earliest pickup slot (date + 30-minute slot) allowed by the car's notice period. */
 export function earliestStart(car: Car, service: ServiceMode, now: Date): { date: string; time: string } {
+  return earliestAfter(leadHoursFor(car, service), now);
+}
+
+/** Earliest 30-minute slot at least `hours` from now (the dock uses the standard 4 hours). */
+export function earliestAfter(hours: number, now: Date): { date: string; time: string } {
   const n = nowInDubai(now);
-  const mins = toMinutes(n.date, n.time) + leadHoursFor(car, service) * 60;
+  const mins = toMinutes(n.date, n.time) + hours * 60;
   return fromMinutes(Math.ceil(mins / 30) * 30);
 }
 
@@ -348,3 +353,17 @@ export function formatPhone(e164?: string): string {
 
 export const emailOk = (v?: string) => !v || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
 export const flightOk = (v?: string) => !v || /^[A-Z0-9]{2}\s?\d{1,4}[A-Z]?$/i.test(v.trim());
+
+/* ---------- hand-off between review and confirmation ---------- */
+
+// Set when a request has just been sent from this tab; the confirmation page then clears the
+// trip draft (keeping contact details). A reload of the confirmation page leaves the draft alone.
+let justSent: string | null = null;
+export const markSent = (ref: string) => {
+  justSent = ref;
+};
+export function consumeSent(ref: string): boolean {
+  if (justSent !== ref) return false;
+  justSent = null;
+  return true;
+}
