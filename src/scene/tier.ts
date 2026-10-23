@@ -12,6 +12,9 @@ interface NavigatorHints {
 
 export function detectTier(): Tier {
   if (typeof window === "undefined") return "static";
+  // QA and demo override: ?tier=high|low|static
+  const forced = new URLSearchParams(window.location.search).get("tier");
+  if (forced === "high" || forced === "low" || forced === "static") return forced === "static" || supportsWebGL2() ? forced : "static";
   const nav = navigator as Navigator & NavigatorHints;
   if (nav.connection?.saveData) return "static";
   if (nav.connection?.effectiveType && /(^|-)2g$/.test(nav.connection.effectiveType)) return "static";
@@ -20,7 +23,7 @@ export function detectTier(): Tier {
   const coarse = matchMedia("(pointer: coarse)").matches;
   const small = window.innerWidth < 768;
   const lowMemory = typeof nav.deviceMemory === "number" && nav.deviceMemory < 4;
-  const fewCores = typeof nav.hardwareConcurrency === "number" && nav.hardwareConcurrency <= 4;
+  const fewCores = typeof nav.hardwareConcurrency === "number" && nav.hardwareConcurrency <= 2;
   return coarse || small || lowMemory || fewCores ? "low" : "high";
 }
 

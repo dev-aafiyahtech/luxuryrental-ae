@@ -181,7 +181,7 @@ export function createStage(opts: StageOptions): Stage {
     sampled++;
     if (dt > 0.034) slowFrames++;
     if (sampled < 90) return;
-    const floor = tier === "low" ? 0.85 : 1;
+    const floor = 1;
     if (slowFrames > 60 && pixelRatio > floor) {
       pixelRatio = Math.max(floor, pixelRatio - 0.25);
       renderer.setPixelRatio(pixelRatio);

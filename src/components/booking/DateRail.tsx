@@ -84,8 +84,8 @@ export function DateRail({ mode = "range", start, end, today, min, max, minDays 
   const nav = "hidden h-11 w-11 flex-none items-center justify-center rounded-full border border-line text-fg hover:border-accent sm:inline-flex";
 
   return (
-    <div className={clsx("grid gap-2", className)}>
-      <div className="flex items-center gap-2">
+    <div className={clsx("grid min-w-0 max-w-full grid-cols-1 gap-2", className)}>
+      <div className="flex min-w-0 items-center gap-2">
         <button type="button" className={nav} onClick={() => page(-1)} aria-label={t("rail.prev")} tabIndex={-1}>
           <ChevronLeft className="h-5 w-5 rtl:-scale-x-100" aria-hidden="true" />
         </button>
@@ -93,7 +93,7 @@ export function DateRail({ mode = "range", start, end, today, min, max, minDays 
           ref={scroller}
           role="group"
           aria-label={mode === "range" ? t("rail.label") : t("rail.labelSingle")}
-          className="flex min-w-0 flex-1 snap-x gap-1.5 overflow-x-auto overscroll-x-contain scroll-smooth pb-1 [scrollbar-width:thin] motion-reduce:scroll-auto"
+          className="flex min-w-0 flex-1 snap-x scroll-px-1.5 gap-1.5 overflow-x-auto overscroll-x-contain scroll-smooth px-1.5 py-1.5 [scrollbar-width:thin] motion-reduce:scroll-auto"
         >
           {days.map((d, i) => {
             const disabled = off(d);

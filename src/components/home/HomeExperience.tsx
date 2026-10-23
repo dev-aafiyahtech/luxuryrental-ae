@@ -87,6 +87,18 @@ function whenIdle(fn: () => void, timeout = 1500): () => void {
   };
 }
 
+/**
+ * Runs while the HTML is parsed, before first paint: measures what sits above the homepage
+ * (the demo bar) so the first chapter's copy clears the dock at scroll 0. It writes a
+ * <style> into <head> rather than touching React-rendered attributes, so hydration matches.
+ */
+const homeTopScript = `(function(){try{var r=document.querySelector("[data-home]");if(!r)return;var s=document.getElementById("lr-home-top")||document.createElement("style");s.id="lr-home-top";s.textContent="[data-home]{--home-top:"+Math.max(0,Math.round(r.getBoundingClientRect().top+window.scrollY))+"px}";document.head.appendChild(s)}catch(e){}})()`;
+
+/** Inline script that runs on full page loads only (Next "preventing flash" pattern). */
+function InlineScript({ html }: { html: string }) {
+  return <script type={typeof window === "undefined" ? "text/javascript" : "text/plain"} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: html }} />;
+}
+
 interface Props {
   cars: Car[];
   heroSlug: string;
@@ -148,6 +160,26 @@ export function HomeExperience({ cars, heroSlug, defaultIndex, chrome, chapters,
     });
   }, []);
 
+  // Keep --home-top (height of what sits above the homepage, e.g. the demo bar) current.
+  useEffect(() => {
+    const update = () => {
+      const root = rootRef.current;
+      if (!root) return;
+      const top = Math.max(0, Math.round(root.getBoundingClientRect().top + window.scrollY));
+      let el = document.getElementById("lr-home-top");
+      if (!el) {
+        el = document.createElement("style");
+        el.id = "lr-home-top";
+        document.head.appendChild(el);
+      }
+      el.textContent = `[data-home]{--home-top:${top}px}`;
+    };
+    update();
+    window.addEventListener("resize", update);
+    document.fonts?.ready.then(update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
   // Dock hides while the chapter 4 reserve card is at least 40% in view; the stage pauses off-screen.
   useEffect(() => {
     const card = reserveRef.current, wrap = chaptersRef.current;
@@ -201,7 +233,14 @@ export function HomeExperience({ cars, heroSlug, defaultIndex, chrome, chapters,
       const el = document.getElementById(id);
       if (!el) return;
       const top = el.getBoundingClientRect().top + window.scrollY;
-      const y = id === "reserve" ? top + el.offsetHeight - window.innerHeight : top;
+      let y = top;
+      if (id === "reserve") {
+        // End of the chapter, but never so far that the (tall) reserve card's top hides under the header.
+        y = top + el.offsetHeight - window.innerHeight;
+        const card = reserveRef.current;
+        const headerH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--header-h")) || 72;
+        if (card) y = Math.min(y, card.getBoundingClientRect().top + window.scrollY - headerH - 16);
+      }
       if (lenis) lenis.scrollTo(y, { duration: 1.8 });
       else window.scrollTo({ top: y, behavior: reduced ? "auto" : "smooth" });
       el.querySelector<HTMLElement>("h1, h2")?.focus({ preventScroll: true });
@@ -400,6 +439,7 @@ export function HomeExperience({ cars, heroSlug, defaultIndex, chrome, chapters,
   return (
     <Ctx.Provider value={value}>
       <div ref={rootRef} data-home="" data-stage={mode} data-paused={paused ? "" : undefined} className="group/home relative -mt-[var(--header-h)] overflow-x-clip [--home-dock:84px] lg:[--home-dock:104px]">
+        <InlineScript html={homeTopScript} />
         <div ref={chaptersRef} data-chapters="" className="relative">
           {chrome}
           {chapters}

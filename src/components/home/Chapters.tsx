@@ -69,7 +69,7 @@ export async function HomeChapters({ top, today }: { top: Car[]; today: string }
       <section id="skyline" aria-labelledby="h-sky" className="relative z-[2] h-[290vh] motion-reduce:h-auto">
         <div
           data-frame=""
-          className={`${padX} sticky top-0 grid h-svh items-end overflow-hidden pt-[120px] pb-[calc(var(--home-dock)+56px)] before:pointer-events-none before:absolute before:inset-0 before:bg-[linear-gradient(0deg,var(--shade)_20%,transparent_70%)] md:before:bg-[linear-gradient(90deg,var(--shade),transparent_58%)] md:rtl:before:bg-[linear-gradient(270deg,var(--shade),transparent_58%)] motion-reduce:relative motion-reduce:h-auto motion-reduce:min-h-svh motion-reduce:gap-8`}
+          className={`${padX} sticky top-0 grid h-[calc(100svh-var(--home-top,0px))] items-end overflow-hidden pt-[120px] pb-[calc(var(--home-dock)+56px)] before:pointer-events-none before:absolute before:inset-0 before:bg-[linear-gradient(0deg,var(--shade)_20%,transparent_70%)] md:before:bg-[linear-gradient(90deg,var(--shade),transparent_58%)] md:rtl:before:bg-[linear-gradient(270deg,var(--shade),transparent_58%)] motion-reduce:relative motion-reduce:h-auto motion-reduce:min-h-svh motion-reduce:gap-8`}
         >
           <div data-sky-a="" className="shadowed relative grid max-w-[780px] gap-[22px] [grid-area:1/1] motion-reduce:[grid-area:auto]">
             <Eyebrow num="01">{t("sky.eyebrow")}</Eyebrow>
@@ -88,7 +88,7 @@ export async function HomeChapters({ top, today }: { top: Car[]; today: string }
           </div>
           <div
             data-sky-b=""
-            className="shadowed relative grid max-w-[400px] gap-3 justify-self-stretch border-s border-accent bg-[linear-gradient(90deg,rgba(12,10,9,.7),rgba(12,10,9,.2))] p-6 [grid-area:1/1] md:justify-self-end rtl:bg-[linear-gradient(270deg,rgba(12,10,9,.7),rgba(12,10,9,.2))] motion-safe:invisible motion-safe:opacity-0 motion-reduce:justify-self-start motion-reduce:[grid-area:auto]"
+            className="shadowed relative grid max-w-[400px] gap-3 justify-self-stretch border-s border-accent bg-[linear-gradient(90deg,rgba(12,10,9,.84),rgba(12,10,9,.6))] p-6 backdrop-blur-[6px] [grid-area:1/1] md:justify-self-end rtl:bg-[linear-gradient(270deg,rgba(12,10,9,.84),rgba(12,10,9,.6))] motion-safe:invisible motion-safe:opacity-0 motion-reduce:justify-self-start motion-reduce:[grid-area:auto]"
           >
             <p className="eyebrow">{t("sky.noteEyebrow")}</p>
             <p className="display-sm">{t("sky.noteTitle")}</p>

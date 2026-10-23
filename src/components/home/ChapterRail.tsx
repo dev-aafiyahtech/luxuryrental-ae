@@ -8,7 +8,7 @@ import { CHAPTERS, useHome } from "./HomeExperience";
 
 /** Desktop chapter rail with the Pause motion control (WCAG 2.2.2), plus the mobile control. */
 export function ChapterRail() {
-  const { active, paused, togglePaused, reduced, chaptersOnScreen } = useHome();
+  const { active, paused, togglePaused, reduced, chaptersOnScreen, reserveVisible } = useHome();
   const t = useT("home");
   const hiddenCls = !chaptersOnScreen && "pointer-events-none invisible opacity-0";
   const pauseLabel = paused ? t("rail.play") : t("rail.pause");
@@ -17,7 +17,7 @@ export function ChapterRail() {
   return (
     <>
       <nav aria-label={t("rail.label")} className={clsx("fixed end-5 top-1/2 z-[var(--z-rail)] -translate-y-1/2 transition-[opacity,visibility] duration-300 max-lg:hidden", hiddenCls)}>
-        <ol className="grid gap-1.5 p-0 [list-style:none]">
+        <ol className="grid gap-1.5 p-0 [list-style:none] [text-shadow:0_1px_10px_rgba(12,10,9,.95),0_0_2px_rgba(12,10,9,.9)]">
           {CHAPTERS.map((id, i) => (
             <li key={id}>
               <a
@@ -51,7 +51,7 @@ export function ChapterRail() {
           aria-label={pauseLabel}
           className={clsx(
             "fixed bottom-[calc(var(--home-dock)+12px)] end-4 z-[var(--z-rail)] flex size-11 items-center justify-center rounded-full border border-line bg-[rgba(12,10,9,.7)] text-fg backdrop-blur-sm transition-[opacity,visibility,border-color] duration-300 hover:border-accent lg:hidden",
-            hiddenCls,
+            (hiddenCls || reserveVisible) && "pointer-events-none invisible opacity-0",
           )}
         >
           <Icon className="size-4" aria-hidden="true" />

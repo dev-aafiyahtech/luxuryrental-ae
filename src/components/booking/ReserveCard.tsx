@@ -67,7 +67,7 @@ export function ReserveCard({ car, variant = "panel", className, eyebrow }: Rese
 
   const reserveHref = href(stepPath("trip", car, service));
   const reserveLabel = onRequest ? t("reserve.request") : t("reserve.reserve");
-  const shell = clsx(variant === "panel" ? "glass p-5 sm:p-6" : "card p-5", "grid gap-5", className);
+  const shell = clsx(variant === "panel" ? "glass p-5 sm:p-6" : "card p-5", "grid min-w-0 max-w-full grid-cols-1 gap-5 [&>*]:min-w-0", className);
 
   const head = (
     <div className="grid gap-1.5">
@@ -120,7 +120,7 @@ export function ReserveCard({ car, variant = "panel", className, eyebrow }: Rese
       )}
 
       {/* Dates */}
-      <div className="grid gap-3">
+      <div className="grid grid-cols-1 gap-3 [&>*]:min-w-0">
         <div className="flex items-center justify-between gap-3">
           <p className="label">{chauffeur ? t("reserve.date") : t("reserve.dates")}</p>
           <button type="button" onClick={() => setCalendar(true)} className="-me-2 inline-flex min-h-11 items-center gap-1.5 rounded-full px-2 text-[13px] font-semibold text-accent-hover hover:text-fg" aria-haspopup="dialog">
@@ -147,7 +147,7 @@ export function ReserveCard({ car, variant = "panel", className, eyebrow }: Rese
 
       {/* Times */}
       {chauffeur ? (
-        <div className="grid gap-4">
+        <div className="grid grid-cols-1 gap-4 [&>*]:min-w-0">
           <TimeSelect id={`${uid}-start`} label={t("time.start")} kind="chauffeur" value={trip.pickupTime} date={trip.pickupDate} earliest={earliest} onChange={(v) => set({ pickupTime: v })} />
           <div className="field">
             <label htmlFor={`${uid}-pkg`}>{t("reserve.package")}</label>
@@ -180,7 +180,7 @@ export function ReserveCard({ car, variant = "panel", className, eyebrow }: Rese
           </select>
         </div>
       ) : (
-        <div className="grid gap-3">
+        <div className="grid grid-cols-1 gap-3 [&>*]:min-w-0">
           <Segmented
             legend={t("reserve.handover")}
             value={trip.handover}
@@ -225,7 +225,7 @@ export function ReserveCard({ car, variant = "panel", className, eyebrow }: Rese
       )}
 
       {/* Total */}
-      <div className="grid gap-1.5 border-t border-line pt-4">
+      <div className="grid grid-cols-1 gap-1.5 border-t border-line pt-4">
         <div className="flex items-baseline justify-between gap-3">
           <span className="label">{t("reserve.total")}</span>
           <strong className="font-display text-2xl text-accent-hover">

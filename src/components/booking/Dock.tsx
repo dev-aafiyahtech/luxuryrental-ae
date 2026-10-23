@@ -99,7 +99,7 @@ export function Dock({ hidden, className }: DockProps) {
   );
 
   const dates = earliest && (
-    <div className="grid gap-5">
+    <div className="grid min-w-0 grid-cols-1 gap-5 [&>*]:min-w-0">
       <DateChips today={today} earliest={earliest.date} start={trip.pickupDate} end={trip.returnDate} onPick={(r) => setRange(r)} />
       <DateRangePicker
         label={t("picker.label")}
@@ -199,7 +199,7 @@ export function Dock({ hidden, className }: DockProps) {
         description={ooh ? t("dock.repliesOoh") : t("dock.replies")}
         footer={<button type="button" className="btn btn-primary btn-block" onClick={go}>{t("dock.showCars")}</button>}
       >
-        <div className="grid gap-6">
+        <div className="grid min-w-0 grid-cols-1 gap-6 [&>*]:min-w-0">
           {continueLink}
           <div className="field">
             <label htmlFor={`${uid}-where-m`}>{t("dock.where")}</label>
