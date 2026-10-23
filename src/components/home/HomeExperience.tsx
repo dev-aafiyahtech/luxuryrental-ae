@@ -137,6 +137,12 @@ export function HomeExperience({ cars, heroSlug, defaultIndex, chrome, chapters,
   const onScreenRef = useRef(true);
   const needsRender = useRef(true);
   const goToRef = useRef<(id: string) => void>(() => {});
+  // A server re-render sends a new array with the same cars: key effects on the slugs.
+  const carsRef = useRef(cars);
+  const carsKey = cars.map((c) => c.slug).join(",");
+  useEffect(() => {
+    carsRef.current = cars;
+  }, [cars]);
   const cueTween = useRef<{ pause(): void; play(): void } | null>(null);
 
   // Remembered Pause motion setting
@@ -210,8 +216,9 @@ export function HomeExperience({ cars, heroSlug, defaultIndex, chrome, chapters,
     if (!root) return;
     let cancelled = false;
     const cleanups: (() => void)[] = [];
+    // Chapter state survives a re-run (route shown again, setting changed); with reduced
+    // motion ScrollTrigger's toggles snap it to the active chapter's final state.
     const state = S.current;
-    Object.assign(state, reduced ? SNAP[0] : { c1: 0, c2: 0, c3: 0, c4: 0 });
     needsRender.current = true;
     let last = { ...state };
 
@@ -384,8 +391,9 @@ export function HomeExperience({ cars, heroSlug, defaultIndex, chrome, chapters,
         const { createStage } = await import("@/scene/stage");
         const container = stageRef.current;
         if (cancelled || !container) return;
-        const hero = cars.find((c) => c.slug === heroSlug) ?? cars[0];
-        stage.current = createStage({ container, overlay: overlayRef.current, tier, hero: toStageCar(hero), selected: toStageCar(cars[selectedRef.current]) });
+        const list = carsRef.current;
+        const hero = list.find((c) => c.slug === heroSlug) ?? list[0];
+        stage.current = createStage({ container, overlay: overlayRef.current, tier, hero: toStageCar(hero), selected: toStageCar(list[selectedRef.current] ?? list[0]) });
         needsRender.current = true;
         setMode("gl");
       } catch (err) {
@@ -402,7 +410,7 @@ export function HomeExperience({ cars, heroSlug, defaultIndex, chrome, chapters,
       stage.current = null;
       setMode("pending");
     };
-  }, [reduced, cars, heroSlug]);
+  }, [reduced, carsKey, heroSlug]);
 
   const select = useCallback(
     (index: number) => {
