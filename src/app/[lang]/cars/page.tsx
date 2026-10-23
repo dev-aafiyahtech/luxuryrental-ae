@@ -13,7 +13,6 @@ import { FleetView } from "@/components/fleet/FleetView";
 import { ChauffeurCrossSell } from "@/components/fleet/ChauffeurCrossSell";
 import { DEFAULT_FILTERS } from "@/components/fleet/filters";
 import { JsonLd, breadcrumbLd, graph } from "@/components/fleet/seo";
-import probeJson from "@/messages/en/fleet.json";
 
 export async function generateMetadata(): Promise<Metadata> {
   const [t, href, today] = await Promise.all([getT("fleet"), getHref(), getToday()]);
@@ -36,7 +35,7 @@ export default async function FleetPage() {
   const shared = { today, cards, crossSell, brandLinks, brandCount: brands.length };
 
   return (
-    <div className="container-site pb-36" data-probe={(probeJson as {fleet?: {title?: string}}).fleet?.title ?? "none"}>
+    <div className="container-site pb-36">
       <JsonLd data={graph(breadcrumbLd([{ name: t("nav.home"), path: href("/") }, { name: t("nav.fleet"), path: href("/cars") }]))} />
       <Suspense fallback={<FleetView {...shared} filters={DEFAULT_FILTERS} />}>
         <FleetBrowser {...shared} />

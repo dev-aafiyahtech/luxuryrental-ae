@@ -47,7 +47,7 @@ export function FleetView({ filters, onChange, today, cards, crossSell, brandLin
   return (
     <div className="grid gap-8">
       <header className="grid gap-5 pt-10 md:pt-14">
-        <p className="eyebrow"><span className="num">{String(total).padStart(2, "0")}</span>{t("fleet.eyebrow", { cars: total, brands: brandCount })}</p>
+        <p className="eyebrow">{t("fleet.eyebrow", { cars: total, brands: brandCount })}</p>
         <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
           <h1 className="display-md">{t("fleet.title")}</h1>
           <p className="font-display text-lg font-bold uppercase tracking-[0.06em] text-accent-hover tabular" aria-live="polite" aria-atomic="true">
@@ -95,13 +95,13 @@ export function FleetView({ filters, onChange, today, cards, crossSell, brandLin
       </div>
 
       {shown > 0 ? (
-        <ul aria-label={t("fleet.listLabel")} className="grid gap-4 p-0 [list-style:none] md:grid-cols-2 md:gap-5 min-[1440px]:grid-cols-3">
+        <ul aria-label={t("fleet.listLabel")} className="grid gap-4 p-0 [list-style:none] md:grid-cols-2 md:gap-5 min-[90rem]:grid-cols-3">
           {results.map((c, i) => (
             <li key={c.slug} style={{ order: i * 2 }} className="grid">
               {cards[c.slug]}
             </li>
           ))}
-          <li className="order-3 grid md:order-7 min-[1440px]:order-11">{crossSell}</li>
+          <li className="order-3 grid md:order-7 min-[90rem]:order-11">{crossSell}</li>
         </ul>
       ) : (
         <section aria-labelledby="fleet-empty" className="grid gap-8">
@@ -115,7 +115,7 @@ export function FleetView({ filters, onChange, today, cards, crossSell, brandLin
           </div>
           <div className="grid gap-4">
             <p className="label">{t("empty.nearest")}</p>
-            <ul aria-label={t("empty.nearest")} className="grid gap-4 p-0 [list-style:none] md:grid-cols-2 md:gap-5 min-[1440px]:grid-cols-3">
+            <ul aria-label={t("empty.nearest")} className="grid gap-4 p-0 [list-style:none] md:grid-cols-2 md:gap-5 min-[90rem]:grid-cols-3">
               {nearest.map((c) => <li key={c.slug} className="grid">{cards[c.slug]}</li>)}
             </ul>
           </div>

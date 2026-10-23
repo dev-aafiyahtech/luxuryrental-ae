@@ -36,6 +36,8 @@ function car(slug: string) {
 const kmMonth = (slug: string) => car(slug).rates.kmPerMonth ?? 4500;
 const release = (slug: string) => rules.tiers[car(slug).tier].releaseDays;
 const lowestDaily = Math.min(...cars.map((c) => c.rates.daily));
+/** The most common daily km allowance in the fleet (250 at launch). */
+const commonKm = [...cars.map((c) => c.rates.kmPerDay)].sort((a, b) => cars.filter((c) => c.rates.kmPerDay === b).length - cars.filter((c) => c.rates.kmPerDay === a).length)[0];
 const lowestTwoDaily = [...cars].sort((a, b) => a.rates.daily - b.rates.daily).slice(0, 2).map((c) => c.slug);
 
 const R = car("lamborghini-revuelto");
@@ -64,7 +66,7 @@ export const carCopy: Record<string, CarCopy | undefined> = {
     description: [
       `The Revuelto took over from the Aventador at the top of Lamborghini's range. It keeps a naturally aspirated V12 behind the seats and adds three electric motors, two at the front and one in the gearbox, for ${n(R.specs.hp)} hp and all-wheel drive. The scissor doors stayed.`,
       `It suits a short rental with one clear purpose: a night drive along Sheikh Zayed Road with the towers lit, an early run up Jebel Jais before the heat, or a single arrival you want people to remember. Luggage space is small, so bring a soft bag.`,
-      `This car includes ${R.rates.kmPerDay} km a day, a little less than most of the fleet. The main driver must be ${R.minAge} or older and have held a full licence for at least ${R.licenceYears} years. We hand it over at your hotel, home or the airport, or at our Dubai Silicon Oasis office.`,
+      `The Revuelto includes ${R.rates.kmPerDay} km a day, where most of our cars include ${n(commonKm)}. The main driver must be ${R.minAge} or older and have held a full licence for at least ${R.licenceYears} years. We hand it over at your hotel, home or the airport, or at our Dubai Silicon Oasis office.`,
     ].join("\n\n"),
     highlights: [`${n(R.specs.hp)} hp from a V12 and three electric motors`, "Scissor doors, two seats, all-wheel drive", `${R.rates.kmPerDay} km a day included`],
   },
@@ -80,7 +82,7 @@ export const carCopy: Record<string, CarCopy | undefined> = {
   },
 
   "bugatti-chiron-super-sport": {
-    summary: `The Chiron Super Sport is the long-tail version of Bugatti's last W16 car, with ${n(BSS.specs.hp)} hp from a quad-turbo 8.0-litre engine. It comes from a partner owner and is offered on request. We need ${BSS.leadHours} hours' notice, and every rental starts with an escorted handover and a briefing from our team.`,
+    summary: `The Chiron Super Sport is the long-tail, higher-speed version of Bugatti's Chiron, with ${n(BSS.specs.hp)} hp from a quad-turbo 8.0-litre engine. It comes from a partner owner and is offered on request. We need ${BSS.leadHours} hours' notice, and every rental starts with an escorted handover and a briefing from our team.`,
     description: [
       `Bugatti built the Super Sport near the end of the Chiron's run, with a longer tail than the standard car and ${n(BSS.specs.hp)} hp from its quad-turbo W16. It is a two-seat coupé with all-wheel drive.`,
       `The car belongs to a partner owner, so we check every request with the owner and our insurer before we accept it. The price is quoted on request. The figure on the site is where quotes start, and our team confirms the final price for your dates on WhatsApp. Allow ${BSS.leadHours} hours between your request and the handover.`,
@@ -173,10 +175,10 @@ export const carCopy: Record<string, CarCopy | undefined> = {
     summary: `The fourth-generation Continental GTC Speed is a four-seat convertible with a plug-in hybrid V8 making ${n(GTC.specs.ps)} PS. It has a fabric roof, all-wheel drive and rear seats for two more people. Delivered across Dubai or collected from our office in Dubai Silicon Oasis.`,
     description: [
       `The latest GTC Speed replaced Bentley's W12 with a plug-in hybrid: a 4.0-litre twin-turbo V8 and an electric motor that together make ${n(GTC.specs.ps)} PS (${n(GTC.specs.hp)} hp), with all-wheel drive. It can cover short distances on electric power alone.`,
-      `It is the only convertible in our fleet with four seats. That makes it the open car for two couples heading to dinner at a beach club, or for parents who want the roof down with older children in the back.`,
+      `Its rear seats are the roomiest of any open car we offer. Two couples can head to dinner at a beach club with the roof down, or parents can bring older children along.`,
       `It is in our Luxury tier, so the main driver must be ${GTC.minAge} or older with ${GTC.licenceYears} years on their licence. ${GTC.rates.kmPerDay} km a day are included. We deliver it across Dubai and to the airport, or you can collect it at our Dubai Silicon Oasis office.`,
     ].join("\n\n"),
-    highlights: [`${n(GTC.specs.ps)} PS V8 plug-in hybrid`, "Four seats with the roof down", "All-wheel drive"],
+    highlights: [`${n(GTC.specs.ps)} PS V8 plug-in hybrid`, "Four seats with the roof down", "All-wheel drive and a fabric roof"],
   },
 
   "rolls-royce-phantom": {
@@ -232,7 +234,7 @@ export const brandCopy: Record<string, BrandCopy | undefined> = {
     faqs: [
       { q: "How old do I need to be to rent a Lamborghini in Dubai?", a: `${S.minAge} or older, with a full driving licence held for at least ${S.licenceYears} years. The same rule applies to the Revuelto and the Urus SE. Visitors from some countries also need an International Driving Permit; our rental requirements page lists them.` },
       { q: "Revuelto or Urus SE: which should I choose?", a: `Choose the Revuelto for two people and one drive you will remember. Choose the Urus SE if you need five seats or space for suitcases; it also has the lower daily rate. Both are plug-in hybrids with all-wheel drive.` },
-      { q: "How much is the deposit on a Lamborghini?", a: `${formatAED(R.rates.deposit)} for the Revuelto and ${formatAED(U.rates.deposit)} for the Urus SE, held on a credit card in the main driver's name. It is a hold, not a charge. We release it ${release(R.slug)} days after you return the car, less any fines or tolls.` },
+      { q: "How much is the deposit on a Lamborghini?", a: `${formatAED(R.rates.deposit)} for the Revuelto and ${formatAED(U.rates.deposit)} for the Urus SE, held on a credit card in the main driver's name. We release the hold ${release(R.slug)} days after you return the car, less any fines or tolls.` },
     ],
   },
 
@@ -276,7 +278,7 @@ export const brandCopy: Record<string, BrandCopy | undefined> = {
     intro: `Our two Bentleys cover comfort and open-air touring. The Bentayga EWB Azure is a long-wheelbase SUV with lounge rear seats, available self-drive or with a chauffeur. The Continental GTC Speed is a four-seat convertible with a plug-in hybrid V8 and all-wheel drive. Both are in our Luxury tier, so the main driver needs to be ${L.minAge} or older with ${L.licenceYears} years on their licence.`,
     faqs: [
       { q: "Can I book the Bentayga with a chauffeur?", a: `Yes. Chauffeur bookings start at ${formatAED(BB.chauffeur!.hourly)} an hour with a ${rules.chauffeur.minHours}-hour minimum. A half day (${rules.chauffeur.halfDayHours} hours) is ${formatAED(BB.chauffeur!.halfDay)}, a full day (${rules.chauffeur.fullDayHours} hours) is ${formatAED(BB.chauffeur!.fullDay)}, and a one-way airport transfer within Dubai is ${formatAED(BB.chauffeur!.airport)}.` },
-      { q: "Does the Continental GTC Speed seat four?", a: `Yes. It has four seats and a fabric roof, so four people can travel with the roof down. It is the only four-seat convertible in our fleet.` },
+      { q: "Does the Continental GTC Speed seat four?", a: `Yes. It has four seats and a fabric roof, so four people can travel with the roof down. Its rear seats are larger than the DB12 Volante's, which makes it our best open car for four adults.` },
       { q: "What deposit do the Bentleys need?", a: `${sameDeposit(BB, GTC)}, held on a credit card in the main driver's name and released ${L.releaseDays} days after you return the car, less any fines or tolls.` },
     ],
   },
@@ -286,7 +288,7 @@ export const brandCopy: Record<string, BrandCopy | undefined> = {
     faqs: [
       { q: "Which Aston Martin suits a family?", a: `The DBX707. It has five seats, a large boot and all-wheel drive. The DB12 Volante's rear seats are best for children or bags.` },
       { q: "What are the driver rules for an Aston Martin?", a: `The main driver must be ${L.minAge} or older with a full licence held for at least ${L.licenceYears} years, and needs a credit card in their name for the ${formatAED(DBX.rates.deposit)} deposit.` },
-      { q: "Can I take the DB12 Volante to Jebel Jais or Hatta?", a: `Yes, you can drive anywhere in the UAE. ${DB12.rates.kmPerDay} km a day are included and extra kilometres cost ${formatAED(DB12.rates.extraKm)} each. Driving into Oman is not allowed.` },
+      { q: "Can I take the DB12 Volante to Jebel Jais or Hatta?", a: `Yes, you can drive anywhere in the UAE. ${DB12.rates.kmPerDay} km a day are included and extra kilometres cost ${formatAED(DB12.rates.extraKm)} each. Crossing into Oman needs our written approval.` },
     ],
   },
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useSyncExternalStore } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useSyncExternalStore, type RefObject } from "react";
 import { useSearchParams } from "next/navigation";
 import { getCar } from "@/content/cars";
 import type { Car } from "@/content/types";
@@ -119,4 +119,32 @@ export function useFlowCar(): { car: Car | undefined; carParam: string | null } 
 
   const car = (carParam ? getCar(carParam) : undefined) ?? (hydrated && trip.carSlug ? getCar(trip.carSlug) : undefined);
   return { car, carParam };
+}
+
+/**
+ * Publishes a fixed bottom bar's height as `--dock-h` on <html> while it is shown, so
+ * scroll-padding and the footer keep focused content clear of it (WCAG 2.4.11).
+ * A bar hidden with display:none (e.g. `lg:hidden`) counts as 0. Cleaned up on unmount.
+ */
+export function useDockHeight(ref: RefObject<HTMLElement | null>, active = true) {
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el || !active) return;
+    const root = document.documentElement;
+    let last = "";
+    const set = () => {
+      const shown = el.getClientRects().length > 0;
+      const value = `${shown ? Math.ceil(el.getBoundingClientRect().height) : 0}px`;
+      if (value !== last) root.style.setProperty("--dock-h", (last = value));
+    };
+    set();
+    const ro = new ResizeObserver(set);
+    ro.observe(el);
+    window.addEventListener("resize", set);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", set);
+      root.style.removeProperty("--dock-h");
+    };
+  }, [ref, active]);
 }

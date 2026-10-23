@@ -15,10 +15,11 @@
   },
   "nav": {
     "home": "Home",
-    "fleet": "Fleet"
+    "fleet": "Fleet",
+    "type": "Types"
   },
   "fleet": {
-    "eyebrow": "{cars} cars · {brands} marques",
+    "eyebrow": "{brands} marques · Delivered across Dubai",
     "title": "The fleet",
     "lede": "Supercars, luxury SUVs, open-top grand tourers and two Bugattis. Every price includes 5% VAT, and every car can be delivered anywhere in Dubai.",
     "count": "{count} cars",
@@ -115,7 +116,125 @@
     "conciergeTitle": "Price on request",
     "orRequest": "Or send a request",
     "deliveryLink": "Delivery zones and fees",
-    "airportLink": "Airport handover at DXB"
+    "airportLink": "Airport handover at DXB",
+    "chauffeurIn": "With chauffeur in Dubai",
+    "statPower": "Power",
+    "statSprint": "0–100 km/h",
+    "statSeats": "Seats",
+    "hpUnit": "hp",
+    "secondsUnit": "s",
+    "seatsUnit": "seats",
+    "bookingLabel": "Book the {model}",
+    "reserveEyebrow": "Your request",
+    "stickyPrice": "From {price} / day",
+    "stickyPriceHour": "From {price} / hour",
+    "stickyOnRequest": "On request · from {price} / day",
+    "kineticLede": "The {model}, taken apart into the numbers that matter.",
+    "parts": {
+      "powertrain": "Powertrain",
+      "body": "Performance",
+      "cabin": "Cabin",
+      "wheels": "Chassis",
+      "lights": "Lights"
+    },
+    "chauffeurRow": "Chauffeur",
+    "chauffeurRowValue": "Available, from {price} / hour",
+    "includedLede": "Every daily rate includes the following. Prices are in AED and include 5% VAT.",
+    "inc": {
+      "insuranceTitle": "Comprehensive insurance",
+      "insurance": "Excess of {excess} per claim. Full Cover lowers it to {fcExcess} for {fc} a day.",
+      "kmTitle": "{km} km a day",
+      "km": "Extra kilometres cost {extra} each. 30-day rentals include {month} km.",
+      "kmOffer": "Plus 50 km a day with the Founding Client offer, until {until}.",
+      "deliveryOfferTitle": "Free delivery and collection in Dubai",
+      "deliveryOffer": "Founding Client offer on requests until {until}. DXB and DWC handover costs {airport} each way, or collect it free at our Dubai Silicon Oasis office.",
+      "deliveryTitle": "Delivery across Dubai",
+      "delivery": "Free anywhere in Dubai for rentals of 2 days or more, {fee} each way for one day. DXB and DWC handover costs {airport} each way.",
+      "escortTitle": "Escorted handover",
+      "escort": "Our team delivers the car in person anywhere in Dubai and gives you a full briefing before you drive.",
+      "vatTitle": "VAT included",
+      "vat": "Every price on this page includes 5% VAT. You receive a tax invoice for the rental."
+    },
+    "usage": "Charged as used",
+    "use": {
+      "salikTitle": "Salik tolls",
+      "salik": "Charged per crossing at the Salik tariff, plus a {admin} admin fee per crossing.",
+      "fuelTitle": "Fuel: same level back",
+      "fuel": "Return the car with the fuel level you received it with. Otherwise we charge fuel at pump price plus {fee}.",
+      "finesTitle": "Fines",
+      "fines": "Traffic and parking fines during the rental are charged at cost plus a {fee} admin fee per fine."
+    },
+    "requirementsLede": "For the main driver and any additional driver.",
+    "req": {
+      "age": "Minimum age",
+      "ageValue": "{age} or older",
+      "ageApproval": "{age} or older, self-drive on approval",
+      "licence": "Driving licence",
+      "licenceValue": "Full licence held for {years}+ years",
+      "deposit": "Security deposit",
+      "depositValue": "{amount} held on a credit card in the driver's name, released {days} days after return",
+      "notice": "Notice",
+      "noticeHours": "{hours} hours before pickup",
+      "noticeDays": "{days} days ({hours} hours) before pickup",
+      "minimum": "Minimum rental",
+      "minimumValue": "{days} days",
+      "minimumOne": "1 day (24 hours)",
+      "approval": "Approval",
+      "approvalValue": "Every request is checked by our team and our insurer before we confirm",
+      "documents": "Documents",
+      "documentsValue": "Passport and licence for visitors (plus an International Driving Permit for some countries); Emirates ID and UAE licence for residents"
+    },
+    "ratesNote": "Longer rentals pay less per day: 7% off from 3 days, and 7 days for the price of 6. Your exact total appears when you choose dates.",
+    "rate": {
+      "item": "Item",
+      "amount": "Amount",
+      "today": "Daily rate today",
+      "todaySeason": "{season} season",
+      "standard": "Daily, standard season",
+      "peak": "Daily, peak season",
+      "peakDates": "1 Nov – 31 Mar",
+      "festive": "Daily, festive peak",
+      "festiveDates": "20 Dec – 5 Jan, 3-day minimum",
+      "weekly": "7 days",
+      "monthly": "30 days",
+      "onRequest": "On request",
+      "deposit": "Deposit (card hold)",
+      "km": "Included km",
+      "kmValue": "{day} km a day · {month} km on 30 days",
+      "extraKm": "Extra km",
+      "extraKmValue": "{amount} per km",
+      "minimum": "Minimum rental",
+      "fromDay": "from {price}"
+    },
+    "chauffeurLede": "With a professional chauffeur. {included}",
+    "chauffeurCaption": "Chauffeur rates for the {car}, in AED including 5% VAT",
+    "ch": {
+      "hourly": "Per hour",
+      "hourlyNote": "{hours}-hour minimum",
+      "halfDay": "Half day",
+      "fullDay": "Full day",
+      "hoursNote": "{hours} hours",
+      "airport": "Airport transfer",
+      "airportNote": "DXB or DWC, one way within Dubai",
+      "overtime": "Extra hour"
+    },
+    "chauffeurPanelEyebrow": "Chauffeur-driven",
+    "chauffeurPanelTitle": "With a chauffeur",
+    "chauffeurPanelPrice": "From {price} / hour · {hours}-hour minimum",
+    "selfDriveText": "From {price} / day for drivers aged {age} or older, subject to our approval.",
+    "selfDriveCta": "Request self-drive",
+    "conciergePrice": "From {price} / day incl. VAT",
+    "conciergeBody": "Our concierge confirms the price, the car and the handover with you personally.",
+    "conciergeMessage": "Hello {business}, I'd like to ask about renting the {car} (from {price} a day). My preferred dates are: ",
+    "conciergeRules": {
+      "escort": "Escorted handover and briefing",
+      "notice": "{hours} hours' notice",
+      "age": "Driver {age}+, licence held {years}+ years",
+      "minimum": "Minimum {days} days",
+      "deposit": "{amount} deposit, card hold"
+    },
+    "replyPromise": "Sending a request is free and nothing is charged here.",
+    "linksTitle": "Keep exploring"
   },
   "brand": {
     "title": "Rent a {brand} in Dubai",
@@ -127,7 +246,31 @@
     "faqs": "{brand} rental questions",
     "otherBrands": "Other marques",
     "details": "See details",
-    "models2": "{a} and {b}"
+    "models2": "{a} and {b}",
+    "intro": "Our {brand} fleet has two cars: the {a} and the {b}. Both come with comprehensive insurance and daily kilometres included, and we deliver them across Dubai, including the airports.",
+    "compareLede": "The {a} and the {b}, compared on the numbers.",
+    "row": {
+      "from": "From, per day",
+      "power": "Power",
+      "sprint": "0–100 km/h",
+      "top": "Top speed",
+      "engine": "Engine",
+      "seats": "Seats",
+      "body": "Body",
+      "drive": "Drive",
+      "km": "Included km a day",
+      "deposit": "Deposit",
+      "age": "Minimum age"
+    },
+    "fromPrice": "From {price} / day",
+    "faq": {
+      "ageQ": "How old do I need to be to rent a {brand} in Dubai?",
+      "ageA": "{age} or older, with a full driving licence held for at least {years} years. Visitors from some countries also need an International Driving Permit.",
+      "whichQ": "{a} or {b}: which should I choose?",
+      "whichA": "The {a} has {hpA} hp and {seatsA} seats; the {b} has {hpB} hp and {seatsB} seats. Choose by the trip: seats and luggage first, then character.",
+      "depositQ": "How much is the deposit on a {brand}?",
+      "depositA": "{depA} for the {a} and {depB} for the {b}, held on a credit card in the main driver's name. It is a hold, not a charge, released {days} days after you return the car."
+    }
   },
   "category": {
     "title": "{category} rental in Dubai from AED {min}/day",
@@ -135,10 +278,30 @@
     "eyebrow": "{count} cars",
     "cars": "{category} in the fleet",
     "related": "Related types",
-    "browseAll": "Browse the full fleet"
+    "browseAll": "Browse the full fleet",
+    "intro": "Every price includes 5% VAT, comprehensive insurance and daily kilometres. We deliver across Dubai, including DXB and DWC, or you can collect from our office in Dubai Silicon Oasis.",
+    "relatedCount": "{count} cars · from {price} / day",
+    "chauffeurCard": "Chauffeur service",
+    "chauffeurCardText": "Rolls-Royce and Bentley with a professional driver, by the hour."
   },
   "faq": {
     "toggle": "Show answer"
+  },
+  "carFaq": {
+    "priceQ": "How much does it cost to rent the {model} in Dubai?",
+    "priceA": "From {today} a day today, including 5% VAT. The standard-season rate is {standard} a day and the peak-season rate (1 November to 31 March) is {peak}. Seven days cost {weekly} and 30 days {monthly}. A refundable deposit of {deposit} is held on your card, separately.",
+    "priceOnRequestQ": "How much does it cost to rent the {model} in Dubai?",
+    "priceOnRequestA": "The {model} is priced on request, from {today} a day including 5% VAT, with a minimum of {days} days. Our concierge confirms the final price on WhatsApp. The deposit is {deposit}, held on a credit card.",
+    "priceChauffeurQ": "How much does the {model} with a chauffeur cost?",
+    "priceChauffeurA": "From {hourly} an hour with a {hours}-hour minimum, {halfDay} for a half day ({halfHours} hours) and {fullDay} for a full day ({fullHours} hours), including 5% VAT. An airport transfer from DXB or DWC within Dubai costs {airport}.",
+    "needQ": "What do I need to rent the {model}?",
+    "needA": "The main driver must be {age} or older with a full licence held for at least {years} years, and a credit card in their name for the {deposit} deposit hold. Visitors bring a passport and, for some countries, an International Driving Permit. Residents bring an Emirates ID and UAE licence.",
+    "deliveryQ": "Can you deliver the {model} to my hotel or the airport?",
+    "deliveryA": "Yes. Delivery anywhere in Dubai is free for rentals of 2 days or more and {fee} each way for one day. Handover at DXB or DWC costs {airport} each way, including airport parking and meet-and-greet. You can also collect the car at our Dubai Silicon Oasis office at no charge.",
+    "deliveryOfferA": "Yes. With the Founding Client offer, delivery and collection anywhere in Dubai are free on requests until {until}. Handover at DXB or DWC costs {airport} each way, including airport parking and meet-and-greet. You can also collect the car at our Dubai Silicon Oasis office at no charge.",
+    "escortQ": "How is the {model} handed over?",
+    "escortA": "In person, by our team. We deliver the car anywhere in Dubai with an escort, check your documents and give you a full briefing before you drive. We need {hours} hours' notice to prepare the car and confirm the insurance.",
+    "selfDriveQ": "Can I drive the {model} myself?",
+    "selfDriveA": "Yes, with our approval. Self-drive is open to drivers aged {age} or older with a licence held for at least {years} years, from {price} a day. Most guests book it with one of our chauffeurs, for weddings, airport arrivals and evenings out."
   }
 }
-

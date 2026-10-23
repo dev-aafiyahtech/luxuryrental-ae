@@ -92,3 +92,90 @@ export const extraRules = {
   rightsReplyDays: 30, // C-04
   chauffeurMaxPassengers: 4, // BR-75
 } as const;
+
+// ---------------------------------------------------------------------------------------
+// Seasons: date ranges are read back from seasonFor() so the pages can never disagree
+// with the pricing module.
+// ---------------------------------------------------------------------------------------
+import { seasonFor, seasons } from "@/content/rules";
+import { addDays, dayOfWeek } from "@/lib/dates";
+import type { Season } from "@/content/types";
+
+export interface SeasonRange { id: Season["id"]; from: string; to: string }
+
+/** Contiguous runs of each season over one (non-leap) year, the New Year run merged. */
+export function seasonRanges(): SeasonRange[] {
+  const runs: SeasonRange[] = [];
+  let day = "2027-01-01";
+  for (let i = 0; i < 365; i++, day = addDays(day, 1)) {
+    const id = seasonFor(day).id;
+    const last = runs[runs.length - 1];
+    if (last && last.id === id) last.to = day;
+    else runs.push({ id, from: day, to: day });
+  }
+  const first = runs[0], last = runs[runs.length - 1];
+  if (runs.length > 1 && first.id === last.id) {
+    runs.shift();
+    last.to = first.to;
+  }
+  return runs;
+}
+
+/** "1 Nov – 19 Dec" (day and short month, no year). */
+export function dayMonth(iso: string): string {
+  const [, m, d] = iso.split("-").map(Number);
+  return `${d} ${monthName(m, false)}`;
+}
+
+/** Each season with its date ranges as text, in calendar order from summer. */
+export function seasonTable() {
+  const runs = seasonRanges();
+  const order: Season["id"][] = ["summer", "standard", "peak", "super-peak"];
+  return order.map((id) => ({
+    season: seasons[id],
+    ranges: runs.filter((r) => r.id === id).sort((a, b) => a.from.slice(5).localeCompare(b.from.slice(5))).map((r) => `${dayMonth(r.from)} – ${dayMonth(r.to)}`),
+  }));
+}
+
+/** Festive peak dates as text, e.g. "20 Dec – 5 Jan". */
+export const festiveDates = () => seasonTable().find((s) => s.season.id === "super-peak")!.ranges.join(" and ");
+
+/** % difference of a season multiplier against standard: 0.8 → -20. */
+export const seasonPct = (s: Season) => Math.round((s.multiplier - 1) * 100);
+
+// ---------------------------------------------------------------------------------------
+// Chauffeur and fleet helpers.
+// ---------------------------------------------------------------------------------------
+import { chauffeurCars } from "@/content/cars";
+
+/** Chauffeur cars, most expensive first. */
+export const chauffeurFleet = () => [...chauffeurCars()].sort((a, b) => b.chauffeur!.hourly - a.chauffeur!.hourly);
+export const chauffeurFromHourly = () => Math.min(...chauffeurCars().map((c) => c.chauffeur!.hourly));
+export const chauffeurFromAirport = () => Math.min(...chauffeurCars().map((c) => c.chauffeur!.airport));
+/** "Rolls-Royce Phantom, Rolls-Royce Cullinan and Bentley Bentayga" style list of chauffeur car names. */
+export const chauffeurNames = () => listJoin(chauffeurFleet().map((c) => c.name));
+
+/** Flagship cars (price tier A): 2-day minimum for Fri–Sun pickups in peak season. */
+export const flagshipCars = () => cars.filter((c) => c.priceTier === "A");
+
+/** Cars whose daily km allowance differs from the fleet default. */
+export const kmExceptions = () => {
+  const common = commonKmPerDay();
+  return cars.filter((c) => c.rates.kmPerDay !== common);
+};
+
+/** Short model name for tables: "Revuelto", "Cullinan Series II". */
+export const brandName = (slug: string) => brands.find((b) => b.slug === slug)?.name ?? slug;
+
+/** Minimum rentals read back from pricing.minDaysFor(), for the fact pages. */
+import { minDaysFor } from "@/lib/pricing";
+const oneDayCar = () => cars.find((c) => c.minDays === 1 && c.priceTier !== "A") ?? cars[0];
+/** Minimum days for any car picking up in the festive peak (3 at launch). */
+export const festiveMinDays = () => minDaysFor(oneDayCar(), seasonRanges().find((r) => r.id === "super-peak")!.from);
+/** Minimum days for a flagship car picked up on a peak-season Friday (2 at launch). */
+export const peakWeekendMinDays = () => {
+  const peak = seasonRanges().find((r) => r.id === "peak")!;
+  let d = peak.from;
+  while (dayOfWeek(d) !== 5) d = addDays(d, 1);
+  return minDaysFor(flagshipCars()[0], d);
+};
