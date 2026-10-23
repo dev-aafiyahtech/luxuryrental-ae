@@ -19,7 +19,7 @@ Sea Moss `#2C5252`, Antique Gold `#EBDAB0` and Alabaster `#F4EADE` (changed from
 
 ## Run the demo
 
-Needs Node.js 20.9 or later.
+Needs Node.js 20.9 or later (Vercel builds with Node 24, pinned in `package.json`; older versions only print an engine warning).
 
 ```bash
 npm install
@@ -74,6 +74,8 @@ src/
 public/brand/                          Logo pack and icons
 docs/dev/FRONTEND-GUIDE.md             How the front end is built; rules for changes
 docs/brand/logo.md                     Logo usage sheet (source in docs/brand/source/)
+docs/ops/vercel-settings.md            Vercel project settings that live outside the code
+vercel.json                            Vercel config: Next.js, functions in fra1 (Frankfurt)
 prototype/
   index.html                           Standalone prototype; open in a browser
   artifact-source.html                 The same page as published to Claude (no html/head/body wrapper)
