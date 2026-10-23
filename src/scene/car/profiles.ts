@@ -17,6 +17,18 @@ export interface CarProfile {
   glass: { from: number; to: number; belt: number };
   wing?: boolean;
   openTop?: boolean;
+  // Optional extras for the homepage particle sculpture (src/scene/car/buildCar.ts).
+  // CarArt ignores them; every one has a sensible default.
+  /** Engine position, drives the powertrain schematic. Default "mid". */
+  engine?: "mid" | "front";
+  /** Windscreen x-range: [header (top edge), base]. Default: the glasshouse range. */
+  screen?: [number, number];
+  /** Glass canopy roof (mid-engine coupés): the whole roof reads as glass. */
+  canopy?: boolean;
+  /** Open cockpit x-range for open tops (seats and roll hoops are drawn here). */
+  open?: { from: number; to: number };
+  /** Side character line: mid-engine air intake, Chiron-style C-curve or a shoulder line. */
+  sideLine?: "intake" | "c-curve" | "shoulder";
 }
 
 const supercar: CarProfile = {
@@ -26,6 +38,10 @@ const supercar: CarProfile = {
   wheels: [[-1.38, 0.37, 0.37], [1.42, 0.36, 0.36]],
   glass: { from: -0.75, to: 1.08, belt: 0.8 },
   wing: true,
+  engine: "mid",
+  screen: [0.12, 1.05],
+  canopy: true,
+  sideLine: "intake",
 };
 
 const hypercar: CarProfile = {
@@ -34,6 +50,10 @@ const hypercar: CarProfile = {
   width: [[-2.35, 0.9], [-1.9, 1.0], [-1.3, 1.04], [-0.5, 0.98], [0.6, 0.96], [1.45, 1.0], [2.05, 0.92], [2.35, 0.8]],
   wheels: [[-1.42, 0.38, 0.38], [1.45, 0.37, 0.37]],
   glass: { from: -0.6, to: 1.1, belt: 0.82 },
+  engine: "mid",
+  screen: [0.2, 1.08],
+  canopy: true,
+  sideLine: "c-curve",
 };
 
 const spider: CarProfile = {
@@ -43,6 +63,10 @@ const spider: CarProfile = {
   wheels: [[-1.38, 0.37, 0.37], [1.42, 0.36, 0.36]],
   glass: { from: 0.45, to: 1.05, belt: 0.82 },
   openTop: true,
+  engine: "mid",
+  screen: [0.7, 1.03],
+  open: { from: -0.45, to: 0.62 },
+  sideLine: "intake",
 };
 
 const gt: CarProfile = {
@@ -51,6 +75,9 @@ const gt: CarProfile = {
   width: [[-2.4, 0.86], [-1.9, 0.96], [-1.3, 0.98], [0, 0.95], [1.4, 0.96], [2.1, 0.9], [2.4, 0.78]],
   wheels: [[-1.5, 0.38, 0.38], [1.6, 0.38, 0.38]],
   glass: { from: -1.2, to: 0.75, belt: 0.95 },
+  engine: "front",
+  screen: [0.22, 0.74],
+  sideLine: "shoulder",
 };
 
 const cabriolet: CarProfile = {
@@ -60,6 +87,10 @@ const cabriolet: CarProfile = {
   wheels: [[-1.5, 0.38, 0.38], [1.6, 0.38, 0.38]],
   glass: { from: 0.55, to: 0.85, belt: 0.98 },
   openTop: true,
+  engine: "front",
+  screen: [0.64, 0.86],
+  open: { from: -1.2, to: 0.6 },
+  sideLine: "shoulder",
 };
 
 const suv: CarProfile = {
@@ -68,6 +99,9 @@ const suv: CarProfile = {
   width: [[-2.45, 0.9], [-1.9, 0.98], [0, 1.0], [1.9, 0.98], [2.45, 0.88]],
   wheels: [[-1.5, 0.42, 0.42], [1.55, 0.42, 0.42]],
   glass: { from: -2.0, to: 1.05, belt: 1.18 },
+  engine: "front",
+  screen: [0.75, 1.12],
+  sideLine: "shoulder",
 };
 
 const limousine: CarProfile = {
@@ -76,6 +110,9 @@ const limousine: CarProfile = {
   width: [[-2.75, 0.9], [-2.2, 0.98], [0, 1.0], [2.2, 0.98], [2.75, 0.9]],
   wheels: [[-1.85, 0.42, 0.42], [1.85, 0.42, 0.42]],
   glass: { from: -1.55, to: 1.3, belt: 1.12 },
+  engine: "front",
+  screen: [0.55, 1.3],
+  sideLine: "shoulder",
 };
 
 export const profiles: Record<BodyStyle, CarProfile> = { supercar, hypercar, spider, gt, cabriolet, suv, limousine };
