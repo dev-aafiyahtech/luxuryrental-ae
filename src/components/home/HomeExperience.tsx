@@ -190,13 +190,16 @@ export function HomeExperience({ cars, heroSlug, defaultIndex, chrome, chapters,
       ios.push(io);
     }
     if (wrap) {
-      const io = new IntersectionObserver(([e]) => {
+      // Render while any part of the stage is visible…
+      const render = new IntersectionObserver(([e]) => {
         onScreenRef.current = e.isIntersecting;
         needsRender.current = true;
-        setChaptersOnScreen(e.isIntersecting);
       });
-      io.observe(wrap);
-      ios.push(io);
+      // …but show the rail and Pause control only while the chapters fill the middle of the screen.
+      const rail = new IntersectionObserver(([e]) => setChaptersOnScreen(e.isIntersecting), { rootMargin: "-40% 0px -40% 0px" });
+      render.observe(wrap);
+      rail.observe(wrap);
+      ios.push(render, rail);
     }
     return () => ios.forEach((io) => io.disconnect());
   }, []);

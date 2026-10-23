@@ -185,3 +185,7 @@ export const seasonLabel = (s: Season) => {
   const name = s.name.toLowerCase();
   return name.endsWith("season") ? name : `${name} season`;
 };
+
+/** 30-day km allowance when a car sets none (mirrors the fallback in lib/pricing.ts quote()). */
+export const DEFAULT_MONTH_KM = 4500;
+export const monthKmFor = (car: Car) => car.rates.kmPerMonth ?? DEFAULT_MONTH_KM;

@@ -9,7 +9,7 @@ import { fromPrice, lowestFrom } from "@/lib/pricing";
 import { formatDayLong } from "@/lib/dates";
 import { formatAED, formatNumber } from "@/lib/format";
 import { feeGroups, ladderRows, nextSeasonChange, pricingCars, pricingMeta, seasonRows, validOffers, dayMonth } from "@/content/pages/pricing";
-import { commonKmPerDay, factsUpdated, monthStamp, seasonLabel, tierName } from "@/content/pages/shared";
+import { DEFAULT_MONTH_KM, commonKmPerDay, factsUpdated, monthKmFor, monthStamp, seasonLabel, tierName } from "@/content/pages/shared";
 import { ContentHero, CtaBand, KeyFacts, LastUpdated, OfferNotice, Section, WhatsAppButton } from "@/components/content/blocks";
 import { FactTable, CellNote } from "@/components/content/FactTable";
 import { JsonLd, breadcrumbLd, graph } from "@/components/content/JsonLd";
@@ -137,7 +137,7 @@ export default async function PricingPage() {
           })}
           footnote={
             <>
-              All prices in AED including {site.vatRate}% VAT. Standard rates apply in spring and autumn, peak rates from November to March; summer and the festive peak are worked out from the standard rate (see seasons below). Bugatti prices are where quotes start; we confirm the final price on WhatsApp. The 30-day rate includes {formatNumber(4500)} km ({formatNumber(cars.find((c) => c.rates.kmPerMonth)?.rates.kmPerMonth ?? 4500)} km on the {cars.find((c) => c.rates.kmPerMonth)?.model ?? ""}). Chauffeur rates are on the <Link href={href("/chauffeur")} className="text-fg">chauffeur page</Link>.
+              All prices in AED including {site.vatRate}% VAT. Standard rates apply in spring and autumn, peak rates from November to March; summer and the festive peak are worked out from the standard rate (see seasons below). Bugatti prices are where quotes start; we confirm the final price on WhatsApp. The 30-day rate includes {formatNumber(DEFAULT_MONTH_KM)} km{cars.filter((c) => monthKmFor(c) !== DEFAULT_MONTH_KM).map((c) => ` (${formatNumber(monthKmFor(c))} km on the ${c.model})`).join("")}. Chauffeur rates are on the <Link href={href("/chauffeur")} className="text-fg">chauffeur page</Link>.
             </>
           }
         />

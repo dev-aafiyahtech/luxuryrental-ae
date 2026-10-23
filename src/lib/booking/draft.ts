@@ -27,7 +27,7 @@ export function defaultDraft(withDates = true): TripDraft {
     dropoff: { zone: "dubai" },
     chauffeur: { package: "half-day", hours: 5 },
     extras: { fullCover: false, additionalDrivers: 0, childSeats: 0 },
-    driver: { channel: "whatsapp", resident: false, ageBand: "30+", ackTerms: false, whatsappConsent: true, marketing: false, licenceCountry: "AE" },
+    driver: { channel: "whatsapp", resident: false, ageBand: "30+", ackTerms: false, whatsappConsent: false, marketing: false, licenceCountry: "AE" },
     updatedAt: 0,
   };
 }

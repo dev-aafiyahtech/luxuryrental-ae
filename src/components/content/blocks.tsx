@@ -167,7 +167,7 @@ export function OfferNotice({ id, today, className, children }: { id: Offer["id"
         </p>
         <p className="text-sm leading-relaxed text-champagne">{offer.summary} {children}</p>
       </div>
-      <p className="fine whitespace-nowrap md:text-end">Until {shortDate(offer.validUntil)}</p>
+      <p className="fine w-full whitespace-nowrap ps-[60px] md:w-auto md:ps-0 md:text-end">Until {shortDate(offer.validUntil)}</p>
     </aside>
   );
 }

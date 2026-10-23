@@ -6,7 +6,7 @@ import type { Tier } from "@/content/types";
 import { formatAED, formatNumber as n, plural } from "@/lib/format";
 import { advanceRule, refundWindows } from "./cancellation";
 import {
-  carsInTier, chauffeurFromHourly, chauffeurNames, depositRange, extraRules as x, festiveDates, festiveMinDays,
+  DEFAULT_MONTH_KM, carsInTier, chauffeurFromHourly, monthKmFor, chauffeurNames, depositRange, extraRules as x, festiveDates, festiveMinDays,
   flagshipCars, hypercars, listJoin, noticeText, peakWeekendMinDays, tierName,
 } from "./shared";
 
@@ -50,10 +50,9 @@ function tierBrands(tier: Tier): string {
 
 const baseMinDays = Math.min(...cars.map((car) => car.minDays));
 const hyperMinDays = Math.min(...hypercars().map((car) => car.minDays));
-/** 30-day km allowance; pricing.ts uses 4,500 km when a car sets none. */
-const monthKm = (slug: string) => getCar(slug)!.rates.kmPerMonth ?? 4500;
+const monthKm = (slug: string) => monthKmFor(getCar(slug)!);
 const monthlyCars = cars.filter((car) => car.rates.monthly);
-const monthKmExceptions = monthlyCars.filter((car) => car.rates.kmPerMonth && car.rates.kmPerMonth !== 4500);
+const monthKmExceptions = monthlyCars.filter((car) => car.rates.kmPerMonth && car.rates.kmPerMonth !== DEFAULT_MONTH_KM);
 const monthsAhead = Math.round(rules.maxAdvanceDays / 30.4);
 const sameLead = L.leadHours === S.leadHours;
 const sameRelease = L.releaseDays === S.releaseDays;
@@ -83,7 +82,7 @@ export const faqGroups: FaqGroup[] = [
       {
         id: "monthly",
         q: "Can I rent a car for a month?",
-        a: `Yes. Every car except the Bugattis has a fixed 30-day rate that stays the same all year, with ${n(4500)} km included${monthKmExceptions.length ? ` (${monthKmExceptions.map((car) => `${n(monthKm(car.slug))} km on the ${car.model}`).join(", ")})` : ""}. Our [pricing page](/pricing) lists the 30-day rate for each car. You can request up to ${rules.maxOnlineDays} days online; for longer rentals, message us on WhatsApp.`,
+        a: `Yes. Every car except the Bugattis has a fixed 30-day rate that stays the same all year, with ${n(DEFAULT_MONTH_KM)} km included${monthKmExceptions.length ? ` (${monthKmExceptions.map((car) => `${n(monthKm(car.slug))} km on the ${car.model}`).join(", ")})` : ""}. Our [pricing page](/pricing) lists the 30-day rate for each car. You can request up to ${rules.maxOnlineDays} days online; for longer rentals, message us on WhatsApp.`,
       },
     ],
   },
