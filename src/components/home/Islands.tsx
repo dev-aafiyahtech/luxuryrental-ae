@@ -47,11 +47,7 @@ export function ReserveSlot({ eyebrow }: { eyebrow: string }) {
 /** The booking dock; hidden while the chapter 4 reserve card is at least 40% in view. */
 export function HomeDock() {
   const { reserveVisible } = useHome();
-  return (
-    <div data-home-dock="">
-      <Dock hidden={reserveVisible} />
-    </div>
-  );
+  return <Dock hidden={reserveVisible} />;
 }
 
 /** Horizontal fleet strip with previous/next buttons (no drag needed, WCAG 2.5.7). */

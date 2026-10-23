@@ -61,12 +61,32 @@ function subscribeReduced(cb: () => void) {
   return () => mq.removeEventListener("change", cb);
 }
 
+// Pause motion is remembered per visitor in localStorage (in memory when storage is blocked).
+const pauseListeners = new Set<() => void>();
+let pausedInMemory: boolean | null = null;
 function readPaused(): boolean {
+  if (pausedInMemory !== null) return pausedInMemory;
   try {
     return localStorage.getItem(PAUSE_KEY) === "1";
   } catch {
     return false;
   }
+}
+function writePaused(value: boolean) {
+  try {
+    localStorage.setItem(PAUSE_KEY, value ? "1" : "0");
+  } catch {
+    pausedInMemory = value;
+  }
+  pauseListeners.forEach((fn) => fn());
+}
+function subscribePaused(cb: () => void) {
+  pauseListeners.add(cb);
+  window.addEventListener("storage", cb);
+  return () => {
+    pauseListeners.delete(cb);
+    window.removeEventListener("storage", cb);
+  };
 }
 
 /** Run after the page has loaded and the main thread is idle. Returns a cancel function. */
@@ -115,12 +135,12 @@ interface Props {
 
 export function HomeExperience({ cars, heroSlug, defaultIndex, chrome, chapters, after, dock }: Props) {
   const [selected, setSelected] = useState(defaultIndex);
-  const [paused, setPaused] = useState(false);
   const [active, setActive] = useState(0);
   const [mode, setMode] = useState<StageMode>("pending");
   const [reserveVisible, setReserveVisible] = useState(false);
   const [chaptersOnScreen, setChaptersOnScreen] = useState(true);
   const reduced = useSyncExternalStore(subscribeReduced, () => matchMedia(reducedQuery).matches, () => false);
+  const paused = useSyncExternalStore(subscribePaused, readPaused, () => false);
 
   const rootRef = useRef<HTMLDivElement>(null);
   const chaptersRef = useRef<HTMLDivElement>(null);
@@ -145,26 +165,13 @@ export function HomeExperience({ cars, heroSlug, defaultIndex, chrome, chapters,
   }, [cars]);
   const cueTween = useRef<{ pause(): void; play(): void } | null>(null);
 
-  // Remembered Pause motion setting
-  useEffect(() => {
-    if (readPaused()) setPaused(true);
-  }, []);
   useEffect(() => {
     pausedRef.current = paused;
     needsRender.current = true;
     if (paused) cueTween.current?.pause();
     else cueTween.current?.play();
   }, [paused]);
-  const togglePaused = useCallback(() => {
-    setPaused((p) => {
-      try {
-        localStorage.setItem(PAUSE_KEY, p ? "0" : "1");
-      } catch {
-        /* storage unavailable: the setting lasts for this visit */
-      }
-      return !p;
-    });
-  }, []);
+  const togglePaused = useCallback(() => writePaused(!readPaused()), []);
 
   // Keep --home-top (height of what sits above the homepage, e.g. the demo bar) current.
   useEffect(() => {
@@ -395,6 +402,7 @@ export function HomeExperience({ cars, heroSlug, defaultIndex, chrome, chapters,
         const hero = list.find((c) => c.slug === heroSlug) ?? list[0];
         stage.current = createStage({ container, overlay: overlayRef.current, tier, hero: toStageCar(hero), selected: toStageCar(list[selectedRef.current] ?? list[0]) });
         needsRender.current = true;
+        if (process.env.NODE_ENV !== "production") (window as unknown as { __lrHome?: unknown }).__lrHome = { stage: stage.current, state };
         setMode("gl");
       } catch (err) {
         console.warn("3D stage unavailable, showing the static version.", err);
@@ -423,21 +431,12 @@ export function HomeExperience({ cars, heroSlug, defaultIndex, chrome, chapters,
     [cars, reduced],
   );
 
+  // The booking dock listens for this cancelable event and opens its date picker (desktop) or
+  // trip sheet (mobile). Returns false when no dock answered, so the caller can fall back.
   const openDock = useCallback(() => {
-    window.dispatchEvent(new CustomEvent("lr:dock-open"));
-    const dockEl = rootRef.current?.querySelector<HTMLElement>("[data-home-dock]");
-    const first = dockEl?.querySelector<HTMLElement>("input, select, textarea, button, a[href]");
-    if (!dockEl || !first) return false;
-    const toggle = dockEl.querySelector<HTMLElement>("[aria-expanded='false']");
-    if (toggle && window.innerWidth < 1024) toggle.click();
-    window.setTimeout(() => {
-      const field = dockEl.querySelector<HTMLElement>("input:not([type='hidden']), select, [role='combobox']") ?? dockEl.querySelector<HTMLElement>("button:not([aria-expanded]), a[href]") ?? first;
-      field.focus({ preventScroll: true });
-      if (!matchMedia(reducedQuery).matches) {
-        field.animate?.([{ boxShadow: "0 0 0 0 rgba(234,179,8,.55)" }, { boxShadow: "0 0 0 14px rgba(234,179,8,0)" }], { duration: 1200, easing: "ease" });
-      }
-    }, 80);
-    return true;
+    const ev = new CustomEvent("lr:dock:open", { cancelable: true });
+    window.dispatchEvent(ev);
+    return ev.defaultPrevented;
   }, []);
 
   const goTo = useCallback((id: string) => goToRef.current(id), []);

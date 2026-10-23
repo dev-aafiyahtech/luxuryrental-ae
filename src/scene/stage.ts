@@ -31,6 +31,8 @@ export interface Stage {
   setSelected(car: StageCar, animate: boolean): void;
   /** True while a car swap is still dissolving (the page keeps rendering until it ends). */
   busy(): boolean;
+  /** Development aid: per-car uniforms and swap state. */
+  debug(): unknown;
   dispose(): void;
 }
 
@@ -86,6 +88,7 @@ export function createStage(opts: StageOptions): Stage {
   let current = carFor(opts.selected);
   let previous: CarPoints | null = null;
   let swap = 1; // 0 → 1 while `previous` dissolves into `current`
+  let swapStart = -1;
 
   // Headlight glow and beams, placed at the sculpture car's lamps
   const headU = { uHead: { value: 0 }, uPR: carPR };
@@ -234,9 +237,11 @@ export function createStage(opts: StageOptions): Stage {
       floorU.uTravel.value = travel * 0.6;
 
       // Car swaps
+      // Car swaps run on wall-clock time, so slow frames don't stretch the dissolve.
       if (previous) {
-        if (ambient) swap = Math.min(1, swap + dt / SWAP_SECONDS);
-        else swap = 1;
+        if (!ambient) swap = 1;
+        else if (swapStart < 0) swapStart = time;
+        else swap = Math.min(1, (time - swapStart) / SWAP_SECONDS);
         if (swap >= 1) previous = null;
       }
       const g = sm(0.03, 0.3, c3);
@@ -307,8 +312,10 @@ export function createStage(opts: StageOptions): Stage {
       if (disposed || car.slug === current.slug) return;
       const next = carFor(car);
       if (animate) {
+        // A swap during a swap: the half-dissolved car simply leaves.
         previous = current;
         swap = 0;
+        swapStart = -1;
       } else {
         previous = null;
         swap = 1;
@@ -320,6 +327,15 @@ export function createStage(opts: StageOptions): Stage {
 
     busy() {
       return !!previous || dirty;
+    },
+
+    debug() {
+      return {
+        swap,
+        current: current.slug,
+        previous: previous?.slug ?? null,
+        cars: [...cars.values()].map((c) => ({ slug: c.slug, visible: c.points.visible, form: c.uniforms.uForm.value, fade: c.uniforms.uFade.value, explode: c.uniforms.uExplode.value, inRig: c.points.parent === rig, count: c.build.count })),
+      };
     },
 
     dispose() {

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { heroCars } from "@/content/cars";
+import { site } from "@/content/site";
 import { getT } from "@/i18n/dictionaries";
 import { getToday } from "@/lib/server-time";
 import { toMinutes } from "@/lib/dates";
@@ -13,7 +14,8 @@ import { HomeDock } from "@/components/home/Islands";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT("home");
-  return { title: t("meta.title"), description: t("meta.description") };
+  // The layout's "%s | LuxuryRental.ae" template doesn't reach a page in its own segment.
+  return { title: { absolute: `${t("meta.title")} | ${site.brandName}` }, description: t("meta.description") };
 }
 
 /**

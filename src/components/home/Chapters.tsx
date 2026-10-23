@@ -41,7 +41,7 @@ export async function HomeChapters({ top, today }: { top: Car[]; today: string }
       { label: t("sculpture.drive"), value: `${wheels.title} · ${wheels.detail}` },
     ];
     return (
-      <div className="grid gap-4 max-md:gap-3">
+      <div key={car.slug} className="grid gap-4 max-md:gap-3">
         <p className="text-sm leading-relaxed text-champagne max-md:hidden">
           <span className="font-semibold text-fg">{car.name}.</span> {car.tagline}
         </p>

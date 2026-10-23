@@ -134,7 +134,7 @@
     "deposit": {
       "q": "Is there a deposit?",
       "a": "Yes. A refundable hold of {from} to {to} is placed on your card at handover, depending on the car, and shown separately from the price. We release it {days} days after the rental ends.",
-      "hyper": "Bugatti: {amount}, released after {days} days."
+      "hyper": "Bugatti: from {amount}, released after {days} days."
     },
     "airport": {
       "q": "Can you deliver to the airport?",
@@ -142,7 +142,7 @@
     },
     "included": {
       "q": "What does the daily rate include?",
-      "a": "5% VAT, comprehensive insurance and {kmFrom} to {kmTo} km a day, depending on the car. Salik tolls are charged per crossing plus AED {salik} each."
+      "a": "5% VAT, comprehensive insurance and {kmFrom} to {kmTo} km a day, depending on the car. Salik tolls are charged per crossing, plus AED {salik} each."
     }
   },
   "stage": {
