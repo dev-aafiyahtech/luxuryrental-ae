@@ -38,6 +38,7 @@ docs/
     MASTER.md                          Design system: source of truth for every page
   brief/requirements-checklist.md      What the client needs to supply
   brief/requirements-answers.md        The client's answers (23 Oct 2026)
+  brief/plan-answers.md                Zubair's answers to the plan's first questions (23 Oct 2026)
   plan/PROJECT-PLAN.md                 Project plan: scope, decisions, timeline, budget, launch checklist
   plan/workstreams/                    The 7 specialist sections behind the plan (architecture, Vercel,
                                        car visuals, fleet and pricing, booking rules, UX, SEO)
@@ -65,6 +66,7 @@ tools/
 | 23 Oct 2026 | Client answers captured: 16 cars from 8 brands, pick a top 5, estimate pricing, WhatsApp bookings, no 3D budget (use AI images), simulate payments, English first with Arabic planned |
 | 23 Oct 2026 | Repo moved to GitHub (`dev-aafiyahtech/luxuryrental-ae`); Vercel confirmed for production |
 | 23 Oct 2026 | Project plan v1 drafted: image-sampled particle cars instead of 3D, booking requests handed to WhatsApp, Vercel Pro + Sanity + Neon (Frankfurt), launch 26 Nov, cinematic 17 Dec. Awaiting Zubair's approval and the answers in plan §9 |
+| 23 Oct 2026 | Plan answers: wordmark "LuxuryRental.ae"; AI images for all 16 cars; Bugatti partner confirmed; top 5 and launch prices approved; WhatsApp +971 52 965 2722; Zubair owns Vercel; DNS access later. Zubair is reviewing the plan |
 
 ## Open items
 

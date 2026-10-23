@@ -354,3 +354,24 @@ Got it. I've saved your answers to the project, and I'll wait for your next inst
 - **Effort:** about 95 ideal days for launch across 7 parallel lanes, plus about 27 for the cinematic stage.
 - **Blocking:** the plan is waiting on Zubair's answers in §9 by Fri 30 Oct. The most urgent are the logo name, fleet confirmation, Bugatti sourcing, prices, the WhatsApp number, account ownership and DNS access.
 
+---
+
+## 12. Answers to the plan's questions
+
+**Zubair:**
+> 1. with .ae
+> 2. Yes. Please use AI pics
+> 3. Yes
+> 4. Yes
+> 5. Use +971529652722
+> 6. Me
+> 7. Later
+>
+> ---
+>
+> Now wait for further instrurctions and let me go through the plan
+
+*Claude saved the answers to [docs/brief/plan-answers.md](../brief/plan-answers.md), with what each one changes in the plan.*
+
+**Claude (condensed):** Answers saved. Waiting for Zubair's review of the plan.
+

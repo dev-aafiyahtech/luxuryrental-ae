@@ -197,6 +197,8 @@ The same agents and skills that wrote this plan carry out the build. Zubair appr
 
 The specialist sections raised about 70 questions. These are the ones that block work, in order. The full lists are at the end of each section.
 
+> **23 Oct 2026:** Zubair answered questions 1–7. See [plan-answers.md](../brief/plan-answers.md): wordmark "LuxuryRental.ae", AI images for all 16 cars (all in the fleet), Bugatti confirmed, top 5 and prices approved, WhatsApp +971 52 965 2722, Zubair owns Vercel, DNS access later (needed by Fri 20 Nov).
+
 **This week (by Fri 30 Oct): these block the build**
 
 1. **Logo name:** should the wordmark read "Luxuryrentals" (trade name) or "LuxuryRental.ae" (domain)? Default: Luxuryrentals, with the domain beneath. Also, do you own luxuryrentals.ae?
