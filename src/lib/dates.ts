@@ -7,6 +7,10 @@ const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const DAYS_LONG = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+// Arabic (UAE): Gregorian month names, full weekday names, Western digits as on UAE commerce sites.
+const DAYS_AR = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+const MONTHS_AR = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
+const isAr = (locale?: string) => locale === "ar";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -54,15 +58,17 @@ export const daysBetween = (a: string, b: string) => Math.round((toMinutes(b) - 
 export const isValidIsoDate = (v: unknown): v is string => typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v);
 export const isValidTime = (v: unknown): v is string => typeof v === "string" && /^([01]\d|2[0-3]):[0-5]\d$/.test(v);
 
-/** "Fri 24 Oct" */
-export function formatDay(iso: string): string {
+/** "Fri 24 Oct" (Arabic: "الجمعة 24 أكتوبر") */
+export function formatDay(iso: string, locale?: string): string {
   const { m, d } = parts(iso);
+  if (isAr(locale)) return `${DAYS_AR[dayOfWeek(iso)]} ${d} ${MONTHS_AR[m - 1]}`;
   return `${DAYS[dayOfWeek(iso)]} ${d} ${MONTHS[m - 1]}`;
 }
 
 /** "Friday 24 October 2026" */
-export function formatDayLong(iso: string): string {
+export function formatDayLong(iso: string, locale?: string): string {
   const { y, m, d } = parts(iso);
+  if (isAr(locale)) return `${DAYS_AR[dayOfWeek(iso)]} ${d} ${MONTHS_AR[m - 1]} ${y}`;
   return `${DAYS_LONG[dayOfWeek(iso)]} ${d} ${MONTHS_LONG[m - 1]} ${y}`;
 }
 
@@ -73,14 +79,14 @@ export function formatNumericDate(iso: string): string {
 }
 
 /** "Fri 24 – Sun 26 Oct" or "Fri 30 Oct – Mon 2 Nov" */
-export function formatRange(a: string, b: string): string {
+export function formatRange(a: string, b: string, locale?: string): string {
   const pa = parts(a), pb = parts(b);
-  if (pa.y === pb.y && pa.m === pb.m) return `${DAYS[dayOfWeek(a)]} ${pa.d} – ${formatDay(b)}`;
-  return `${formatDay(a)} – ${formatDay(b)}`;
+  if (pa.y === pb.y && pa.m === pb.m) return `${(isAr(locale) ? DAYS_AR : DAYS)[dayOfWeek(a)]} ${pa.d} – ${formatDay(b, locale)}`;
+  return `${formatDay(a, locale)} – ${formatDay(b, locale)}`;
 }
 
-export const monthName = (m: number, long = true) => (long ? MONTHS_LONG : MONTHS)[m - 1];
-export const weekdayName = (i: number, long = false) => (long ? DAYS_LONG : DAYS)[i];
+export const monthName = (m: number, long = true, locale?: string) => (isAr(locale) ? MONTHS_AR : long ? MONTHS_LONG : MONTHS)[m - 1];
+export const weekdayName = (i: number, long = false, locale?: string) => (isAr(locale) ? DAYS_AR : long ? DAYS_LONG : DAYS)[i];
 
 /** Half-hour slots between two times, inclusive: ["08:00", "08:30", ...]. */
 export function timeSlots(from = "00:00", to = "23:30", step = 30): string[] {

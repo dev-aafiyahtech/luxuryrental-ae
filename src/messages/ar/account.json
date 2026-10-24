@@ -1,0 +1,203 @@
+{
+  "meta": {
+    "title": "Your account",
+    "description": "Track your requests, upload your documents once and keep your details ready for your next rental."
+  },
+  "loading": "Loading your account",
+  "signIn": {
+    "title": "Your account",
+    "lede": "Track your requests, upload your documents once and sign rental agreements online.",
+    "formTitle": "Sign in or create an account",
+    "formText": "We'll send you a one-time code. There's no password to remember.",
+    "method": "Sign in with",
+    "methodPhone": "WhatsApp",
+    "methodEmail": "Email",
+    "phone": "WhatsApp number",
+    "phoneHint": "We'll send your code to this number on WhatsApp.",
+    "email": "Email",
+    "emailHint": "We'll send your code to this address.",
+    "send": "Send code",
+    "benefitsTitle": "With an account you can",
+    "benefits": {
+      "requests": "See every request and its status in one place.",
+      "documents": "Upload your licence and ID once, before handover.",
+      "agreements": "Sign your rental agreement online once we confirm."
+    },
+    "demo": "Demo: no code is sent. Your account and document details stay in this browser.",
+    "signedOut": "You're signed out.",
+    "deleted": "Your account has been deleted from this device."
+  },
+  "code": {
+    "title": "Enter your code",
+    "text": "Enter the 6-digit code for {contact}.",
+    "demo": "Demo: your code is {code}. On the live site it arrives on WhatsApp or by email.",
+    "label": "6-digit code",
+    "hint": "The code works for 10 minutes.",
+    "verify": "Sign in",
+    "resend": "Send a new code",
+    "resent": "We've made a new code. The old one no longer works.",
+    "changePhone": "Use a different number",
+    "changeEmail": "Use a different email",
+    "errors": {
+      "format": "Enter the 6 digits of your code.",
+      "wrong": "That code doesn't match. Check it and try again.",
+      "expired": "This code has expired. Send a new one."
+    }
+  },
+  "errors": {
+    "name": "Enter your full name.",
+    "phone": {
+      "required": "Enter your WhatsApp number.",
+      "uaeMobile": "Enter a UAE mobile number starting with 5, for example 50 123 4567.",
+      "invalid": "Enter a valid phone number, including the area or mobile code."
+    },
+    "emailRequired": "Enter your email address.",
+    "emailInvalid": "Enter an email address like name@example.com.",
+    "residentLicence": "UAE residents need a UAE driving licence to rent. Choose \"United Arab Emirates\".",
+    "failed": "Something went wrong. Please try again."
+  },
+  "home": {
+    "greeting": "Hello, {name}",
+    "title": "Your account",
+    "signedInAs": "Signed in as",
+    "lede": "Your requests, documents and details in one place.",
+    "welcome": "You're signed in.",
+    "signOut": "Sign out",
+    "onThisPage": "On this page"
+  },
+  "requests": {
+    "title": "Your requests",
+    "intro": "Requests sent with {contact}, newest first.",
+    "empty": "No requests yet",
+    "emptyText": "Requests you send with this number or email show here, with their status.",
+    "browse": "Browse the fleet",
+    "ref": "Reference",
+    "selfDrive": "Self-drive",
+    "chauffeur": "With chauffeur",
+    "view": "View status",
+    "sign": "Sign agreement",
+    "signed": "Agreement signed",
+    "or": "{a} or {b}",
+    "action": "{action}: {car}, {ref}"
+  },
+  "docs": {
+    "title": {
+      "customer": "Your documents",
+      "ops": "Driver documents"
+    },
+    "intro": {
+      "customer": "Upload these once and we'll check them before handover. Bring the originals too: we check them and hand them straight back.",
+      "ops": "Check each file: the whole document is visible, it hasn't expired and the name matches the booking."
+    },
+    "formats": "Photos (JPG, PNG, HEIC) or PDFs, up to 10 MB each.",
+    "consentLabel": "I agree that Luxuryrentals may use these documents to check that the driver can rent this car, as set out in the Privacy Notice. They are deleted after the rental.",
+    "consentNeeded": "Tick the box above to add your documents.",
+    "consentGiven": "You agreed to the document check on {when}.",
+    "consentWithdraw": "Withdraw and delete my documents",
+    "consentWithdrawn": "Consent withdrawn. Your documents were deleted.",
+    "demo": "Demo: files stay on this device and are never sent. Only the file name and size are kept.",
+    "live": "On the live site, files go to private, encrypted storage and are deleted after your rental.",
+    "progress": "{uploaded} of {total} uploaded · {verified} verified",
+    "progressRejected": "{n} to upload again",
+    "progressRejectedOps": "{n} rejected",
+    "allVerified": "All documents verified.",
+    "noPhone": "There's no phone number to keep documents with yet.",
+    "kinds": {
+      "passport": "Passport (photo page)",
+      "visa": "UAE entry stamp or visa",
+      "licence": "Driving licence",
+      "idp": "International Driving Permit",
+      "emirates-id": "Emirates ID",
+      "uae-licence": "UAE driving licence"
+    },
+    "sides": {
+      "front": "Front",
+      "back": "Back",
+      "page": "Photo or scan"
+    },
+    "slotName": "{doc}, {side}",
+    "sidesDone": "{done} of {total} sides",
+    "status": {
+      "missing": "Not uploaded",
+      "uploading": "Uploading",
+      "uploaded": "In review",
+      "verified": "Verified",
+      "rejected": "Rejected"
+    },
+    "notYet": "Not uploaded yet",
+    "add": "Add photo or PDF",
+    "drop": "or drop a file here",
+    "dropHere": "Drop to upload",
+    "replace": "Replace",
+    "again": "Upload a new file",
+    "remove": "Remove",
+    "reason": "Reason: {reason}",
+    "uploadedAt": "Uploaded {when}",
+    "errors": {
+      "type": "Use a photo (JPG, PNG, HEIC) or a PDF.",
+      "size": "Files up to 10 MB.",
+      "many": "Add one file at a time.",
+      "failed": "That didn't work. Please try again."
+    },
+    "say": {
+      "uploading": "Uploading {slot}.",
+      "uploaded": "{slot} uploaded. It's now in review.",
+      "removed": "{slot} removed.",
+      "verified": "{slot} verified.",
+      "rejected": "{slot} rejected. {reason}",
+      "review": "{slot} is back in review.",
+      "error": "{slot}: {error}"
+    },
+    "ops": {
+      "verify": "Verify",
+      "reject": "Reject",
+      "reasonLegend": "Why is it rejected?",
+      "reasons": {
+        "blurry": "Photo is blurry or cut off",
+        "expired": "Document has expired",
+        "name": "Name doesn't match the booking",
+        "wrong": "Wrong document",
+        "other": "Other"
+      },
+      "otherLabel": "Reason the customer will see",
+      "reasonError": "Choose a reason.",
+      "otherError": "Enter the reason.",
+      "confirm": "Reject file",
+      "cancel": "Cancel"
+    },
+    "action": "{action}: {slot}"
+  },
+  "profile": {
+    "title": "Profile",
+    "intro": "We use these details to pre-fill your next request.",
+    "name": "Full name",
+    "nameHint": "As it appears on your driving licence.",
+    "phone": "WhatsApp number",
+    "phoneHint": "We'll message you about your requests on this number. Your documents are kept with it.",
+    "phoneMoves": "Your documents move to the new number. Requests sent with the old number stay linked to it.",
+    "email": "Email",
+    "licence": "Driving licence issued in",
+    "idp": "Visitors with a licence from this country also need an International Driving Permit (IDP).",
+    "resident": "Do you live in the UAE?",
+    "residentYes": "Yes, UAE resident",
+    "residentNo": "No, visiting",
+    "age": "Your age",
+    "ageUnder25": "Under 25",
+    "age25": "25 to 29",
+    "age30": "30 or over",
+    "under25": "To drive our cars yourself you need to be 25 or older. Our chauffeur service has no age limit.",
+    "save": "Save profile",
+    "saved": "Saved. Your next request form is pre-filled with these details.",
+    "needPhone": "Add your WhatsApp number to your profile first. Your documents are kept with it.",
+    "addPhone": "Add your number"
+  },
+  "delete": {
+    "title": "Delete your account",
+    "text": "Removes your profile and the details of your uploaded documents from this device. Requests you've already sent aren't affected.",
+    "button": "Delete account",
+    "confirmTitle": "Delete your account?",
+    "confirmText": "Your profile and the details of your uploaded documents will be removed. Requests you've already sent stay as they are. You can create a new account at any time.",
+    "confirm": "Delete account",
+    "keep": "Keep my account"
+  }
+}

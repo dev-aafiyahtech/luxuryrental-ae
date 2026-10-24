@@ -1,7 +1,7 @@
 // Locale routing: English lives at the root ("/cars"), other locales get a prefix ("/ar/cars").
-// Arabic is planned for Phase 3; add "ar" to `locales` and a messages/ar folder to switch it on.
+// Arabic (right to left) is the demo's machine-assisted translation, to be reviewed in Phase 3.
 
-export const locales = ["en"] as const;
+export const locales = ["en", "ar"] as const;
 export type Locale = (typeof locales)[number];
 export const defaultLocale: Locale = "en";
 

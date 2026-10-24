@@ -13,6 +13,14 @@ const loaders = {
     account: (await import("@/messages/en/account.json")).default,
     agreement: (await import("@/messages/en/agreement.json")).default,
   }),
+  ar: async () => ({
+    common: (await import("@/messages/ar/common.json")).default,
+    booking: (await import("@/messages/ar/booking.json")).default,
+    home: (await import("@/messages/ar/home.json")).default,
+    fleet: (await import("@/messages/ar/fleet.json")).default,
+    account: (await import("@/messages/ar/account.json")).default,
+    agreement: (await import("@/messages/ar/agreement.json")).default,
+  }),
 } satisfies Record<Locale, () => Promise<Record<string, unknown>>>;
 
 export type Messages = Awaited<ReturnType<(typeof loaders)["en"]>>;

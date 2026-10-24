@@ -1,0 +1,151 @@
+{
+  "meta": {
+    "title": "Luxury Car Rental in Dubai, Delivered",
+    "description": "Supercars, luxury SUVs and chauffeur cars from Lamborghini, Ferrari, Rolls-Royce, Bugatti and more, delivered across Dubai including DXB and DWC. Request online, confirm on WhatsApp."
+  },
+  "rail": {
+    "label": "Chapters",
+    "skyline": "Skyline",
+    "fleet": "Fleet",
+    "sculpture": "Sculpture",
+    "reserve": "Reserve",
+    "pause": "Pause motion",
+    "play": "Play motion"
+  },
+  "sky": {
+    "eyebrow": "Burj by Night",
+    "title": "Dubai after dark",
+    "lede": "Supercars, luxury SUVs and chauffeur cars, delivered to your door anywhere in Dubai. Comprehensive insurance included.",
+    "check": "Check availability",
+    "skip": "Skip intro",
+    "noteEyebrow": "Door-to-door handover",
+    "noteTitle": "Your car comes to you",
+    "noteBody": "Delivery to hotels, villas and DXB or DWC arrivals. Keys handed over in person, with late handovers by arrangement.",
+    "cue": "Scroll to descend"
+  },
+  "tunnel": {
+    "eyebrow": "Velocity Tunnel",
+    "title": "Choose your speed",
+    "lede": "Three ways to drive Dubai. Every car is delivered clean, insured and ready to drive.",
+    "supercars": {
+      "kicker": "Supercars",
+      "title": "Mid-engine coupés and spiders",
+      "body": "Lamborghini, Ferrari, McLaren and Maserati, for the Jumeirah coast road and the climb up Jebel Jais."
+    },
+    "suvs": {
+      "kicker": "Luxury SUVs",
+      "title": "Room for four or five",
+      "body": "Hatta day trips, family airport runs and dinner out in Al Qudra."
+    },
+    "chauffeur": {
+      "kicker": "Chauffeur",
+      "title": "Driven, by appointment",
+      "body": "Airport transfers, city hours and evening events in a Rolls-Royce or Bentley, with a professional chauffeur."
+    },
+    "from": "From",
+    "perDay": "/ day",
+    "perHour": "/ hour",
+    "minHours": "{hours}-hour minimum",
+    "featured": "See the featured cars"
+  },
+  "sculpture": {
+    "eyebrow": "Kinetic Sculpture",
+    "title": "Every part on display",
+    "lede": "Keep scrolling to take the car apart, part by part. Then watch it come back together.",
+    "tabs": "Featured cars",
+    "schematic": "The kinetic view is a schematic.",
+    "see": "See this car",
+    "powertrain": "Powertrain",
+    "performance": "Performance",
+    "cabin": "Cabin",
+    "drive": "Drive"
+  },
+  "reserve": {
+    "eyebrow": "Reserve",
+    "title": "Ready when you land",
+    "lede": "Send a request now and we bring the car to your door. {reply} Nothing is charged on this website.",
+    "trustLabel": "What's included",
+    "trust": {
+      "insurance": "Comprehensive insurance",
+      "vat": "VAT included, no hidden fees",
+      "delivery": "Delivered across Dubai"
+    },
+    "cardEyebrow": "Your request"
+  },
+  "fleet": {
+    "eyebrow": "The fleet",
+    "title": "{cars} cars, {brands} marques",
+    "lede": "Every car we rent, grouped by marque. Prices are per day and include 5% VAT.",
+    "all": "Browse and filter the fleet",
+    "brand": "All {brand} cars",
+    "prev": "Previous cars",
+    "next": "Next cars",
+    "region": "The fleet, scrollable"
+  },
+  "how": {
+    "eyebrow": "How it works",
+    "title": "Three steps to the keys",
+    "steps": {
+      "pick": {
+        "title": "Pick a car and dates",
+        "body": "Choose from {cars} cars and tell us where to bring it: your hotel, your villa or the arrivals hall at DXB or DWC."
+      },
+      "request": {
+        "title": "Send a request, nothing is charged",
+        "body": "Add your details and send the request. Nothing is charged on this website."
+      },
+      "confirm": {
+        "title": "Confirm on WhatsApp",
+        "body": "{reply} Once we confirm, pay at handover or by secure link."
+      }
+    },
+    "cta": "Start a request"
+  },
+  "delivery": {
+    "eyebrow": "Delivery",
+    "title": "Delivered across Dubai",
+    "lede": "We're based in Dubai Silicon Oasis and bring the car to you, wherever you're staying.",
+    "base": {
+      "title": "Our office",
+      "body": "Collect and return at Dubai Silicon Oasis at no charge."
+    },
+    "city": {
+      "title": "Anywhere in Dubai",
+      "body": "Free for rentals of {days} days or more, {fee} each way for shorter ones."
+    },
+    "airport": {
+      "title": "DXB and DWC",
+      "body": "Meet-and-greet at arrivals, {fee} each way, airport parking included. We track your flight."
+    },
+    "cta": "Delivery zones and fees"
+  },
+  "trust": {
+    "label": "Why rent with us",
+    "base": "Based in Dubai Silicon Oasis"
+  },
+  "faq": {
+    "eyebrow": "Questions",
+    "title": "Before you book",
+    "all": "Read all FAQs",
+    "age": {
+      "q": "How old do I need to be?",
+      "a": "{age} or older for most cars, with a licence held for at least {years} years ({supercarYears} years for supercars). Bugatti drivers must be {hyperAge} or older with {hyperYears} years' driving."
+    },
+    "deposit": {
+      "q": "Is there a deposit?",
+      "a": "Yes. A refundable hold of {from} to {to} is placed on your card at handover, depending on the car, and shown separately from the price. We release it {days} days after the rental ends.",
+      "hyper": "Bugatti: from {amount}, released after {days} days."
+    },
+    "airport": {
+      "q": "Can you deliver to the airport?",
+      "a": "Yes. We meet you in the arrivals hall at DXB or DWC for {fee} each way, airport parking included, and we track your flight in case it's late."
+    },
+    "included": {
+      "q": "What does the daily rate include?",
+      "a": "5% VAT, comprehensive insurance and {kmFrom} to {kmTo} km a day, depending on the car. Salik tolls are passed on at AED 4 to AED 6 per crossing, plus AED {salik} each."
+    }
+  },
+  "stage": {
+    "illustration": "Illustrative AI image"
+  }
+}
