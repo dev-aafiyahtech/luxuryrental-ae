@@ -441,3 +441,21 @@ Got it. I've saved your answers to the project, and I'll wait for your next inst
 > Make the demo complete
 
 *Claude filled every remaining gap with assumed values: sample company details (flagged as samples on the site), the Salik and Darb tariffs, fees for the outer emirates and chauffeur trips, the office directions, the consumer-protection contact, final wording for the legal pages, and each car's model year, colours, cabin, wheels and equipment (shown in a new "Our car" section on every car page). It moved the remaining rule values into `rules.ts`, added robots.txt and a sitemap, and wrote every assumption into [docs/brief/assumptions.md](../brief/assumptions.md) for Zubair to confirm later. A free image service was tried for the car pictures, but it drew the wrong car with a watermark, so the line-art illustrations stay until an image-generation account is set up.*
+
+---
+
+## 16. Customer documents, rental agreement and accounts
+
+**Zubair:**
+> is the demo complete with all the pages and simulation? just asnwer yes or no?
+>
+> If not then output short major points which are pending, except production
+
+*Claude answered no: car images, image-based particle cars, a double-booking check, and the later-phase customer features (document upload, e-signed agreement, accounts) and Arabic were still missing.*
+
+**Zubair:**
+> Please do the front end and simulate for customer doc upload, rental agreement and customer account. Meanwhile I will provide you AI images
+>
+> Please output below which car model images do you want
+
+*Claude wrote the image brief ([docs/brief/car-image-brief.md](../brief/car-image-brief.md): 58 images, three per car plus two extra for the top 5, with colours, a reusable prompt and file names) and a tool that imports them (`tools/ingest-car-images.mjs`). It built the simulated stores for accounts, documents, agreements and vehicle checks, then ran two agents in parallel: the account and document upload (Frontend Developer), and the e-signed rental agreement with handover and return vehicle checks and their ops side (Frontend Developer). Claude added an explicit consent tick before uploads, a "Before your rental" checklist on the request status page (documents, agreement, payment, vehicle check), the documents review in the ops desk, and the copy in the requirements, FAQ, privacy and cookie pages, then tested the whole flow end to end.*

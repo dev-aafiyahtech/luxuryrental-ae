@@ -56,6 +56,7 @@ export interface AccountState {
 const ACCOUNT_KEY = "lr.account.v1";
 const DOCS_KEY = "lr.docs.v1";
 const CODE_KEY = "lr.signin-code.v1";
+const CONSENT_KEY = "lr.docs-consent.v1";
 const LATENCY_MS = 600;
 export const MAX_FILE_BYTES = 10 * 1024 * 1024;
 export const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/heic", "image/heif", "image/webp", "application/pdf"];
@@ -64,6 +65,7 @@ type Listener = () => void;
 const listeners = new Set<Listener>();
 let accountCache: AccountState | null = null;
 let docsCache: Record<string, CustomerDocument[]> | null = null;
+let consentCache: Record<string, string> | null = null;
 
 function readJSON<T>(key: string, fallback: T): T {
   try {
@@ -107,11 +109,23 @@ function writeDocs(next: Record<string, CustomerDocument[]>) {
   emit();
 }
 
+function readConsent(): Record<string, string> {
+  if (!consentCache) consentCache = readJSON<Record<string, string>>(CONSENT_KEY, {});
+  return consentCache;
+}
+
+function writeConsent(next: Record<string, string>) {
+  consentCache = next;
+  writeJSON(CONSENT_KEY, next);
+  emit();
+}
+
 if (typeof window !== "undefined") {
   window.addEventListener("storage", (e) => {
     if (e.key === ACCOUNT_KEY) accountCache = null;
     if (e.key === DOCS_KEY) docsCache = null;
-    if (e.key === ACCOUNT_KEY || e.key === DOCS_KEY) emit();
+    if (e.key === CONSENT_KEY) consentCache = null;
+    if (e.key === ACCOUNT_KEY || e.key === DOCS_KEY || e.key === CONSENT_KEY) emit();
   });
 }
 
@@ -204,6 +218,22 @@ export async function updateProfile(patch: Partial<Omit<CustomerProfile, "create
   const cur = readAccount();
   if (!cur.profile) throw new Error("Not signed in");
   const profile = { ...cur.profile, ...patch };
+  // Documents and consent are kept per phone number: carry them over to a new number.
+  const from = cur.profile.phone, to = profile.phone;
+  if (from && to && from !== to) {
+    const docs = { ...readDocs() };
+    if (docs[from]) {
+      docs[to] = [...(docs[to] ?? []), ...docs[from]];
+      delete docs[from];
+      writeDocs(docs);
+    }
+    const consent = { ...readConsent() };
+    if (consent[from] && !consent[to]) {
+      consent[to] = consent[from];
+      delete consent[from];
+      writeConsent(consent);
+    }
+  }
   writeAccount({ ...cur, profile });
   return profile;
 }
@@ -216,6 +246,9 @@ export async function deleteAccount(): Promise<void> {
     const docs = { ...readDocs() };
     delete docs[phone];
     writeDocs(docs);
+    const consent = { ...readConsent() };
+    delete consent[phone];
+    writeConsent(consent);
   }
   writeAccount(SIGNED_OUT);
 }
@@ -255,9 +288,14 @@ export function documentProgress(docs: CustomerDocument[], required: DocRequirem
   return { total, uploaded, verified, rejected, complete: uploaded === total, allVerified: verified === total };
 }
 
+const EXT_TYPES: Record<string, string> = { jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp", heic: "image/heic", heif: "image/heif", pdf: "application/pdf" };
+
+/** The file's type, from the browser or (when the browser gives none, e.g. HEIC on desktop) its extension. */
+export const fileTypeOf = (file: { name?: string; type: string }) => file.type || EXT_TYPES[file.name?.split(".").pop()?.toLowerCase() ?? ""] || "";
+
 /** Why a file can't be accepted, or null. */
-export function fileProblem(file: { type: string; size: number }): "type" | "size" | null {
-  if (!ACCEPTED_TYPES.includes(file.type)) return "type";
+export function fileProblem(file: { name?: string; type: string; size: number }): "type" | "size" | null {
+  if (!ACCEPTED_TYPES.includes(fileTypeOf(file))) return "type";
   if (file.size > MAX_FILE_BYTES) return "size";
   return null;
 }
@@ -270,7 +308,8 @@ export async function uploadDocument(phone: string, kind: DocKind, side: DocSide
   await wait(1100);
   const problem = fileProblem(file);
   if (problem) throw new Error(problem);
-  const doc: CustomerDocument = { id: id(), kind, side, fileName: file.name, fileType: file.type, fileSize: file.size, uploadedAt: new Date().toISOString(), status: "uploaded" };
+  if (!readConsent()[phone]) throw new Error("consent");
+  const doc: CustomerDocument = { id: id(), kind, side, fileName: file.name, fileType: fileTypeOf(file), fileSize: file.size, uploadedAt: new Date().toISOString(), status: "uploaded" };
   const all = readDocs();
   const mine = (all[phone] ?? []).filter((d) => !(d.kind === kind && d.side === side));
   writeDocs({ ...all, [phone]: [...mine, doc] });
@@ -290,10 +329,27 @@ export async function reviewDocument(phone: string, docId: string, status: "veri
   writeDocs({ ...all, [phone]: (all[phone] ?? []).map((d) => (d.id === docId ? { ...d, status, reviewNote, reviewedAt: new Date().toISOString() } : d)) });
 }
 
+/** Consent (plan C-03) to use uploaded documents for the eligibility check, given before the first upload. */
+export function giveDocumentConsent(phone: string) {
+  writeConsent({ ...readConsent(), [phone]: new Date().toISOString() });
+}
+
+/** Withdraw consent: removes the documents too. */
+export async function withdrawDocumentConsent(phone: string): Promise<void> {
+  await wait(300);
+  const consent = { ...readConsent() };
+  delete consent[phone];
+  writeConsent(consent);
+  const docs = { ...readDocs() };
+  delete docs[phone];
+  writeDocs(docs);
+}
+
 /** Clears every demo account and document in this browser. */
 export function resetDemoCustomers() {
   writeAccount(SIGNED_OUT);
   writeDocs({});
+  writeConsent({});
 }
 
 /* ---------- hooks ---------- */
@@ -304,6 +360,14 @@ const EMPTY_ALL: Record<string, CustomerDocument[]> = {};
 /** `{ signedIn, profile }`, live across tabs. Signed out until hydrated. */
 export function useAccount(): AccountState {
   return useSyncExternalStore(subscribeCustomer, readAccount, () => SIGNED_OUT);
+}
+
+const EMPTY_CONSENT: Record<string, string> = {};
+
+/** When consent to use uploaded documents was given for this phone, or undefined. */
+export function useDocumentConsent(phone?: string): string | undefined {
+  const all = useSyncExternalStore(subscribeCustomer, readConsent, () => EMPTY_CONSENT);
+  return phone ? all[phone] : undefined;
 }
 
 /** Live documents for one phone number (the account key, or a booking's driver phone). */

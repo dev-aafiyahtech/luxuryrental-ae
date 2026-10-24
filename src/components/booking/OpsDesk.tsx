@@ -15,12 +15,14 @@ import { quote } from "@/lib/pricing";
 import { addDays, todayInDubai } from "@/lib/dates";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { ConditionReportSheet, OpsChecks } from "@/components/agreement/OpsChecks";
+import { DocumentsPanel } from "@/components/account/DocumentsPanel";
+import { documentProgress, requiredDocuments, resetDemoCustomers, useDocuments } from "@/lib/customer/store";
 import { BottomSheet } from "./BottomSheet";
 import { FlowSkeleton, Rows, StatusBadge } from "./bits";
 import { stamp } from "./BookingStatusView";
 import { tripLines } from "./FlowShell";
 import { useHydrated } from "./hooks";
-import { STATUS_ORDER, countryName, formatPhone } from "./lib";
+import { STATUS_ORDER, countryName, formatPhone, needsIdp } from "./lib";
 
 type Action = { to: BookingStatus; key: "confirm" | "decline" | "payLink" | "paidHandover" | "cancel"; primary?: boolean };
 const ACTIONS: Action[] = [
@@ -243,6 +245,7 @@ export function OpsDesk() {
                     </button>
                     <Link href={href(`/booking?ref=${b.ref}`)} className="btn btn-ghost btn-sm">{t("ops.openCustomer")}</Link>
                   </div>
+                  <OpsDocuments b={b} />
                   <OpsChecks b={b} onRecord={(stage) => setRecording({ ref: b.ref, stage })} />
                 </article>
               </li>
@@ -269,6 +272,7 @@ export function OpsDesk() {
               className="btn btn-primary btn-sm"
               onClick={() => {
                 resetDemoBookings();
+                resetDemoCustomers();
                 setConfirmReset(false);
                 setLive(t("ops.resetDone"));
               }}
@@ -281,5 +285,27 @@ export function OpsDesk() {
         <p className="text-champagne">{t("ops.resetText")}</p>
       </BottomSheet>
     </div>
+  );
+}
+
+/** The main driver's uploaded documents, reviewed (verify or reject) from the ops desk. */
+function OpsDocuments({ b }: { b: BookingRecord }) {
+  const t = useT("booking");
+  const driver = b.trip.driver;
+  const docs = useDocuments(driver.phone);
+  if (!driver.phone) return null;
+  const p = documentProgress(docs, requiredDocuments(driver, needsIdp));
+  return (
+    <details className="group rounded-[14px] border border-line">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-4 py-2 text-sm font-semibold [&::-webkit-details-marker]:hidden">
+        <span>{t("ops.docs.title")}</span>
+        <span className="font-normal text-muted tabular">
+          {p.uploaded === 0 ? t("ops.docs.none") : t("ops.docs.progress", { uploaded: p.uploaded, total: p.total, verified: p.verified })}
+        </span>
+      </summary>
+      <div className="border-t border-line p-4">
+        <DocumentsPanel phone={driver.phone} driver={driver} mode="ops" headingLevel="h3" />
+      </div>
+    </details>
   );
 }

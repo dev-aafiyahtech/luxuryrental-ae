@@ -20,6 +20,7 @@ import { QuoteTable } from "./QuoteTable";
 import { FlowSkeleton, Rows, StatusBadge, WhatsAppButton } from "./bits";
 import { tripLines } from "./FlowShell";
 import { useHydrated } from "./hooks";
+import { NextSteps } from "./NextSteps";
 import { canCustomerCancel, canPay, formatPhone, paymentFor } from "./lib";
 
 /** "Fri 24 Oct, 14:05" in Dubai time for an ISO timestamp. */
@@ -166,6 +167,7 @@ export function BookingStatusView() {
       <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)] lg:gap-14">
         <div className="grid content-start gap-10">
           {b.status === "paid" && <ReceiptCard b={b} />}
+          {["requested", "confirmed", "awaiting_payment", "paid"].includes(b.status) && <NextSteps b={b} />}
           <section aria-labelledby="details-h" className="grid gap-3">
             <h2 id="details-h" className="display-sm">{t("status.details")}</h2>
             <Rows

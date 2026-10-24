@@ -4,7 +4,7 @@ import Link from "next/link";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { CalendarPlus, Check, Copy, ListChecks, MessageSquareText } from "lucide-react";
+import { CalendarPlus, Check, Copy, FileUp, ListChecks, MessageSquareText } from "lucide-react";
 import { getCar } from "@/content/cars";
 import { site } from "@/content/site";
 import { useHref, useT } from "@/i18n/client";
@@ -73,6 +73,7 @@ export function ConfirmedView() {
   const steps = [
     { title: t("confirmed.t1"), text: t("confirmed.t1Text"), state: "done" },
     { title: t("confirmed.t2"), text: ooh ? t("confirmed.t2TextOoh") : t("confirmed.t2Text"), state: "current" },
+    { title: t("confirmed.tDocs"), text: t("confirmed.tDocsText"), state: "todo" },
     { title: t("confirmed.t3"), text: t("confirmed.t3Text"), state: "todo" },
   ];
 
@@ -150,6 +151,10 @@ export function ConfirmedView() {
             </li>
           ))}
         </ol>
+        <Link href={href(`/booking?ref=${ref}#next-steps`)} className="btn btn-secondary btn-sm w-fit gap-2">
+          <FileUp className="h-4 w-4" aria-hidden="true" />
+          {t("confirmed.docsCta")}
+        </Link>
       </section>
 
       {record && lines ? (

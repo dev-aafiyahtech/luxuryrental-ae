@@ -162,7 +162,8 @@ export function SignaturePad({ id, label, name, onChange, error, className }: { 
     render();
     // The script face isn't preloaded: draw again once it has arrived.
     let cancelled = false;
-    const family = signatureFamily();
+    // Load the script face alone: its size-adjusted local() fallback can fail where Arial isn't installed.
+    const family = signatureFamily().split(",")[0]?.trim();
     if (typed && family && document.fonts) void document.fonts.load(`48px ${family}`).then(() => !cancelled && render(), () => undefined);
     return () => {
       cancelled = true;

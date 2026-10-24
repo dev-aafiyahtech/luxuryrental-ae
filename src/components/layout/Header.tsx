@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { UserRound } from "lucide-react";
 import { getHref, getT } from "@/i18n/dictionaries";
 import { brands, categories } from "@/content/brands";
 import { site } from "@/content/site";
@@ -24,7 +25,7 @@ export async function Header() {
   ];
 
   return (
-    <header className="site-header sticky top-0 z-[var(--z-header)] bg-gradient-to-b from-bg/90 to-bg/0 pt-[env(safe-area-inset-top)]">
+    <header className="site-header sticky top-0 print:hidden z-[var(--z-header)] bg-gradient-to-b from-bg/90 to-bg/0 pt-[env(safe-area-inset-top)]">
       <div className="container-site flex h-[var(--header-h)] items-center justify-between gap-4">
         <Link href={href("/")} className="inline-flex min-h-11 items-center no-underline" aria-label={`${site.brandName} home`}>
           <Logo />
@@ -40,10 +41,13 @@ export async function Header() {
           <a href={whatsappHref()} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-line text-fg transition-colors hover:border-accent" aria-label={t("nav.whatsapp")} target="_blank" rel="noopener">
             <WhatsAppIcon />
           </a>
+          <Link href={href("/account")} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-line text-fg transition-colors hover:border-accent" aria-label={t("nav.account")}>
+            <UserRound className="h-5 w-5" aria-hidden="true" />
+          </Link>
           <Link href={href("/cars")} className="btn btn-primary btn-sm hidden sm:inline-flex">
             {t("nav.reserve")}
           </Link>
-          <MobileMenu nav={nav} groups={groups} labels={{ menu: t("nav.menu"), close: t("nav.close"), reserve: t("nav.reserve") }} reserveHref={href("/cars")} />
+          <MobileMenu nav={nav} groups={groups} labels={{ menu: t("nav.menu"), close: t("nav.close"), reserve: t("nav.reserve") }} reserveHref={href("/cars")} account={{ label: t("nav.account"), href: href("/account") }} />
         </div>
       </div>
     </header>

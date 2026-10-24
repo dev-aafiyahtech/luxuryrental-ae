@@ -71,7 +71,7 @@ export function ConditionReportView({ bookingRef, stage, report, canSign, defaul
   const t = useT("agreement");
   const titleId = `${stage}-check-h`;
   return (
-    <section aria-labelledby={titleId} className={clsx("card grid gap-6 p-5 sm:p-8 print:block print:rounded-none print:border-0 print:bg-white print:p-0 print:[&>*+*]:mt-5", report && "print:break-before-page")}>
+    <section id={`${stage}-check`} aria-labelledby={titleId} className={clsx("card grid scroll-mt-28 gap-6 p-5 sm:p-8 print:block print:rounded-none print:border-0 print:bg-white print:p-0 print:[&>*+*]:mt-5", report && "print:break-before-page")}>
       <div className="grid gap-1.5">
         <h2 id={titleId} className="display-sm">{t(stage === "handover" ? "checks.handover" : "checks.return")}</h2>
         {report && <p className="text-sm text-muted">{t("checks.lede")}</p>}
