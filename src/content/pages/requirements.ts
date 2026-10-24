@@ -4,8 +4,8 @@ import type { Tier } from "@/content/types";
 import { formatAED } from "@/lib/format";
 import { faqsById, type FaqEntry } from "./faq";
 import {
-  carsInTier, commonKmPerDay, depositRange, extraRules as x, festiveDates, festiveMinDays, flagshipCars, hypercars,
-  kmExceptions, listJoin, noticeText, peakWeekendMinDays, tierName, tierOrder,
+  carsInTier, commonKmPerDay, depositRange, festiveDates, festiveMinDays, flagshipCars, hypercars,
+  kmExceptions, listJoin, noticeText, peakWeekendMinDays, tierName, tierOrder, salikTariff,
 } from "./shared";
 
 // Copy for /requirements (workstream 05 §4 outline, 07 §7.4 fact page). Rules come from
@@ -76,7 +76,7 @@ export const requirementsPage = {
       { label: "Card", value: "Credit card in the main driver's name. Debit cards and cash are not accepted for the deposit." },
       { label: "Amount", value: `${depositRange(carsInTier("L"))} (${tierName("L")}), ${depositRange(carsInTier("S"))} (${tierName("S")}), ${depositRange(carsInTier("H"))} (${tierName("H")}). Each car's deposit is on the pricing page.` },
       { label: "When", value: "Held on your card at handover. It is a hold, so no money leaves your account unless we deduct a charge." },
-      { label: "Release", value: `${same ? `${L.releaseDays} days` : `${L.releaseDays} or ${S.releaseDays} days`} after you return the car (${H.releaseDays} days for Bugattis), less any fines, tolls or charges. Your bank may take a further ${x.bankReleaseWorkingDays} working days.` },
+      { label: "Release", value: `${same ? `${L.releaseDays} days` : `${L.releaseDays} or ${S.releaseDays} days`} after you return the car (${H.releaseDays} days for Bugattis), less any fines, tolls or charges. Your bank may take a further ${rules.bankReleaseWorkingDays} working days.` },
       { label: "Later fines", value: "If a fine arrives after the release, we charge it to the card on file and send you the fine notice." },
     ];
   },
@@ -99,7 +99,7 @@ export const requirementsPage = {
     return { key: t, tier: tier.name, excess: formatAED(tier.excess), fullCover: `${formatAED(tier.fullCoverPerDay)} / day`, withCover: formatAED(tier.fullCoverExcess) };
   }),
   exclusions: ["Driving under alcohol or drugs", "A driver who is not named on the agreement", "Racing or track use", "Off-road or sand driving", "Leaving the UAE", "Damage with no police report"],
-  accident: `Report any accident or damage to the police (Dubai Police app or 999) and to us straight away. Without a police report you pay the full repair cost. Damage is charged from an agency-garage estimate, capped at the excess when the insurance applies. Loss of use during repairs is ${x.lossOfUsePct}% of the daily rate, for up to ${x.lossOfUseMaxDays} days.`,
+  accident: `Report any accident or damage to the police (Dubai Police app or 999) and to us straight away. Without a police report you pay the full repair cost. Damage is charged from an agency-garage estimate, capped at the excess when the insurance applies. Loss of use during repairs is ${rules.lossOfUsePct}% of the daily rate, for up to ${rules.lossOfUseMaxDays} days.`,
   onTheRoad: () => {
     const common = commonKmPerDay();
     const exceptions = kmExceptions();
@@ -109,17 +109,17 @@ export const requirementsPage = {
     return [
       { label: "Fuel", value: `Return the car with the same fuel level. If it is lower, we charge fuel at pump price plus ${formatAED(rules.refuelFee)}. Supercars and hypercars take Super 98 only.` },
       { label: "Kilometres", value: `${common} km a day on most cars${kmText ? ` (${kmText})` : ""}. Extra kilometres are charged per km at the rate on the pricing page.` },
-      { label: "Salik and Darb", value: `Each toll crossing is charged at the tariff plus ${formatAED(rules.tollAdminFee)}.` },
+      { label: "Salik and Darb", value: `Each toll crossing is charged at the tariff, ${salikTariff()}, plus ${formatAED(rules.tollAdminFee)}. Abu Dhabi's Darb is ${formatAED(rules.tolls.darbPeak)} at peak times.` },
       { label: "Fines", value: `Fines during the rental are yours, plus ${formatAED(rules.fineAdminFee)} admin per fine. Where the authority allows, we transfer the fine and black points to the driver's licence. If the car is impounded because of how it was driven, you pay the impound and release costs and loss of use.` },
       { label: "Where you can drive", value: "Within the UAE only. Crossing into Oman, off-road or track driving, racing, ride-hailing and commercial filming need our written approval." },
       { label: "In the car", value: `No smoking, vaping or pets (assistance animals are welcome). Cleaning or odour treatment costs ${formatAED(rules.cleaningFee)}.` },
       { label: "Tracking", value: "Our cars have GPS trackers for security and recovery. We check a car's location only for theft, emergencies, accidents or a suspected breach of these rules." },
-      { label: "Late return", value: `Up to ${rules.graceMinutes} minutes late is free. After that, each started hour costs ${x.lateReturnHourPct}% of the daily rate, up to one extra day.` },
+      { label: "Late return", value: `Up to ${rules.graceMinutes} minutes late is free. After that, each started hour costs ${rules.lateReturnHourPct}% of the daily rate, up to one extra day.` },
     ];
   },
   chauffeurRules: () => [
     `Book at least ${c.leadHours} hours ahead. The minimum is ${c.minHours} hours, and one chauffeur works up to ${c.maxHours} hours a day.`,
-    `Up to ${x.chauffeurMaxPassengers} passengers, or fewer if the car has fewer seats. Child seats are free on request.`,
+    `Up to ${rules.chauffeur.maxPassengers} passengers, or fewer if the car has fewer seats. Child seats are free on request.`,
     "Waiting counts as booked time. Parking is charged at cost.",
     "Your chauffeur follows UAE traffic law and may refuse any unsafe or unlawful request.",
   ],

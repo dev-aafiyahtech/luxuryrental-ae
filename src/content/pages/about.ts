@@ -6,8 +6,8 @@ import { formatAED } from "@/lib/format";
 import { listJoin } from "./shared";
 
 // Simulated About copy for the demo (workstream 06: 300–400 words, no invented founding
-// year, awards, customer counts or team photos). [Bracketed] text is a placeholder for the
-// client. Fleet facts are read from the data so they stay true when the fleet changes.
+// year, awards, customer counts or team photos). Company details come from site.ts (sample
+// values in the demo). Fleet facts are read from the data so they stay true when the fleet changes.
 
 const cheapest = [...cars].sort((a, b) => a.rates.daily - b.rates.daily)[0];
 const halo = [...cars].sort((a, b) => b.specs.hp - a.specs.hp)[0];

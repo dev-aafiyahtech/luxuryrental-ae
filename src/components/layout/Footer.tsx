@@ -48,6 +48,7 @@ export async function Footer() {
           <p>{t("footer.trademarks")}</p>
           <p>{t("footer.licence", { licence: site.tradeLicence, rta: site.rtaPermit, trn: site.vatTrn })}</p>
           <p>{t("footer.rights", { name: site.legalName })}</p>
+          {site.sampleDetails && <p>{t("footer.sample")}</p>}
         </div>
       </div>
     </footer>

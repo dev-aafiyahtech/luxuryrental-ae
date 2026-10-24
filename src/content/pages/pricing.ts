@@ -5,7 +5,7 @@ import { getZone, zones } from "@/content/zones";
 import type { Car, Season } from "@/content/types";
 import { addDays } from "@/lib/dates";
 import { formatAED, formatNumber as n } from "@/lib/format";
-import { extraRules as x, dayMonth, festiveMinDays, flagshipCars, listJoin, peakWeekendMinDays, seasonPct, seasonTable, tierName } from "./shared";
+import { dayMonth, festiveMinDays, flagshipCars, listJoin, peakWeekendMinDays, seasonPct, seasonTable, tierName } from "./shared";
 
 // Data and copy for /pricing (workstream 07 §7.4 fact page: numbers in tables, one place per
 // fact, "Last updated"). Every figure is read from cars.ts, rules.ts and zones.ts.
@@ -96,7 +96,7 @@ export function feeGroups(): { id: string; title: string; rows: FeeRow[] }[] {
     detail: z.slug === "dubai" ? `Each way. Free for rentals of ${dubai.freeFromDays} days or more.` : z.kind === "airport" ? "Per handover, with parking and meet-and-greet." : z.fee === null ? (z.note ?? "") : z.fee === 0 ? "Collect and return at our office." : "Each way.",
   }));
   handover.push(
-    { key: "airport-wait", fee: "Airport waiting", amount: `${formatAED(x.airportWaitPerHour)} / hour`, detail: `After the first ${rules.airportWaitFreeMinutes} minutes, which are free. Per started hour.` },
+    { key: "airport-wait", fee: "Airport waiting", amount: `${formatAED(rules.airportWaitPerHour)} / hour`, detail: `After the first ${rules.airportWaitFreeMinutes} minutes, which are free. Per started hour.` },
     { key: "ooh", fee: "Out-of-hours handover", amount: formatAED(rules.outOfHoursFee), detail: `Per handover outside ${rules.handoverHours.from}–${rules.handoverHours.to}, subject to availability.` },
   );
   const cover: FeeRow[] = (["L", "S", "H"] as const).map((t) => {
@@ -108,11 +108,11 @@ export function feeGroups(): { id: string; title: string; rows: FeeRow[] }[] {
     { key: "child-seat", fee: "Child seat", amount: rules.childSeatPerDay ? `${formatAED(rules.childSeatPerDay)} / day` : "Free", detail: "On request." },
   );
   const during: FeeRow[] = [
-    { key: "salik", fee: "Salik and Darb tolls", amount: `Tariff + ${formatAED(rules.tollAdminFee)}`, detail: "Per crossing, at the toll operator's tariff, plus our admin fee." },
+    { key: "salik", fee: "Salik and Darb tolls", amount: `${formatAED(rules.tolls.salikOffPeak)}–${rules.tolls.salikPeak} + ${formatAED(rules.tollAdminFee)}`, detail: `Per crossing, passed on at cost. Salik: ${formatAED(rules.tolls.salikPeak)} Mon–Sat 06:00–10:00 and 16:00–20:00, ${formatAED(rules.tolls.salikOffPeak)} at other times and on Sundays, free ${rules.tolls.salikFreeHours}. Abu Dhabi Darb: ${formatAED(rules.tolls.darbPeak)} at peak times. Plus our ${formatAED(rules.tollAdminFee)} admin fee per crossing.` },
     { key: "fuel", fee: "Refuelling", amount: `Fuel + ${formatAED(rules.refuelFee)}`, detail: "If the car comes back with less fuel than at handover. Fuel at pump price." },
     { key: "fines", fee: "Traffic and parking fines", amount: `Fine + ${formatAED(rules.fineAdminFee)}`, detail: "Admin fee per fine. Black points are transferred where the authority allows." },
     { key: "extra-km", fee: "Extra kilometres", amount: `${formatAED(Math.min(...cars.map((c) => c.rates.extraKm)))}–${n(Math.max(...cars.map((c) => c.rates.extraKm)))} / km`, detail: "Depends on the car; see the table above." },
-    { key: "late", fee: "Late return", amount: `${x.lateReturnHourPct}% of daily / hour`, detail: `Free for the first ${rules.graceMinutes} minutes, then per started hour, up to one extra day.` },
+    { key: "late", fee: "Late return", amount: `${rules.lateReturnHourPct}% of daily / hour`, detail: `Free for the first ${rules.graceMinutes} minutes, then per started hour, up to one extra day.` },
     { key: "cleaning", fee: "Smoking or special cleaning", amount: formatAED(rules.cleaningFee), detail: "No smoking, vaping or pets. Assistance animals are welcome." },
   ];
   return [

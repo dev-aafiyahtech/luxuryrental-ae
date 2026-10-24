@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { ChevronDown } from "lucide-react";
-import { site } from "@/content/site";
 import { getHref } from "@/i18n/dictionaries";
 import { getLegalDoc, legalDocs, type LegalBlock } from "@/content/pages/legal";
 import { longDate, plain } from "@/content/pages/shared";
@@ -12,7 +11,7 @@ import { pageMetadata } from "@/components/content/meta";
 import { Breadcrumbs, Notice } from "@/components/ui";
 
 // Long-form legal template (workstream 06: H1, version, "Last updated", table of contents,
-// 70ch column at 17px, no dock, no scene). Draft banner until the client's documents arrive.
+// 70ch column at 17px, no dock, no scene). A short "Demo terms" note until the reviewed text arrives.
 
 export async function generateStaticParams() {
   return legalDocs.map((d) => ({ slug: d.slug }));
@@ -106,8 +105,8 @@ async function LegalContent({ params }: { params: PageProps<"/[lang]/legal/[slug
             <span>Version: {doc.version}</span>
             <span>Last updated <time dateTime={doc.updated}>{longDate(doc.updated)}</time></span>
           </p>
-          <Notice tone="warning" title={`Draft: to be replaced with ${site.businessName}' own documents. Not legal advice.`}>
-            This is a website summary written for the demo from our assumed booking rules. A UAE lawyer will review the final text.
+          <Notice tone="info" title="Demo terms">
+            Written for the demo from our assumed booking rules. A UAE lawyer reviews the final text before launch.
           </Notice>
           <p className="text-[17px] leading-relaxed text-champagne">{doc.summary}</p>
         </header>

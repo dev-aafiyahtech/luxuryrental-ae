@@ -2,7 +2,7 @@ import { rules } from "@/content/rules";
 import { getZone } from "@/content/zones";
 import { formatAED } from "@/lib/format";
 import { faqsById, type FaqEntry } from "./faq";
-import { chauffeurFromHourly, chauffeurNames, extraRules as x, festiveDates, listJoin } from "./shared";
+import { chauffeurFromHourly, chauffeurNames, festiveDates, listJoin } from "./shared";
 
 // Copy for /chauffeur (workstream 06 §6.2). Rates come from each car's `chauffeur` block in
 // cars.ts; rules (minimum hours, notice, surcharges) from rules.chauffeur and zones.ts.
@@ -35,12 +35,12 @@ export const chauffeurPage = {
     { label: `Festive peak, ${festiveDates()}`, value: `+${c.superPeakSurchargePct}%` },
     { label: shjAjm.name, value: `+${formatAED(shjAjm.chauffeurSurcharge ?? 0)}` },
     { label: auh.name, value: `+${formatAED(auh.chauffeurSurcharge ?? 0)}` },
-    { label: listJoin(other.areas), value: "On request" },
+    { label: listJoin(other.areas), value: `+${formatAED(other.chauffeurSurcharge ?? 0)}` },
   ],
   goodToKnow: () => [
     "Waiting time counts as booked time.",
     `One chauffeur works up to ${c.maxHours} hours a day.`,
-    `Up to ${x.chauffeurMaxPassengers} passengers per car. Child seats are free on request.`,
+    `Up to ${rules.chauffeur.maxPassengers} passengers per car. Child seats are free on request.`,
     "Parking is charged at cost.",
     "Your chauffeur follows UAE traffic law and may refuse any unsafe or unlawful request.",
   ],
@@ -58,7 +58,7 @@ export const chauffeurPage = {
     {
       id: "overtime",
       q: "What if we need the car for longer?",
-      a: `Tell your chauffeur. Extra time is charged at the car's extra-hour rate in the table above, per started 30 minutes, as long as the chauffeur's ${c.maxHours}-hour day allows it. If you already know the day will run long, a full day (${c.fullDayHours} hours) usually costs less.`,
+      a: `Tell your chauffeur. Extra time is charged at the car's extra-hour rate in the table above, per started ${c.overtimeStepMinutes} minutes, as long as the chauffeur's ${c.maxHours}-hour day allows it. If you already know the day will run long, a full day (${c.fullDayHours} hours) usually costs less.`,
     },
     ...faqsById("chauffeur-emirates"),
   ],

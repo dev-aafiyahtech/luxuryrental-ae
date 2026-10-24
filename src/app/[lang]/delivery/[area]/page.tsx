@@ -117,9 +117,10 @@ async function AreaContent({ params }: { params: PageProps<"/[lang]/delivery/[ar
               <dl className="spec-list">
                 <div><dt>Open</dt><dd>{site.hours}</dd></div>
                 <div><dt>Roads</dt><dd>E66 Dubai–Al Ain Rd, E311</dd></div>
-                <div><dt>Parking</dt><dd>[To be confirmed]</dd></div>
+                <div><dt>Parking</dt><dd>Free visitor parking in front of the building</dd></div>
               </dl>
-              <p className="fine">Map pin and directions follow once the address is confirmed.</p>
+              <p className="fine">{site.address.directions}</p>
+              <a href={site.address.mapUrl} target="_blank" rel="noopener" className="btn btn-secondary btn-sm w-fit">Open in Google Maps</a>
             </div>
             <DeliveryMap id="dso-map" focus="dso" />
           </div>

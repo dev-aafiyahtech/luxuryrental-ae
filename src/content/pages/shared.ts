@@ -32,6 +32,12 @@ export function monthStamp(iso: string): string {
   return `${monthName(m, false)} ${y}`;
 }
 
+/** "AED 4 to AED 6 per Salik crossing (free 01:00–06:00)": the Salik tariff as text. */
+export function salikTariff(): string {
+  const t = rules.tolls;
+  return `${formatAED(t.salikOffPeak)} to ${formatAED(t.salikPeak)} per Salik crossing (free ${t.salikFreeHours})`;
+}
+
 /** "a, b and c" */
 export function listJoin(items: string[], last = "and"): string {
   if (items.length <= 1) return items.join("");
@@ -71,27 +77,6 @@ export function noticeText(hours: number): string {
 export function plain(text: string): string {
   return text.replace(/\*\*(.+?)\*\*/g, "$1").replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1");
 }
-
-// ---------------------------------------------------------------------------------------
-// Facts from the rules sheet (workstream 05) that are not yet fields in rules.ts.
-// They live here, in one place, until the lead moves them into rules.ts.
-// ---------------------------------------------------------------------------------------
-export const extraRules = {
-  airportWaitPerHour: 150, // BR-15: after the free 60 minutes, per started hour
-  lateReturnHourPct: 25, // BR-02: per started hour after the grace period, up to one extra day
-  slotToleranceMinutes: 30, // BR-17
-  handoverMinutes: "20 to 30", // BR-17
-  bankReleaseWorkingDays: "5 to 14", // BR-55
-  lossOfUsePct: 50, // BR-61
-  lossOfUseMaxDays: 10, // BR-61
-  advanceMaxPct: 25, // 05 §2
-  refundWorkingDays: 7, // 05 §2
-  freeDateChangeHours: 48, // 05 §2
-  flightChangeMonths: 6, // 05 §2
-  complaintReplyWorkingDays: 5, // C-14
-  rightsReplyDays: 30, // C-04
-  chauffeurMaxPassengers: 4, // BR-75
-} as const;
 
 // ---------------------------------------------------------------------------------------
 // Seasons: date ranges are read back from seasonFor() so the pages can never disagree

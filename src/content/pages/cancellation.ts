@@ -1,5 +1,4 @@
 import { rules } from "@/content/rules";
-import { extraRules } from "./shared";
 
 // Cancellation and refund policy (workstream 05 §2). The one source for refund windows:
 // the FAQ, the requirements page and the legal pages all read from here.
@@ -22,4 +21,4 @@ export const refundWindows: RefundWindow[] = [
   { id: "chauffeur", label: "Chauffeur", full: "24 hours or more before", half: "6 to 24 hours before", none: "Under 6 hours, or no-show", fullHours: 24 },
 ];
 
-export const advanceRule = `To confirm a booking we may ask for an advance of up to ${extraRules.advanceMaxPct}% of the rental total (at least one day's rental, or the ${rules.chauffeur.minHours}-hour minimum for chauffeur bookings).`;
+export const advanceRule = `To confirm a booking we may ask for an advance of up to ${rules.advanceMaxPct}% of the rental total (at least one day's rental, or the ${rules.chauffeur.minHours}-hour minimum for chauffeur bookings).`;

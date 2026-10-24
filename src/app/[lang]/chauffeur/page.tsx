@@ -7,7 +7,7 @@ import { getHref } from "@/i18n/dictionaries";
 import { getToday } from "@/lib/server-time";
 import { formatAED } from "@/lib/format";
 import { chauffeurPage as P } from "@/content/pages/chauffeur";
-import { chauffeurFleet, chauffeurFromAirport, chauffeurFromHourly, extraRules } from "@/content/pages/shared";
+import { chauffeurFleet, chauffeurFromAirport, chauffeurFromHourly } from "@/content/pages/shared";
 import { ContentHero, CtaBand, KeyFacts, OfferNotice, Section, Steps, WhatsAppButton, h3Class } from "@/components/content/blocks";
 import { FactTable, CellNote } from "@/components/content/FactTable";
 import { FaqList } from "@/components/content/Faq";
@@ -73,7 +73,7 @@ export default async function ChauffeurPage() {
               { label: "From", value: `${formatAED(chauffeurFromHourly())} / hour`, note: `${c.minHours}-hour minimum` },
               { label: "Airport transfer", value: `From ${formatAED(chauffeurFromAirport())}`, note: "DXB or DWC, one way within Dubai" },
               { label: "Notice", value: `${c.leadHours} hours`, note: "Sooner? Ask on WhatsApp" },
-              { label: "Passengers", value: `Up to ${extraRules.chauffeurMaxPassengers}`, note: "Child seats free on request" },
+              { label: "Passengers", value: `Up to ${rules.chauffeur.maxPassengers}`, note: "Child seats free on request" },
             ]}
           />
         }

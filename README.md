@@ -61,6 +61,7 @@ docs/
   brief/requirements-checklist.md      What the client needs to supply
   brief/requirements-answers.md        The client's answers (23 Oct 2026)
   brief/plan-answers.md                Zubair's answers to the plan's first questions (23 Oct 2026)
+  brief/assumptions.md                 Every value assumed for the demo, to confirm later (24 Oct 2026)
   plan/PROJECT-PLAN.md                 Project plan: scope, decisions, timeline, budget, launch checklist
   plan/workstreams/                    The 7 specialist sections behind the plan (architecture, Vercel,
                                        car visuals, fleet and pricing, booking rules, UX, SEO)
@@ -106,13 +107,13 @@ tools/
 | 23 Oct 2026 | Plan approved. First objective: a front-end-only working demo with every flow simulated; backend and production later |
 | 23 Oct 2026 | Front-end demo built: Next.js 16.4, cinematic homepage ported from the prototype, 16 car pages, booking flow with simulated ops desk and payment, content and draft legal pages, logo "Corner" (LR. monogram, gold .ae) |
 | 23 Oct 2026 | Palette changed from black and gold to Sea Moss `#2C5252` (background and brand), Antique Gold `#EBDAB0` (calls to action) and Alabaster `#F4EADE` (type). Tokens, components, the WebGL night scene and the whole logo pack recoloured; every text pair re-checked for contrast |
+| 24 Oct 2026 | Demo completed with assumed content (Zubair: don't wait for approvals): sample company details, estimated rules, Salik and Darb tariffs, zone and chauffeur fees, and each car's year, colours, wheels and equipment. Listed in docs/brief/assumptions.md |
 
 ## Open items
 
 - **AI car images:** need an image-generation account (e.g. Gemini or Flux) to produce the 16 sets; until then the line-art placeholders stand in.
-- **Remaining plan §9 questions:** prototype promises (Salik, reply time), payments wording, DSO collection, legal entity, licence and TRN numbers, insurer terms, deposit method, the real legal documents. See [plan §9](docs/plan/PROJECT-PLAN.md#9-decisions-needed-from-zubair).
+- **Assumed content to confirm:** company details (shown as samples), booking rules and fees, Salik and Darb, delivery zones, chauffeur rules, and each car's model year, colours, wheels and equipment. All are listed in [docs/brief/assumptions.md](docs/brief/assumptions.md), with the file each one lives in. The real legal documents and the UAE lawyer review are still needed before launch.
 - **Logo questions:** minimum size (180 px recommended), lowercase gold ".ae", the OG tagline "Delivered across Dubai", who designs the Arabic lockup. See [docs/brand/logo.md](docs/brand/logo.md).
-- **Content questions:** chauffeur overtime billing, chauffeur trips between emirates, DSO collection and signage, DXB return fee, the real About story.
 
 ## Owner
 

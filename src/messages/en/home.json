@@ -142,7 +142,7 @@
     },
     "included": {
       "q": "What does the daily rate include?",
-      "a": "5% VAT, comprehensive insurance and {kmFrom} to {kmTo} km a day, depending on the car. Salik tolls are charged per crossing, plus AED {salik} each."
+      "a": "5% VAT, comprehensive insurance and {kmFrom} to {kmTo} km a day, depending on the car. Salik tolls are passed on at AED 4 to AED 6 per crossing, plus AED {salik} each."
     }
   },
   "stage": {

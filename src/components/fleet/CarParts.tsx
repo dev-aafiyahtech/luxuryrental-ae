@@ -176,7 +176,7 @@ export function Included({ car, today, t }: { car: Car; today: string; t: T }) {
       <div className="grid content-start gap-3">
         <p className="label">{t("car.usage")}</p>
         <ul className="m-0 border-t border-line p-0 [list-style:none]">
-          <FactItem icon={CircleDollarSign} title={t("car.use.salikTitle")}>{t("car.use.salik", { admin: formatAED(rules.tollAdminFee) })}</FactItem>
+          <FactItem icon={CircleDollarSign} title={t("car.use.salikTitle")}>{t("car.use.salik", { admin: formatAED(rules.tollAdminFee), off: formatAED(rules.tolls.salikOffPeak), peak: formatAED(rules.tolls.salikPeak), free: rules.tolls.salikFreeHours })}</FactItem>
           <FactItem icon={Fuel} title={t("car.use.fuelTitle")}>{t("car.use.fuel", { fee: formatAED(rules.refuelFee) })}</FactItem>
           <FactItem icon={Receipt} title={t("car.use.finesTitle")}>{t("car.use.fines", { fee: formatAED(rules.fineAdminFee) })}</FactItem>
         </ul>

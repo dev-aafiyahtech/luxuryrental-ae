@@ -6,8 +6,8 @@ import type { Tier } from "@/content/types";
 import { formatAED, formatNumber as n, plural } from "@/lib/format";
 import { advanceRule, refundWindows } from "./cancellation";
 import {
-  DEFAULT_MONTH_KM, carsInTier, chauffeurFromHourly, monthKmFor, chauffeurNames, depositRange, extraRules as x, festiveDates, festiveMinDays,
-  flagshipCars, hypercars, listJoin, noticeText, peakWeekendMinDays, tierName,
+  DEFAULT_MONTH_KM, carsInTier, chauffeurFromHourly, monthKmFor, chauffeurNames, depositRange, festiveDates, festiveMinDays,
+  flagshipCars, hypercars, listJoin, noticeText, peakWeekendMinDays, tierName, salikTariff,
 } from "./shared";
 
 // The FAQ (workstream 06: about 28 questions in 7 groups). Every answer is built from the
@@ -124,7 +124,7 @@ export const faqGroups: FaqGroup[] = [
       {
         id: "deposit-release",
         q: "When do I get my deposit back?",
-        a: `We release the hold ${sameRelease ? `${L.releaseDays} days` : `${L.releaseDays} days (${tierName("L")}) or ${S.releaseDays} days (${tierName("S")})`} after you return the car, or ${H.releaseDays} days for Bugattis, less any fines, tolls or charges. Your bank may take a further ${x.bankReleaseWorkingDays} working days to show it. If a fine arrives after the release, we charge it to the card on file and send you the fine notice.`,
+        a: `We release the hold ${sameRelease ? `${L.releaseDays} days` : `${L.releaseDays} days (${tierName("L")}) or ${S.releaseDays} days (${tierName("S")})`} after you return the car, or ${H.releaseDays} days for Bugattis, less any fines, tolls or charges. Your bank may take a further ${rules.bankReleaseWorkingDays} working days to show it. If a fine arrives after the release, we charge it to the card on file and send you the fine notice.`,
       },
       {
         id: "payment",
@@ -155,7 +155,7 @@ export const faqGroups: FaqGroup[] = [
       {
         id: "salik",
         q: "How are Salik tolls charged?",
-        a: `Salik is Dubai's road toll. We charge each crossing at the Salik tariff plus a ${formatAED(rules.tollAdminFee)} admin fee, and Abu Dhabi's Darb tolls the same way. They are deducted from the deposit before we release it. On chauffeur bookings, Salik and Darb are included in the rate.`,
+        a: `Salik is Dubai's road toll. Each crossing is passed on at the Salik tariff, ${salikTariff()}, plus a ${formatAED(rules.tollAdminFee)} admin fee. Abu Dhabi's Darb tolls (${formatAED(rules.tolls.darbPeak)} at peak times) are charged the same way. They are deducted from the deposit before we release it. On chauffeur bookings, Salik and Darb are included in the rate.`,
       },
       {
         id: "fines",
@@ -176,7 +176,7 @@ export const faqGroups: FaqGroup[] = [
       {
         id: "airport",
         q: "Can you meet me at the airport?",
-        a: `Yes, at Dubai International (DXB, ${listJoin(dxb.areas)}) or Al Maktoum International (DWC). An airport handover costs ${formatAED(dxb.fee ?? 0)}, including airport parking and meet-and-greet at arrivals. We track your flight. The first ${rules.airportWaitFreeMinutes} minutes after landing are free, then waiting costs ${formatAED(x.airportWaitPerHour)} per started hour.`,
+        a: `Yes, at Dubai International (DXB, ${listJoin(dxb.areas)}) or Al Maktoum International (DWC). An airport handover costs ${formatAED(dxb.fee ?? 0)}, including airport parking and meet-and-greet at arrivals. We track your flight. The first ${rules.airportWaitFreeMinutes} minutes after landing are free, then waiting costs ${formatAED(rules.airportWaitPerHour)} per started hour.`,
       },
       {
         id: "collect",
@@ -186,7 +186,7 @@ export const faqGroups: FaqGroup[] = [
       {
         id: "hours",
         q: "What are your delivery hours?",
-        a: `Handovers run from ${from} to ${to} every day. Outside those hours we can still deliver, subject to availability, for ${formatAED(rules.outOfHoursFee)} extra per handover. We arrive within ${x.slotToleranceMinutes} minutes of your slot, and the handover takes ${x.handoverMinutes} minutes.`,
+        a: `Handovers run from ${from} to ${to} every day. Outside those hours we can still deliver, subject to availability, for ${formatAED(rules.outOfHoursFee)} extra per handover. We arrive within ${rules.slotToleranceMinutes} minutes of your slot, and the handover takes ${rules.handoverMinutes} minutes.`,
       },
     ],
   },
@@ -197,7 +197,7 @@ export const faqGroups: FaqGroup[] = [
       {
         id: "chauffeur-cars",
         q: "Which cars come with a chauffeur?",
-        a: `The ${chauffeurNames()}. The Phantom is offered with a chauffeur first. Our two-seat sports cars are self-drive only. Each chauffeur car takes up to ${x.chauffeurMaxPassengers} passengers.`,
+        a: `The ${chauffeurNames()}. The Phantom is offered with a chauffeur first. Our two-seat sports cars are self-drive only. Each chauffeur car takes up to ${rules.chauffeur.maxPassengers} passengers.`,
       },
       {
         id: "chauffeur-cost",
@@ -212,7 +212,7 @@ export const faqGroups: FaqGroup[] = [
       {
         id: "chauffeur-emirates",
         q: "Can the chauffeur take us to Abu Dhabi or Sharjah?",
-        a: `Yes. Bookings in ${shjAjm.name} add ${formatAED(shjAjm.chauffeurSurcharge ?? 0)}, and bookings in ${auh.name} add ${formatAED(auh.chauffeurSurcharge ?? 0)}. Trips to ${listJoin(other.areas)} are quoted on WhatsApp. Send us the full route with your request and we confirm the price.`,
+        a: `Yes. Chauffeur trips are billed by time, so a day out to Abu Dhabi or the northern emirates usually suits a half day (${c.halfDayHours} hours) or a full day (${c.fullDayHours} hours). Bookings that start in ${shjAjm.name} add ${formatAED(shjAjm.chauffeurSurcharge ?? 0)}, in ${auh.name} ${formatAED(auh.chauffeurSurcharge ?? 0)}, and in ${listJoin(other.areas)} ${formatAED(other.chauffeurSurcharge ?? 0)}. Send us the route with your request so we can plan the day.`,
       },
     ],
   },
@@ -223,7 +223,7 @@ export const faqGroups: FaqGroup[] = [
       {
         id: "cancel-request",
         q: "Can I cancel a booking request?",
-        a: `Yes, at any time before we confirm it, at no cost. Send us your booking reference on WhatsApp or by email.\n\nNeed different dates instead? Each confirmed booking gets one free date change up to ${x.freeDateChangeHours} hours before the start, subject to availability. Any price difference applies.`,
+        a: `Yes, at any time before we confirm it, at no cost. Send us your booking reference on WhatsApp or by email.\n\nNeed different dates instead? Each confirmed booking gets one free date change up to ${rules.freeDateChangeHours} hours before the start, subject to availability. Any price difference applies.`,
       },
       {
         id: "refunds",
@@ -237,12 +237,12 @@ export const faqGroups: FaqGroup[] = [
       {
         id: "flight-weather",
         q: "What if my flight is delayed or cancelled?",
-        a: `If a flight delay or cancellation, or an official weather warning, stops you from starting the rental, you can move your dates free of charge within ${x.flightChangeMonths} months or take a full refund. We ask for proof, such as the airline's notice or a National Center of Meteorology warning.`,
+        a: `If a flight delay or cancellation, or an official weather warning, stops you from starting the rental, you can move your dates free of charge within ${rules.flightChangeMonths} months or take a full refund. We ask for proof, such as the airline's notice or a National Center of Meteorology warning.`,
       },
       {
         id: "we-cancel",
         q: "What if you cannot provide my car?",
-        a: `If we cancel or cannot provide the car you booked, you choose between a full refund and a comparable or better car at no extra cost. Refunds go back to the original payment method within ${x.refundWorkingDays} working days.`,
+        a: `If we cancel or cannot provide the car you booked, you choose between a full refund and a comparable or better car at no extra cost. Refunds go back to the original payment method within ${rules.refundWorkingDays} working days.`,
       },
     ],
   },

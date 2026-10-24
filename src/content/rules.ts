@@ -1,7 +1,8 @@
 import type { Offer, Season, Tier } from "./types";
 
-// Booking rules (workstream 05) and pricing rules (workstream 04 §11), all
-// "assumed, client to confirm". One config drives validation, quotes and FAQ text.
+// Booking rules (workstream 05) and pricing rules (workstream 04 §11). All values are
+// assumed for the demo and listed in docs/brief/assumptions.md for the client to confirm.
+// One config drives validation, quotes, FAQ answers and the legal summaries.
 
 export const rules = {
   timezone: "Asia/Dubai",
@@ -15,6 +16,26 @@ export const rules = {
   childSeatPerDay: 0, // free on request
   refuelFee: 100,
   tollAdminFee: 1, // Salik / Darb, per crossing on top of the tariff
+  /** Toll tariffs passed on at cost (published tariffs, Oct 2026). */
+  tolls: {
+    salikPeak: 6, // Dubai Salik, Mon–Sat 06:00–10:00 and 16:00–20:00
+    salikOffPeak: 4, // other times and all day Sunday
+    salikFreeHours: "01:00–06:00",
+    darbPeak: 4, // Abu Dhabi Darb, Mon–Sat 07:00–09:00 and 15:00–19:00; free at other times
+  },
+  airportWaitPerHour: 150, // BR-15: after the free 60 minutes, per started hour
+  lateReturnHourPct: 25, // BR-02: per started hour after the grace period, up to one extra day
+  slotToleranceMinutes: 30, // BR-17
+  handoverMinutes: "20 to 30", // BR-17
+  bankReleaseWorkingDays: "5 to 14", // BR-55: deposit hold release by the card issuer
+  lossOfUsePct: 50, // BR-61: of the daily rate while a damaged car is off the road
+  lossOfUseMaxDays: 10, // BR-61
+  advanceMaxPct: 25, // 05 §2: advance taken by payment link after confirmation
+  refundWorkingDays: 7, // 05 §2
+  freeDateChangeHours: 48, // 05 §2
+  flightChangeMonths: 6, // 05 §2
+  complaintReplyWorkingDays: 5, // C-14
+  rightsReplyDays: 30, // C-04
   fineAdminFee: 100,
   cleaningFee: 1000,
   tiers: {
@@ -30,6 +51,8 @@ export const rules = {
     nightSurchargePct: 20, // 00:00–06:00 starts
     superPeakSurchargePct: 20,
     maxHours: 12,
+    maxPassengers: 4, // BR-75, or fewer if the car has fewer seats
+    overtimeStepMinutes: 30, // extra time is billed per started 30 minutes, at half the car's extra-hour rate
     included: "Chauffeur, fuel, Salik and Darb tolls, bottled water and Wi-Fi. 60 minutes' free waiting at airports.",
   },
   /** Rental-length ladder: share of the (seasonal) daily rate per day. 30+ days uses the fixed monthly rate. */

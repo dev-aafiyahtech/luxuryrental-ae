@@ -77,7 +77,7 @@
     "cta": "Chauffeur service"
   },
   "car": {
-    "illustrative": "Illustration. Our car images are being prepared; the car supplied is the model listed, and colour and trim may vary.",
+    "illustrative": "Illustration. Our car images are being prepared. The colour, cabin and wheels of the car you get are listed further down this page.",
     "rentalIn": "Rental in Dubai",
     "featured": "Featured",
     "onRequestBadge": "Price on request",
@@ -97,6 +97,12 @@
     "kineticTitle": "Every part on display",
     "specs": "Specifications",
     "modelYear": "Model year",
+    "thisCar": "Our {model}",
+    "thisCarLede": "The car you get: its colour, cabin and equipment.",
+    "exterior": "Exterior",
+    "interior": "Interior",
+    "wheels": "Wheels",
+    "equipment": "Equipment",
     "included": "What's included",
     "requirements": "Requirements",
     "requirementsLink": "Full rental requirements",
@@ -155,7 +161,7 @@
     "usage": "Charged as used",
     "use": {
       "salikTitle": "Salik tolls",
-      "salik": "Charged per crossing at the Salik tariff, plus a {admin} admin fee per crossing.",
+      "salik": "{off} to {peak} per crossing at the Salik tariff (free {free}), plus a {admin} admin fee per crossing.",
       "fuelTitle": "Fuel: same level back",
       "fuel": "Return the car with the fuel level you received it with. Otherwise we charge fuel at pump price plus {fee}.",
       "finesTitle": "Fines",

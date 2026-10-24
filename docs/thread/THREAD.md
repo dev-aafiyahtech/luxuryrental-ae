@@ -414,3 +414,30 @@ Got it. I've saved your answers to the project, and I'll wait for your next inst
 *Claude replaced the black and gold tokens with the new palette, derived deeper Sea Moss shades for cards, panels and scrims, and checked every text pair for WCAG contrast (darker surfaces were chosen after lighter ones failed for muted text and errors). It then recoloured the components that used fixed colours, re-tinted the WebGL night scene (sky, towers, fog, floor, streaks, particle car) to deep sea-moss with antique-gold light, regenerated the whole logo pack from its source (the single-colour black files became Sea Moss files), and updated the design system, logo sheet, contrast script and guides.*
 
 **Claude (condensed):** The site now runs on Sea Moss, Antique Gold and Alabaster. Gold buttons keep dark Sea Moss text (9.6:1); white text on Antique Gold would be 1.4:1, so it's never used. On light backgrounds the logo uses the Sea Moss version, because Antique Gold on Alabaster is only 1.2:1.
+
+---
+
+## 15. Vercel deferred, pending list, and a complete demo
+
+**Zubair:**
+> lets connect vercel
+
+*Claude prepared the repo for Vercel (Node 24 pinned, `vercel.json` with functions in Frankfurt, `docs/ops/vercel-settings.md`) and verified a clean install and build on Node 24, then listed the steps for importing the repo, since there is no Vercel connector or token in the session.*
+
+**Zubair:**
+> ok. we will do vercel later.
+>
+> Now output what is pending in our plan
+>
+> Only output points
+>
+> Also start the local server
+
+*Claude restarted the dev server and listed the open decisions, the M1 and M2 build work, and Phases 2 and 3.*
+
+**Zubair:**
+> Estimate and Assume the data, The content will approved later. Do not wait for content approvals. Assume models and car details, esitimate terms, salik etc
+>
+> Make the demo complete
+
+*Claude filled every remaining gap with assumed values: sample company details (flagged as samples on the site), the Salik and Darb tariffs, fees for the outer emirates and chauffeur trips, the office directions, the consumer-protection contact, final wording for the legal pages, and each car's model year, colours, cabin, wheels and equipment (shown in a new "Our car" section on every car page). It moved the remaining rule values into `rules.ts`, added robots.txt and a sitemap, and wrote every assumption into [docs/brief/assumptions.md](../brief/assumptions.md) for Zubair to confirm later. A free image service was tried for the car pictures, but it drew the wrong car with a watermark, so the line-art illustrations stay until an image-generation account is set up.*

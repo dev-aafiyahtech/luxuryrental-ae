@@ -67,6 +67,14 @@ export interface ChauffeurRates {
   overtime: number; // per hour
 }
 
+/** The specific car in the fleet: trim and equipment shown on the car page. */
+export interface CarDetails {
+  interior: string;
+  wheels: string;
+  /** Three or four notable items. */
+  equipment: string[];
+}
+
 export type ImageStatus = "placeholder" | "ai-illustrative" | "ai-verified" | "photo";
 
 export interface CarImages {
@@ -85,13 +93,14 @@ export interface Car {
   model: string; // "Revuelto"
   modelSlug: string; // URL: /cars/{brand}/{modelSlug}
   name: string; // "Lamborghini Revuelto"
-  year: string;
+  year: string; // model year
   category: CategorySlug | "chauffeur"; // primary; "chauffeur" = listed under /chauffeur, not a type page
   tags: CategorySlug[]; // extra filters
   tier: Tier;
   priceTier: PriceTier;
   body: BodyStyle;
-  paint: { name: string; hex: string }; // illustrative until the fleet colours are confirmed
+  paint: { name: string; hex: string }; // exterior colour of the fleet car (assumed in the demo)
+  details: CarDetails;
   heroRank?: 1 | 2 | 3 | 4 | 5;
   heroScene?: "skyline" | "sculpture";
   tagline: string;

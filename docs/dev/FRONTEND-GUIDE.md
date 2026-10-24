@@ -75,7 +75,7 @@ If you need a change in one of these, keep it minimal and additive, and say so i
 ## Known gaps (demo phase)
 
 - **CSS modules** return no class names with the current Turbopack + Tailwind loader rule in `next.config.ts`; use Tailwind classes (or fix the rule before relying on modules).
-- Some rule values from workstream 05 that `rules.ts` doesn't hold yet live in `extraRules` in `src/content/pages/shared.ts` (airport waiting fee, late-return %, advance %, refund timing, loss of use). Move them into `rules.ts` when the real rules are confirmed.
+- All content values (company details, rules, fees, zones, car trim) are assumptions for the demo, listed in `docs/brief/assumptions.md`. Company details show as samples while `site.sampleDetails` is true.
 - Dynamic pages read `params` inside `<Suspense>` (Next 16.4 instant navigation), so an unknown slug renders the 404 page with `noindex` but an HTTP 200. Fix with the backend work.
 - The Dock and the car page's mobile bar render into `<body>` after hydration (portals), so they aren't in the server HTML.
 - Booking steps need JavaScript (no Server Actions yet); without it they show a placeholder.

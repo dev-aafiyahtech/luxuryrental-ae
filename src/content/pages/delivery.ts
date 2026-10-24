@@ -3,7 +3,7 @@ import { site } from "@/content/site";
 import { getZone, zones } from "@/content/zones";
 import { formatAED } from "@/lib/format";
 import { faqsById, type FaqEntry } from "./faq";
-import { chauffeurFromAirport, extraRules as x, listJoin, noticeText } from "./shared";
+import { chauffeurFromAirport, listJoin, noticeText } from "./shared";
 
 // Copy for /delivery and the two MVP area pages (workstream 06 §6.2, 07 §7.2). Fees come
 // from zones.ts and rules.ts. Area pages carry facts that appear nowhere else on the site.
@@ -42,8 +42,8 @@ export const deliveryPage = {
     "Deliveries are planned from the time you choose. You can also collect the car from the office yourself, at no charge.",
   ],
   handover: () => [
-    { title: "On time", text: `We arrive within ${x.slotToleranceMinutes} minutes of the time you choose, with the car cleaned and checked.` },
-    { title: "Main driver present", text: `The main driver must attend with original documents. The handover takes ${x.handoverMinutes} minutes, including condition photos and the deposit hold.` },
+    { title: "On time", text: `We arrive within ${rules.slotToleranceMinutes} minutes of the time you choose, with the car cleaned and checked.` },
+    { title: "Main driver present", text: `The main driver must attend with original documents. The handover takes ${rules.handoverMinutes} minutes, including condition photos and the deposit hold.` },
     { title: "Return anywhere", text: "You can return the car at a different place from where you collected it. That zone's fee applies to the collection." },
     { title: "Late or early", text: `Handovers between ${to} and ${from} cost ${formatAED(rules.outOfHoursFee)} extra, subject to availability. Ask on WhatsApp for very early flights.` },
   ],
@@ -56,7 +56,7 @@ export const deliveryPage = {
     {
       id: "outside-dubai",
       q: "Do you deliver outside Dubai?",
-      a: `Yes. ${zones.filter((z) => z.kind === "zone" && z.fee && z.slug !== "dubai").map((z) => `${z.name}: ${formatAED(z.fee!)} each way`).join(". ")}. ${getZone("other-emirates")!.name}: ${getZone("other-emirates")!.note?.replace(/\.$/, "")}. Abu Dhabi (AUH) and Sharjah (SHJ) airports are on request.`,
+      a: `Yes. ${zones.filter((z) => z.kind === "zone" && z.fee && z.slug !== "dubai").map((z) => `${z.name}: ${formatAED(z.fee!)} each way`).join(". ")}. Book these at least 24 hours ahead. Handover at Abu Dhabi (AUH) or Sharjah (SHJ) airport costs the same as the emirate.`,
     },
     {
       id: "in-person",
@@ -97,7 +97,7 @@ export const areaPages: AreaPage[] = [
     ],
     facts: () => [
       { label: "Handover fee", value: formatAED(dxb.fee ?? 0), note: "Parking and meet-and-greet included" },
-      { label: "Free waiting", value: `${rules.airportWaitFreeMinutes} minutes`, note: `Then ${formatAED(x.airportWaitPerHour)} per started hour` },
+      { label: "Free waiting", value: `${rules.airportWaitFreeMinutes} minutes`, note: `Then ${formatAED(rules.airportWaitPerHour)} per started hour` },
       { label: "Terminals", value: dxb.areas.map((a) => a.replace("Terminal ", "T")).join(", "), note: "Arrivals hall" },
       { label: "From our base", value: "About 20 km", note: "Dubai Silicon Oasis" },
     ],
@@ -105,14 +105,14 @@ export const areaPages: AreaPage[] = [
       { title: "Add your flight number", text: () => "Put your flight number and terminal in the request. If you land at Al Maktoum International instead, choose DWC; the fee is the same." },
       { title: "We track the flight", text: () => `We follow your flight on the day, so an early or late landing moves the meeting time with it. Your ${rules.airportWaitFreeMinutes} free minutes start when the plane lands.` },
       { title: "Meet us at arrivals", text: () => "After passport control and baggage reclaim, come out into the arrivals hall. Your driver meets you there and walks you to the car." },
-      { title: "Check and sign", text: () => `We check the main driver's original documents, take condition photos, note the km and fuel, and place the deposit hold. It takes ${x.handoverMinutes} minutes.` },
+      { title: "Check and sign", text: () => `We check the main driver's original documents, take condition photos, note the km and fuel, and place the deposit hold. It takes ${rules.handoverMinutes} minutes.` },
       { title: "Drive away", text: () => "You leave with the rental agreement and our WhatsApp number for anything you need during the rental." },
     ],
     faqs: () => [
       {
         id: "dxb-delay",
         q: "What if my flight is delayed?",
-        a: `We track the flight, so a delay moves the meeting time with it at no cost. The ${rules.airportWaitFreeMinutes} free minutes start when you land. If clearing immigration and baggage takes longer than that, waiting costs ${formatAED(x.airportWaitPerHour)} per started hour; message us on WhatsApp if you are held up.`,
+        a: `We track the flight, so a delay moves the meeting time with it at no cost. The ${rules.airportWaitFreeMinutes} free minutes start when you land. If clearing immigration and baggage takes longer than that, waiting costs ${formatAED(rules.airportWaitPerHour)} per started hour; message us on WhatsApp if you are held up.`,
       },
       {
         id: "dxb-return",
@@ -154,7 +154,7 @@ export const areaPages: AreaPage[] = [
     steps: [
       { title: "Choose office collection", text: () => "Pick the car and your dates, choose collection at Dubai Silicon Oasis, and set a time. We confirm the slot on WhatsApp." },
       { title: "Bring your documents", text: () => "The main driver brings the original licence, passport or Emirates ID, an International Driving Permit if needed, and the credit card for the deposit." },
-      { title: "Handover at the office", text: () => `We walk around the car with you, take condition photos and place the deposit hold. It takes ${x.handoverMinutes} minutes.` },
+      { title: "Handover at the office", text: () => `We walk around the car with you, take condition photos and place the deposit hold. It takes ${rules.handoverMinutes} minutes.` },
       { title: "Return here, or anywhere", text: () => "Bring the car back to the office at no charge, or choose a delivery zone for the return and we collect it from you." },
     ],
     faqs: () => [
@@ -166,7 +166,7 @@ export const areaPages: AreaPage[] = [
       {
         id: "dso-where",
         q: "Where exactly is the office?",
-        a: `${site.address.line1}, ${site.address.area}, ${site.address.city}. [Full address, map pin and parking directions to follow once confirmed.] Until then, ask us on WhatsApp.`,
+        a: `${site.address.line1}, ${site.address.area}, ${site.address.city}. ${site.address.directions} [Open in Google Maps](${site.address.mapUrl}).`,
       },
       {
         id: "dso-live-nearby",

@@ -7,7 +7,6 @@ import { getHref } from "@/i18n/dictionaries";
 import { getToday } from "@/lib/server-time";
 import { formatAED } from "@/lib/format";
 import { deliveryPage as P, zoneFee, areaPages } from "@/content/pages/delivery";
-import { extraRules } from "@/content/pages/shared";
 import { ContentHero, CtaBand, KeyFacts, OfferNotice, Section, WhatsAppButton, h3Class } from "@/components/content/blocks";
 import { FactTable, CellNote } from "@/components/content/FactTable";
 import { FaqList } from "@/components/content/Faq";
@@ -79,7 +78,7 @@ export default async function DeliveryPage() {
               <span key="n" className="text-muted">{z.note ?? (z.chauffeurSurcharge ? `Chauffeur bookings here add ${formatAED(z.chauffeurSurcharge)}.` : "Each way, any rental length.")}</span>,
             ],
           }))}
-          footnote={<>Handovers outside {rules.handoverHours.from}–{rules.handoverHours.to} add {formatAED(rules.outOfHoursFee)} each. Airports in Abu Dhabi (AUH) and Sharjah (SHJ) are on request.</>}
+          footnote={<>Handovers outside {rules.handoverHours.from}–{rules.handoverHours.to} add {formatAED(rules.outOfHoursFee)} each. Abu Dhabi (AUH) and Sharjah (SHJ) airports cost the same as their emirate.</>}
         />
         <OfferNotice id="founding-client" today={today}>Bugattis are excluded.</OfferNotice>
       </Section>
@@ -112,7 +111,7 @@ export default async function DeliveryPage() {
               <dl className="spec-list">
                 <div><dt>Handover</dt><dd>{zoneFee(z.fee)}</dd></div>
                 <div><dt>Free waiting</dt><dd>{rules.airportWaitFreeMinutes} min</dd></div>
-                <div><dt>Then</dt><dd>{formatAED(extraRules.airportWaitPerHour)} / started hour</dd></div>
+                <div><dt>Then</dt><dd>{formatAED(rules.airportWaitPerHour)} / started hour</dd></div>
               </dl>
               {z.slug === "dxb" && (
                 <Link href={href("/delivery/dubai-airport-dxb")} className="inline-flex min-h-11 items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-accent-hover no-underline">

@@ -4,7 +4,6 @@ import { site } from "@/content/site";
 import { rules } from "@/content/rules";
 import { getHref } from "@/i18n/dictionaries";
 import { whatsappHref } from "@/lib/whatsapp";
-import { extraRules } from "@/content/pages/shared";
 import { ContentHero, Section } from "@/components/content/blocks";
 import { ContactForm } from "@/components/content/ContactForm";
 import { DeliveryMap } from "@/components/content/DeliveryMap";
@@ -114,9 +113,13 @@ export default async function ContactPage() {
         <div className="grid max-w-[68ch] gap-4 text-[16px] leading-relaxed text-champagne">
           <p>
             Send us your booking reference and what happened, on WhatsApp or by email to{" "}
-            <a href={`mailto:${site.email}`} className="text-fg">{site.email}</a>. We reply within {extraRules.complaintReplyWorkingDays} working days.
+            <a href={`mailto:${site.email}`} className="text-fg">{site.email}</a>. We reply within {rules.complaintReplyWorkingDays} working days.
           </p>
-          <p>If you are not satisfied with our answer, you can contact the Dubai consumer protection authority [name and link to confirm]. This does not limit your rights under UAE consumer protection law.</p>
+          <p>
+            If you are not satisfied with our answer, you can contact{" "}
+            <a href={site.consumerProtection.url} target="_blank" rel="noopener" className="text-fg">{site.consumerProtection.name}</a>{" "}
+            on {site.consumerProtection.phone}. This does not limit your rights under UAE consumer protection law.
+          </p>
         </div>
       </Section>
     </>

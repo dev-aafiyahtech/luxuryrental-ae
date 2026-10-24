@@ -85,7 +85,7 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
     { label: car.model },
   ];
 
-  const specs = [...specRows(car), { label: t("car.modelYear"), value: car.year }];
+  const specs = specRows(car);
   if (car.chauffeur) specs.push({ label: t("car.chauffeurRow"), value: t("car.chauffeurRowValue", { price: formatAED(car.chauffeur.hourly) }) });
 
   // Mobile sticky bar: chauffeur-first for the Phantom, concierge for Bugatti, Reserve otherwise.
@@ -212,6 +212,34 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
 
             <Section id="specs" title={t("car.specs")}>
               <SpecList car={car} rows={specs} />
+            </Section>
+
+            <Section id="this-car" title={t("car.thisCar", { model: car.model })} lede={t("car.thisCarLede")}>
+              <div className="grid gap-8 md:grid-cols-2 md:gap-10">
+                <dl className="spec-list">
+                  <div><dt>{t("car.modelYear")}</dt><dd>{car.year}</dd></div>
+                  <div>
+                    <dt>{t("car.exterior")}</dt>
+                    <dd className="flex items-center justify-end gap-2">
+                      <span aria-hidden="true" className="h-3.5 w-3.5 flex-none rounded-full border border-fg/30" style={{ background: car.paint.hex }} />
+                      {car.paint.name}
+                    </dd>
+                  </div>
+                  <div><dt>{t("car.interior")}</dt><dd>{car.details.interior}</dd></div>
+                  <div><dt>{t("car.wheels")}</dt><dd>{car.details.wheels}</dd></div>
+                </dl>
+                <div className="grid content-start gap-3">
+                  <p className="label">{t("car.equipment")}</p>
+                  <ul className="m-0 grid gap-2 p-0 [list-style:none]">
+                    {car.details.equipment.map((e) => (
+                      <li key={e} className="flex items-start gap-3 text-[15px] leading-snug">
+                        <Check className="mt-0.5 h-4 w-4 flex-none text-accent" aria-hidden="true" />
+                        <span>{e}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
             </Section>
 
             <Section id="included" title={t("car.included")} lede={t("car.includedLede")}>

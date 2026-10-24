@@ -9,7 +9,7 @@ import { ContentHero, CtaBand, Section, WhatsAppButton, h3Class } from "@/compon
 import { DeliveryMap } from "@/components/content/DeliveryMap";
 import { JsonLd, absoluteUrl, breadcrumbLd, businessRef, graph } from "@/components/content/JsonLd";
 import { pageMetadata } from "@/components/content/meta";
-import { ButtonLink, Notice } from "@/components/ui";
+import { ButtonLink } from "@/components/ui";
 import { Dock } from "@/components/booking/Dock";
 
 export async function generateMetadata() {
@@ -47,9 +47,6 @@ export default async function AboutPage() {
             ))}
           </div>
           <aside className="grid content-start gap-4">
-            <Notice tone="info" title="Demo copy">
-              This story is a placeholder until {site.businessName} sends its own. Text in [brackets] is for the client to fill in.
-            </Notice>
             <div className="card grid gap-4 p-6">
               <p className="label">The fleet by brand</p>
               <ul className="grid gap-2 p-0 [list-style:none]">
@@ -100,7 +97,7 @@ export default async function AboutPage() {
                 </div>
               ))}
             </dl>
-            <p className="fine">Values in [brackets] are placeholders until the licence documents are confirmed.</p>
+            {site.sampleDetails && <p className="fine">Demo: the legal entity, licence, permit and TRN are sample values until the licence documents are confirmed.</p>}
           </div>
           <DeliveryMap id="about-map" focus="dso" />
         </div>

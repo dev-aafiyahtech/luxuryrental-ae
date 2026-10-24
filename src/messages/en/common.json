@@ -38,7 +38,8 @@
     "images": "Car images are illustrations until our photos are ready.",
     "trademarks": "Ferrari, Lamborghini, Rolls-Royce, Bugatti, McLaren, Bentley, Aston Martin and Maserati are trademarks of their owners. Luxuryrentals is not affiliated with or endorsed by them.",
     "licence": "Trade licence {licence} · RTA permit {rta} · VAT TRN {trn}",
-    "rights": "© 2026 {name}. All rights reserved."
+    "rights": "© 2026 {name}. All rights reserved.",
+    "sample": "Demo: the company name, licence, permit and TRN shown are sample values."
   },
   "car": {
     "from": "From",

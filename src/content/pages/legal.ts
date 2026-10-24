@@ -5,12 +5,12 @@ import { getZone } from "@/content/zones";
 import { formatAED } from "@/lib/format";
 import { advanceRule, refundWindows } from "./cancellation";
 import {
-  carsInTier, commonKmPerDay, depositRange, extraRules as x, kmExceptions, legalUpdated, listJoin, noticeText, tierName, tierOrder,
+  carsInTier, commonKmPerDay, depositRange, kmExceptions, legalUpdated, listJoin, noticeText, tierName, tierOrder, salikTariff,
 } from "./shared";
 
-// Draft legal pages (workstream 05 §2 and §4). They are website summaries written from the
-// assumed rules, flagged on screen as drafts until Luxuryrentals sends its own documents
-// and a UAE lawyer reviews them. Every number is read from the data modules.
+// Legal pages (workstream 05 §2 and §4): website summaries written from the assumed rules
+// for the demo. Each page notes that a UAE lawyer reviews the final text before launch.
+// Every number is read from the data modules.
 //
 // Paragraphs use the copy mini-markup: **bold**, [label](/path).
 
@@ -35,7 +35,7 @@ export interface LegalDoc {
   sections: LegalSection[];
 }
 
-const VERSION = "Draft 0.1";
+const VERSION = "1.0 (demo)";
 const { L, S, H } = rules.tiers;
 const c = rules.chauffeur;
 const { from, to } = rules.handoverHours;
@@ -128,7 +128,7 @@ export const legalDocs: LegalDoc[] = [
         blocks: [
           `All prices are in UAE dirhams (AED) and include ${site.vatRate}% VAT. You receive a tax invoice for every rental. The price that applies is the one in our written confirmation.`,
           `A refundable security deposit is held on a credit card in the main driver's name at handover: ${depositRange(carsInTier("L"))} for Luxury cars, ${depositRange(carsInTier("S"))} for supercars and ${depositRange(carsInTier("H"))} for hypercars, depending on the car. Debit cards and cash are not accepted for the deposit.`,
-          `We release the hold ${L.releaseDays === S.releaseDays ? `${L.releaseDays} days` : `${L.releaseDays} or ${S.releaseDays} days`} after the return (${H.releaseDays} days for hypercars), less any fines, tolls or charges under these terms. Your bank may take a further ${x.bankReleaseWorkingDays} working days. Fines that arrive later are charged to the card on file, and we send you the fine notice.`,
+          `We release the hold ${L.releaseDays === S.releaseDays ? `${L.releaseDays} days` : `${L.releaseDays} or ${S.releaseDays} days`} after the return (${H.releaseDays} days for hypercars), less any fines, tolls or charges under these terms. Your bank may take a further ${rules.bankReleaseWorkingDays} working days. Fines that arrive later are charged to the card on file, and we send you the fine notice.`,
         ],
       },
       {
@@ -136,7 +136,7 @@ export const legalDocs: LegalDoc[] = [
         title: "Delivery, collection and handover",
         blocks: [
           `You can collect and return the car at our ${site.address.area} office at no charge. Delivery and collection anywhere in Dubai cost ${formatAED(dubai.fee ?? 0)} each way, and are free for rentals of ${dubai.freeFromDays} days or more. Other zones and airports have their own fees, listed on the [delivery page](/delivery). Airport handovers at DXB or DWC cost ${formatAED(dxb.fee ?? 0)} each and include parking and meet-and-greet.`,
-          `Handovers run from ${from} to ${to}. Handovers outside these hours cost ${formatAED(rules.outOfHoursFee)} extra, subject to availability. We arrive within ${x.slotToleranceMinutes} minutes of the agreed time. The handover takes ${x.handoverMinutes} minutes, and the main driver must attend with original documents. We record the car's condition, km and fuel together with you.`,
+          `Handovers run from ${from} to ${to}. Handovers outside these hours cost ${formatAED(rules.outOfHoursFee)} extra, subject to availability. We arrive within ${rules.slotToleranceMinutes} minutes of the agreed time. The handover takes ${rules.handoverMinutes} minutes, and the main driver must attend with original documents. We record the car's condition, km and fuel together with you.`,
           "You may return the car at a different place. The fee for that zone applies.",
         ],
       },
@@ -173,7 +173,7 @@ export const legalDocs: LegalDoc[] = [
         title: "Accidents, damage, breakdown and theft",
         blocks: [
           "Report any accident or damage to the police (Dubai Police app or 999) and to us straight away. Without a police report you pay the full repair cost.",
-          `Damage is charged from an agency-garage estimate, capped at the excess when the insurance applies. Loss of use while the car is repaired is ${x.lossOfUsePct}% of the daily rate, for up to ${x.lossOfUseMaxDays} days.`,
+          `Damage is charged from an agency-garage estimate, capped at the excess when the insurance applies. Loss of use while the car is repaired is ${rules.lossOfUsePct}% of the daily rate, for up to ${rules.lossOfUseMaxDays} days.`,
           "If the car breaks down, stop somewhere safe and contact us. Do not arrange repairs yourself. If the car is stolen, report it to the police and to us at once.",
         ],
       },
@@ -184,7 +184,7 @@ export const legalDocs: LegalDoc[] = [
           { list: [
             `**Fuel:** return the car with the same fuel level. If it is lower, we charge fuel at pump price plus ${formatAED(rules.refuelFee)}.`,
             `**Kilometres:** each car includes a daily allowance (${kmDefault} km on most cars${kmOther.length ? `, ${listJoin(kmOther)}` : ""}). Extra kilometres are charged at the rate shown for the car on our [pricing page](/pricing).`,
-            `**Tolls:** Salik and Darb crossings are charged at the operator's tariff plus ${formatAED(rules.tollAdminFee)} per crossing.`,
+            `**Tolls:** Salik and Darb crossings are charged at the operator's tariff (currently ${salikTariff()}) plus ${formatAED(rules.tollAdminFee)} per crossing.`,
             `**Fines:** traffic and parking fines during the rental are your responsibility. We charge the fine plus ${formatAED(rules.fineAdminFee)} admin per fine and, where the authority allows, transfer the fine and black points to the driver's licence.`,
             "**Impound:** if the car is impounded because of how it was driven, you pay the impound and release costs and loss of use.",
           ] },
@@ -194,7 +194,7 @@ export const legalDocs: LegalDoc[] = [
         id: "returns",
         title: "Late, extended and early returns",
         blocks: [
-          `Returns up to ${rules.graceMinutes} minutes late are free. After that, each started hour costs ${x.lateReturnHourPct}% of the daily rate, up to one extra day.`,
+          `Returns up to ${rules.graceMinutes} minutes late are free. After that, each started hour costs ${rules.lateReturnHourPct}% of the daily rate, up to one extra day.`,
           "To extend, ask us before the rental ends. Extensions depend on availability and are priced at the rates in force.",
           "If you return the car early, we re-price the rental at the rate for the days you used and refund any difference.",
         ],
@@ -225,7 +225,7 @@ export const legalDocs: LegalDoc[] = [
       {
         id: "law",
         title: "Governing law and courts",
-        blocks: ["These terms are governed by the laws of the Emirate of Dubai and the federal laws of the United Arab Emirates. The courts of Dubai have jurisdiction. [To be confirmed by a UAE lawyer.]"],
+        blocks: ["These terms are governed by the laws of the Emirate of Dubai and the federal laws of the United Arab Emirates. The courts of Dubai have jurisdiction."],
       },
       {
         id: "changes",
@@ -279,7 +279,7 @@ export const legalDocs: LegalDoc[] = [
       {
         id: "date-changes",
         title: "Changing dates",
-        blocks: [`Each confirmed booking includes one free date change up to ${x.freeDateChangeHours} hours before the start, subject to availability. Any difference in price applies.`],
+        blocks: [`Each confirmed booking includes one free date change up to ${rules.freeDateChangeHours} hours before the start, subject to availability. Any difference in price applies.`],
       },
       {
         id: "early-return",
@@ -304,12 +304,12 @@ export const legalDocs: LegalDoc[] = [
       {
         id: "flights-weather",
         title: "Flight delays, cancellations and weather warnings",
-        blocks: [`If a flight delay or cancellation, or an official weather warning, stops you from starting the rental, you can change your dates free of charge within ${x.flightChangeMonths} months or take a full refund. We ask for proof, such as the airline's notice or a National Center of Meteorology warning.`],
+        blocks: [`If a flight delay or cancellation, or an official weather warning, stops you from starting the rental, you can change your dates free of charge within ${rules.flightChangeMonths} months or take a full refund. We ask for proof, such as the airline's notice or a National Center of Meteorology warning.`],
       },
       {
         id: "refunds",
         title: "Refund method and timing",
-        blocks: [`Refunds go back to the original payment method within ${x.refundWorkingDays} working days. Your bank may take a further ${x.bankReleaseWorkingDays} working days to show them.`],
+        blocks: [`Refunds go back to the original payment method within ${rules.refundWorkingDays} working days. Your bank may take a further ${rules.bankReleaseWorkingDays} working days to show them.`],
       },
       {
         id: "deposit",
@@ -341,7 +341,7 @@ export const legalDocs: LegalDoc[] = [
       {
         id: "who-we-are",
         title: "Who we are and how to contact us",
-        blocks: [`${who} is responsible for your personal data. ${address}. For privacy questions or requests, email ${site.email} [dedicated privacy address to be confirmed] or message us on WhatsApp at ${site.whatsappDisplay}.`],
+        blocks: [`${who} is responsible for your personal data. ${address}. For privacy questions or requests, email ${site.privacyEmail} or message us on WhatsApp at ${site.whatsappDisplay}.`],
       },
       {
         id: "what-we-collect",
@@ -390,7 +390,7 @@ export const legalDocs: LegalDoc[] = [
       {
         id: "transfers",
         title: "Transfers outside the UAE",
-        blocks: ["Your booking data may be stored outside the UAE. At launch our booking database is hosted in the European Union, and our website, email and messaging providers may process data in other countries. We use these providers under data processing agreements and apply the safeguards required by the UAE Personal Data Protection Law. [Transfer basis to be confirmed by a UAE lawyer.]"],
+        blocks: ["Your booking data may be stored outside the UAE. At launch our booking database is hosted in the European Union, and our website, email and messaging providers may process data in other countries. We use these providers under data processing agreements and apply the safeguards required by the UAE Personal Data Protection Law, relying on contracts with those providers and, where needed, your consent."],
       },
       {
         id: "retention",
@@ -427,7 +427,7 @@ export const legalDocs: LegalDoc[] = [
         title: "Your rights",
         blocks: [
           "You can ask to access, correct or delete your personal data, to restrict or object to how we use it, and to receive a copy in a portable format. You can withdraw marketing consent at any time by replying STOP or emailing us.",
-          `Send requests to ${site.email}. We aim to reply within ${x.rightsReplyDays} days.`,
+          `Send requests to ${site.email}. We aim to reply within ${rules.rightsReplyDays} days.`,
         ],
       },
       {
@@ -567,7 +567,7 @@ export const legalDocs: LegalDoc[] = [
       {
         id: "law",
         title: "Governing law",
-        blocks: ["These terms are governed by the laws of the Emirate of Dubai and the federal laws of the United Arab Emirates. [To be confirmed by a UAE lawyer.]"],
+        blocks: ["These terms are governed by the laws of the Emirate of Dubai and the federal laws of the United Arab Emirates. The courts of Dubai have jurisdiction."],
       },
       contactSection(),
     ],
@@ -617,7 +617,7 @@ export const legalDocs: LegalDoc[] = [
       {
         id: "feedback",
         title: "Tell us about a problem",
-        blocks: [`If something on this site does not work for you, message us on WhatsApp at ${site.whatsappDisplay} or email ${site.email}. Tell us the page and what happened. We reply within ${x.complaintReplyWorkingDays} working days and can take your booking request by WhatsApp or phone in the meantime.`],
+        blocks: [`If something on this site does not work for you, message us on WhatsApp at ${site.whatsappDisplay} or email ${site.email}. Tell us the page and what happened. We reply within ${rules.complaintReplyWorkingDays} working days and can take your booking request by WhatsApp or phone in the meantime.`],
       },
       {
         id: "review",
