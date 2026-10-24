@@ -10,6 +10,7 @@ import { cars, getCar } from "./cars";
 import { rules } from "./rules";
 import { chauffeurCars } from "./cars";
 import { formatAED, formatNumber as n } from "@/lib/format";
+import { brandCopyAr, carCopyAr } from "./copy.ar";
 
 export interface CarCopy {
   /** ~50 words, used on cards and meta descriptions. */
@@ -301,3 +302,12 @@ export const brandCopy: Record<string, BrandCopy | undefined> = {
     ],
   },
 };
+
+/** Car and brand copy in the visitor's language; each entry falls back to English. */
+export function copyFor(locale?: string): { carCopy: Record<string, CarCopy | undefined>; brandCopy: Record<string, BrandCopy | undefined> } {
+  if (locale !== "ar") return { carCopy, brandCopy };
+  return {
+    carCopy: new Proxy(carCopy, { get: (en, slug: string) => carCopyAr[slug] ?? en[slug] }),
+    brandCopy: new Proxy(brandCopy, { get: (en, slug: string) => brandCopyAr[slug] ?? en[slug] }),
+  };
+}
