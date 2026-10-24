@@ -13,18 +13,20 @@ import { FlowSkeleton } from "./bits";
 import { FlowShell, NeedsCar, useErrors, useFlow } from "./FlowShell";
 import { stepPath } from "./lib";
 import { tripErrors } from "./validate";
+import { useAvailability } from "@/lib/booking/availability";
 
 export function ExtrasStep() {
   const t = useT("booking");
   const { car, trip, update, hydrated, quote, service, outOfHours, go, href } = useFlow();
   const { check, submitted, summaryRef } = useErrors();
+  const avail = useAvailability(car?.slug);
 
   if (!hydrated) return <FlowSkeleton label={t("form.loading")} />;
   if (!car) return <NeedsCar />;
 
   const tier = rules.tiers[car.tier];
   const chauffeur = service === "chauffeur";
-  const tripProblems = tripErrors(trip, quote, service, t);
+  const tripProblems = tripErrors(trip, quote, service, t, avail.clash(trip.pickupDate, trip.returnDate, service), car.name);
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (check([])) go("driver");

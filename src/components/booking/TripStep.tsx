@@ -20,6 +20,8 @@ import { CarArt } from "@/components/car/CarArt";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { DateChips } from "./DateChips";
 import { DateRangePicker } from "./DateRangePicker";
+import { AvailabilityNotice } from "./Availability";
+import { useAvailability } from "@/lib/booking/availability";
 import { Checkbox, Field, Section, describedBy } from "./Field";
 import { RadioCard } from "./RadioCard";
 import { Segmented } from "./Segmented";
@@ -164,6 +166,7 @@ export function TripStep() {
   const { touch, visible, check, submitted, summaryRef } = useErrors();
   const wide = useMediaQuery("(min-width: 768px)");
   const [pickingAt, setPickingAt] = useState<string | null | undefined>(undefined);
+  const avail = useAvailability(car?.slug);
   const picking = pickingAt !== undefined && pickingAt === carParam;
 
   if (!hydrated || (car && (!earliest || !q))) return <FlowSkeleton label={t("form.loading")} />;
@@ -171,8 +174,9 @@ export function TripStep() {
 
   const quote = q as Quote;
   const start = earliest!;
-  const errors = tripErrors(trip, quote, service, t);
   const chauffeur = service === "chauffeur";
+  const clash = avail.clash(trip.pickupDate, trip.returnDate, service);
+  const errors = tripErrors(trip, quote, service, t, clash, car.name);
   const issuesFor = (fields: string[]) => quote.issues.filter((i, n, all) => fields.includes(i.field) && all.findIndex((x) => x.message === i.message) === n);
   const setRange = (r: { start: string; end?: string }) => update({ pickupDate: r.start, ...(r.end ? { returnDate: r.end } : {}), pickupTime: bumpTime(r.start, trip.pickupTime, start) });
   const setService = (v: ServiceMode) => {
@@ -262,8 +266,10 @@ export function TripStep() {
                 today={today}
                 onChange={setRange}
                 announce={announce}
-                disabledHint={t("picker.noticeHint", { hours: rules.chauffeur.leadHours })}
+                disabledHint={`${t("picker.noticeHint", { hours: rules.chauffeur.leadHours })} ${avail.ranges.length ? t("availability.hint") : ""}`.trim()}
+                unavailable={avail.busy}
               />
+              {clash && <AvailabilityNotice clash={clash} carName={car.name} start={trip.pickupDate} chauffeur nextFree={avail.nextFree} onPick={setRange} />}
               <IssueList issues={issuesFor(["pickupDate"])} trip={trip} car={car} />
               <TimeSelect id="trip-pickup-time" label={t("time.start")} kind="chauffeur" value={trip.pickupTime} date={trip.pickupDate} earliest={start} onChange={(v) => update({ pickupTime: v })} hint={t("time.nightHint", { pct: rules.chauffeur.nightSurchargePct })} />
             </Section>
@@ -334,9 +340,11 @@ export function TripStep() {
                   minDays={quote.minDays}
                   onChange={setRange}
                   announce={announce}
-                  disabledHint={t("picker.noticeHint", { hours: car.leadHours })}
+                  disabledHint={`${t("picker.noticeHint", { hours: car.leadHours })} ${avail.ranges.length ? t("availability.hint") : ""}`.trim()}
+                  unavailable={avail.busy}
                 />
               </div>
+              {clash && <AvailabilityNotice clash={clash} carName={car.name} start={trip.pickupDate} end={trip.returnDate} chauffeur={false} nextFree={avail.nextFree} onPick={setRange} />}
               {range && (
                 <p className="text-sm">
                   <span className="font-semibold tabular">{range}</span>

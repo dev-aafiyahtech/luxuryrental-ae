@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useT } from "@/i18n/client";
 import { addDays, dayOfWeek, formatDayLong, monthName, weekdayName } from "@/lib/dates";
+import { firstBusyAfter } from "./DateRangePicker";
 import { pickDay } from "./lib";
 
 /**
@@ -12,7 +13,7 @@ import { pickDay } from "./lib";
  * pickup (keeping the rental length), a later tap sets the return. Keyboard: one tab stop,
  * arrows and Home/End move between days. Scroll buttons for mouse users (no dragging needed).
  */
-export function DateRail({ mode = "range", start, end, today, min, max, minDays = 1, onChange, className, count = 30 }: {
+export function DateRail({ mode = "range", start, end, today, min, max, minDays = 1, onChange, className, count = 30, unavailable }: {
   mode?: "range" | "single";
   start?: string;
   end?: string;
@@ -24,13 +25,17 @@ export function DateRail({ mode = "range", start, end, today, min, max, minDays 
   onChange: (range: { start: string; end?: string }) => void;
   className?: string;
   count?: number;
+  /** Days the car is already out: not selectable, and a range can't cross them. */
+  unavailable?: (iso: string) => boolean;
 }) {
   const t = useT("booking");
   const scroller = useRef<HTMLDivElement>(null);
   const [awaitingEnd, setAwaitingEnd] = useState(false);
   const [focusDay, setFocusDay] = useState<string | null>(null);
   const days = Array.from({ length: count }, (_, i) => addDays(today, i));
-  const off = (d: string) => d < min || (!!max && d > max);
+  const last = max ?? addDays(today, count);
+  const endLimit = mode === "range" && awaitingEnd && start && unavailable ? firstBusyAfter(start, last, unavailable) : null;
+  const off = (d: string) => d < min || (!!max && d > max) || (!!unavailable && (mode === "range" && awaitingEnd && !!start && d > start ? endLimit !== null && d > endLimit : unavailable(d)));
   const firstOn = days.find((d) => !off(d)) ?? days[0];
   const tabbable = focusDay && days.includes(focusDay) ? focusDay : start && days.includes(start) ? start : firstOn;
 

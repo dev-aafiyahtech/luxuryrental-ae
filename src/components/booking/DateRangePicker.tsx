@@ -37,6 +37,12 @@ function weeks(month: string): (string | null)[][] {
 }
 const MONDAY_FIRST = [1, 2, 3, 4, 5, 6, 0];
 
+/** First day after `from` (up to `max`) for which `busy` is true, or null. The return may fall on it, not after. */
+export function firstBusyAfter(from: string, max: string, busy: (iso: string) => boolean): string | null {
+  for (let d = addDays(from, 1); d <= max; d = addDays(d, 1)) if (busy(d)) return d;
+  return null;
+}
+
 export interface DateRangePickerProps {
   mode?: "range" | "single";
   start?: string;
@@ -55,10 +61,12 @@ export interface DateRangePickerProps {
   label: string;
   /** Shown under the grid when some days are unavailable. */
   disabledHint?: string;
+  /** Days the car is already out (bookings, maintenance): not selectable, and a range can't cross them. */
+  unavailable?: (iso: string) => boolean;
   id?: string;
 }
 
-export function DateRangePicker({ mode = "range", start, end, onChange, min, max, today, months = 1, minDays = 1, announce, label, disabledHint, id }: DateRangePickerProps) {
+export function DateRangePicker({ mode = "range", start, end, onChange, min, max, today, months = 1, minDays = 1, announce, label, disabledHint, unavailable, id }: DateRangePickerProps) {
   const t = useT("booking");
   const uid = useId();
   const gridRef = useRef<HTMLDivElement>(null);
@@ -95,7 +103,9 @@ export function DateRangePicker({ mode = "range", start, end, onChange, min, max
     return first < min && ym(min) === visibleMonths[0] ? min : first;
   })();
 
-  const disabled = (d: string) => d < min || d > max;
+  // Choosing a return: days past the next busy day are off. Choosing a pickup: busy days are off.
+  const endLimit = mode === "range" && awaitingEnd && start && unavailable ? firstBusyAfter(start, max, unavailable) : null;
+  const disabled = (d: string) => d < min || d > max || (!!unavailable && (mode === "range" && awaitingEnd && !!start && d > start ? endLimit !== null && d > endLimit : unavailable(d)));
   const previewEnd = mode === "range" && awaitingEnd && start && hover && hover > start ? hover : undefined;
   const rangeEnd = previewEnd ?? end;
 

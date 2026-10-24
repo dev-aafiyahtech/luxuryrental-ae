@@ -2,6 +2,8 @@ import type { Car } from "@/content/types";
 import { getZone } from "@/content/zones";
 import type { Quote, QuoteField, ServiceMode } from "@/lib/pricing";
 import type { TripDraft } from "@/lib/booking/types";
+import type { Busy } from "@/lib/booking/availability";
+import { clashMessage } from "./Availability";
 import { emailOk, flightOk, phoneError } from "./lib";
 import type { FormError } from "./ErrorSummary";
 
@@ -21,9 +23,10 @@ export const tripFieldId: Record<QuoteField, string> = {
 
 const isAirport = (slug?: string) => !!slug && getZone(slug)?.kind === "airport";
 
-/** Step 1 errors: the quote's issues plus the flight-number format. */
-export function tripErrors(trip: TripDraft, q: Quote | null, service: ServiceMode, t: T): FormError[] {
+/** Step 1 errors: the quote's issues, the car's availability and the flight-number format. */
+export function tripErrors(trip: TripDraft, q: Quote | null, service: ServiceMode, t: T, clash?: Busy | null, carName?: string): FormError[] {
   const out: FormError[] = [];
+  if (clash) out.push({ id: tripFieldId.pickupDate, message: clashMessage(clash, t, carName) });
   for (const i of q?.issues ?? []) {
     if (!out.some((e) => e.message === i.message)) out.push({ id: tripFieldId[i.field], message: i.message });
   }

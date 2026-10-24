@@ -3,7 +3,7 @@
 import Link from "next/link";
 import clsx from "clsx";
 import { useState } from "react";
-import { Mail, Phone, Plus, RotateCcw } from "lucide-react";
+import { CalendarX2, Mail, Phone, Plus, RotateCcw } from "lucide-react";
 import { getCar } from "@/content/cars";
 import { site } from "@/content/site";
 import { useHref, useT } from "@/i18n/client";
@@ -16,6 +16,9 @@ import { addDays, todayInDubai } from "@/lib/dates";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { ConditionReportSheet, OpsChecks } from "@/components/agreement/OpsChecks";
 import { DocumentsPanel } from "@/components/account/DocumentsPanel";
+import { busyRanges, clashIn, resetDemoBlocks, useBlocks, type Busy } from "@/lib/booking/availability";
+import { clashMessage } from "./Availability";
+import { OpsAvailability } from "./OpsAvailability";
 import { documentProgress, requiredDocuments, resetDemoCustomers, useDocuments } from "@/lib/customer/store";
 import { BottomSheet } from "./BottomSheet";
 import { FlowSkeleton, Rows, StatusBadge } from "./bits";
@@ -98,6 +101,7 @@ export function OpsDesk() {
   const [confirmReset, setConfirmReset] = useState(false);
   const [creating, setCreating] = useState(false);
   const [recording, setRecording] = useState<{ ref: string; stage: "handover" | "return" } | null>(null);
+  const blocks = useBlocks();
 
   if (!hydrated) return <FlowSkeleton />;
 
@@ -107,8 +111,16 @@ export function OpsDesk() {
   const previewing = preview ? list.find((b) => b.ref === preview) : undefined;
   const checking = recording ? list.find((b) => b.ref === recording.ref) : undefined;
 
+  // A request can only be confirmed if the car is free: no confirmed booking or block overlaps it.
+  const clashOf = (b: BookingRecord): Busy | null => (b.status === "requested" ? clashIn(busyRanges(b.carSlug, list, blocks, b.ref), b.trip.pickupDate, b.trip.returnDate, b.trip.service) : null);
+
   const act = async (b: BookingRecord, to: BookingStatus) => {
     if (pending) return;
+    const clash = to === "confirmed" ? clashOf(b) : null;
+    if (clash) {
+      setLive(clashMessage(clash, t, b.carName));
+      return;
+    }
     setPending(`${b.ref}:${to}`);
     try {
       await updateBookingStatus(b.ref, to, "ops", t(`ops.notes.${to}`));
@@ -182,6 +194,8 @@ export function OpsDesk() {
       </div>
       <p className="sr-only" role="status" aria-live="polite">{live}</p>
 
+      <OpsAvailability onSaved={setLive} />
+
       <p className="label">{shown.length === 1 ? t("ops.countOne") : t("ops.count", { n: shown.length })}</p>
 
       {shown.length === 0 ? (
@@ -195,6 +209,7 @@ export function OpsDesk() {
           {shown.map((b) => {
             const lines = tripLines(b.trip, b.trip.service, t);
             const d = b.trip.driver;
+            const clash = clashOf(b);
             return (
               <li key={b.ref}>
                 <article aria-labelledby={`ops-${b.ref}`} className="card grid gap-4 p-5">
@@ -230,10 +245,17 @@ export function OpsDesk() {
                     </div>
                   </dl>
                   <div className="flex flex-wrap items-center gap-2 border-t border-line pt-4">
+                    {clash && (
+                      <p className="flex w-full items-start gap-2 text-[13px] text-warning">
+                        <CalendarX2 className="mt-px h-4 w-4 flex-none" aria-hidden="true" />
+                        <span>{clashMessage(clash, t, b.carName)} {t("ops.clashHint")}</span>
+                      </p>
+                    )}
                     {actionsFor(b.status).map((a) => {
                       const busy = pending === `${b.ref}:${a.to}`;
+                      const blocked = a.to === "confirmed" && !!clash;
                       return (
-                        <button key={a.key} type="button" className={clsx("btn btn-sm", a.primary ? "btn-primary" : "btn-secondary")} onClick={() => void act(b, a.to)} aria-busy={busy || undefined} aria-disabled={(!!pending && !busy) || undefined}>
+                        <button key={a.key} type="button" className={clsx("btn btn-sm", a.primary ? "btn-primary" : "btn-secondary", blocked && "opacity-50")} onClick={() => void act(b, a.to)} aria-busy={busy || undefined} aria-disabled={(!!pending && !busy) || blocked || undefined}>
                           {busy && <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-e-transparent" aria-hidden="true" />}
                           {t(`ops.actionLabels.${a.key}`)}
                         </button>
@@ -273,6 +295,7 @@ export function OpsDesk() {
               onClick={() => {
                 resetDemoBookings();
                 resetDemoCustomers();
+                resetDemoBlocks();
                 setConfirmReset(false);
                 setLive(t("ops.resetDone"));
               }}

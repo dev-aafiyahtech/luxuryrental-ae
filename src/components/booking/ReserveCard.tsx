@@ -8,6 +8,8 @@ import type { Car } from "@/content/types";
 import { rules } from "@/content/rules";
 import { useHref, useT } from "@/i18n/client";
 import { useTripDraft, type DraftPatch } from "@/lib/booking/draft";
+import { useAvailability } from "@/lib/booking/availability";
+import { AvailabilityNotice } from "./Availability";
 import type { ChauffeurPackage, ServiceMode } from "@/lib/pricing";
 import { formatDay, formatRange, todayInDubai } from "@/lib/dates";
 import { formatAED } from "@/lib/format";
@@ -48,6 +50,7 @@ export function ReserveCard({ car, variant = "panel", className, eyebrow }: Rese
   const now = useNow();
   const wide = useMediaQuery("(min-width: 768px)");
   const [calendar, setCalendar] = useState(false);
+  const avail = useAvailability(car.slug);
   const ready = hydrated && now > 0;
 
   // The Phantom defaults to chauffeur; a car without chauffeur rates is always self-drive.
@@ -93,6 +96,7 @@ export function ReserveCard({ car, variant = "panel", className, eyebrow }: Rese
   }
 
   const issues = q.issues.filter((i, n, all) => all.findIndex((x) => x.message === i.message) === n);
+  const clash = trip.carSlug === car.slug || !trip.carSlug ? avail.clash(trip.pickupDate, trip.returnDate, service) : null;
   const range = trip.pickupDate && trip.returnDate ? formatRange(trip.pickupDate, trip.returnDate) : "";
   const when = chauffeur ? (trip.pickupDate ? `${formatDay(trip.pickupDate)}, ${trip.pickupTime}` : "") : range;
   const summary = q.total > 0 ? t("reserve.summaryLive", { car: car.model, range: when, total: `${onRequest ? `${t("reserve.from")} ` : ""}${formatAED(q.total)}` }) : "";
@@ -138,6 +142,7 @@ export function ReserveCard({ car, variant = "panel", className, eyebrow }: Rese
           end={trip.returnDate}
           minDays={q.minDays}
           onChange={setRange}
+          unavailable={avail.busy}
         />
         <p className="flex flex-wrap items-baseline gap-x-2 text-sm">
           <span className="font-semibold tabular text-fg">{when || t("reserve.chooseDates")}</span>
@@ -204,6 +209,8 @@ export function ReserveCard({ car, variant = "panel", className, eyebrow }: Rese
         </div>
       )}
 
+      {clash && <AvailabilityNotice clash={clash} carName={car.name} start={trip.pickupDate} end={trip.returnDate} chauffeur={chauffeur} nextFree={avail.nextFree} onPick={setRange} />}
+
       {/* Issues: never a dead end */}
       {issues.length > 0 && (
         <ul className="m-0 grid list-none gap-2 p-0" aria-live="polite">
@@ -246,7 +253,13 @@ export function ReserveCard({ car, variant = "panel", className, eyebrow }: Rese
       <p className="sr-only" aria-live="polite">{summary}</p>
 
       <div className="grid gap-2">
-        <Link className="btn btn-primary btn-block" href={reserveHref} onClick={() => update(pin)}>
+        <Link
+          className={clsx("btn btn-primary btn-block", clash && "pointer-events-none opacity-50")}
+          href={reserveHref}
+          aria-disabled={clash ? true : undefined}
+          tabIndex={clash ? -1 : undefined}
+          onClick={(e) => (clash ? e.preventDefault() : update(pin))}
+        >
           {reserveLabel}
         </Link>
         <p className="text-center text-[12px] text-muted">{t("reserve.noCharge")}</p>
@@ -279,8 +292,10 @@ export function ReserveCard({ car, variant = "panel", className, eyebrow }: Rese
           minDays={q.minDays}
           onChange={setRange}
           announce={summary}
-          disabledHint={t("picker.noticeHint", { hours: chauffeur ? rules.chauffeur.leadHours : car.leadHours })}
+          disabledHint={`${t("picker.noticeHint", { hours: chauffeur ? rules.chauffeur.leadHours : car.leadHours })} ${avail.ranges.length ? t("availability.hint") : ""}`.trim()}
+          unavailable={avail.busy}
         />
+        {clash && <div className="mt-3"><AvailabilityNotice clash={clash} carName={car.name} start={trip.pickupDate} end={trip.returnDate} chauffeur={chauffeur} nextFree={avail.nextFree} onPick={setRange} /></div>}
       </BottomSheet>
     </section>
   );

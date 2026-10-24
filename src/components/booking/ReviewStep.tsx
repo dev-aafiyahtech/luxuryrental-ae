@@ -14,6 +14,7 @@ import { FlowSkeleton, Rows, WhatsAppButton, rich } from "./bits";
 import { FlowShell, NeedsCar, tripLines, useErrors, useFlow } from "./FlowShell";
 import { countryName, formatPhone, fullDraftMessage, markSent, stepPath, type StepId } from "./lib";
 import { consentErrors, driverErrors, tripErrors } from "./validate";
+import { useAvailability } from "@/lib/booking/availability";
 
 function ReviewSection({ title, editHref, editLabel, id, children }: { title: string; editHref: string; editLabel: string; id: string; children: ReactNode }) {
   return (
@@ -45,6 +46,7 @@ export function ReviewStep() {
   // Consent boxes start unticked (05 §3): until the visitor has ticked the acknowledgement once,
   // the WhatsApp consent default from the shared draft is cleared.
   const consentReset = useRef(false);
+  const avail = useAvailability(car?.slug);
   useEffect(() => {
     if (!hydrated || consentReset.current) return;
     consentReset.current = true;
@@ -63,7 +65,7 @@ export function ReviewStep() {
   const d = trip.driver;
   const selfDrive = service === "self-drive";
   const errors = [
-    ...tripErrors(trip, quote, service, t).map((e) => ({ id: "review-trip", message: e.message })),
+    ...tripErrors(trip, quote, service, t, avail.clash(trip.pickupDate, trip.returnDate, service), car.name).map((e) => ({ id: "review-trip", message: e.message })),
     ...driverErrors(trip, car, service, t).map((e) => ({ id: "review-driver", message: e.message })),
     ...consentErrors(trip, t),
   ];

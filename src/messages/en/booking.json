@@ -365,6 +365,14 @@
     "summary": "Request summary",
     "reply": "We reply on WhatsApp, usually within 1 hour, 09:00–22:00."
   },
+  "availability": {
+    "busyBooking": "The {car} is already booked {range}.",
+    "busyBlock": "The {car} isn't available {range}: {reason}.",
+    "reasons": { "maintenance": "it's in for service", "owner": "it's with the owner", "event": "it's booked for an event", "other": "it's off the fleet" },
+    "useNext": "Use the next free dates: {range}",
+    "none": "No free dates for this length in the next year. Message us on WhatsApp.",
+    "hint": "Crossed-out days are already booked."
+  },
   "next": {
     "title": "Before your rental",
     "count": "{done} of {total} done",
@@ -495,6 +503,24 @@
     "reset": "Reset demo data",
     "resetTitle": "Delete every demo request?",
     "resetText": "This clears all demo requests, accounts and document records stored in this browser. It can't be undone.",
+    "clashHint": "Confirm is off until the clash is solved: offer other dates or another car.",
+    "blocks": {
+      "title": "Availability blocks",
+      "count": "{n} upcoming",
+      "lede": "Take a car off the website for a service, owner use or an event. Blocked days are crossed out in every calendar, and overlapping requests can't be confirmed.",
+      "car": "Car",
+      "from": "From",
+      "to": "To (inclusive)",
+      "reason": "Reason",
+      "note": "Note",
+      "add": "Block these days",
+      "remove": "Remove",
+      "removeLabel": "Remove the block on the {car}",
+      "saved": "{car} blocked {range}.",
+      "removed": "Block removed.",
+      "errorDates": "Choose a start today or later, and an end on or after the start.",
+      "reasons": { "maintenance": "Service or repair", "owner": "Owner use", "event": "Event or offline booking", "other": "Other" }
+    },
     "docs": { "title": "Driver's documents", "none": "None uploaded yet", "progress": "{uploaded} of {total} uploaded · {verified} verified" },
     "resetConfirm": "Delete all",
     "resetDone": "Demo data cleared.",
