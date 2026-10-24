@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Montserrat, Syncopate } from "next/font/google";
+import { Allura, Montserrat, Syncopate } from "next/font/google";
 import { lang } from "next/root-params";
 import { dirOf, locales } from "@/i18n/config";
 import { getMessages, getT } from "@/i18n/dictionaries";
@@ -12,6 +12,8 @@ import "../globals.css";
 
 const syncopate = Syncopate({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-syncopate", display: "swap" });
 const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-montserrat", display: "swap" });
+// Script face for typed e-signatures only; not preloaded, fetched when a signature is typed.
+const allura = Allura({ subsets: ["latin"], weight: "400", variable: "--font-signature", display: "swap", preload: false });
 
 export async function generateStaticParams() {
   return locales.map((l) => ({ lang: l }));
@@ -36,7 +38,7 @@ export default async function RootLayout({ children }: LayoutProps<"/[lang]">) {
   const messages = await getMessages();
   const t = await getT("common");
   return (
-    <html lang={locale} dir={dirOf(locale)} className={`${syncopate.variable} ${montserrat.variable}`}>
+    <html lang={locale} dir={dirOf(locale)} className={`${syncopate.variable} ${montserrat.variable} ${allura.variable}`}>
       <body>
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-[var(--z-toast)] focus:rounded-full focus:bg-accent focus:px-5 focus:py-3 focus:text-on-accent">
           {t("nav.skip")}

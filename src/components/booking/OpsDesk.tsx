@@ -14,6 +14,7 @@ import { formatAED } from "@/lib/format";
 import { quote } from "@/lib/pricing";
 import { addDays, todayInDubai } from "@/lib/dates";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
+import { ConditionReportSheet, OpsChecks } from "@/components/agreement/OpsChecks";
 import { BottomSheet } from "./BottomSheet";
 import { FlowSkeleton, Rows, StatusBadge } from "./bits";
 import { stamp } from "./BookingStatusView";
@@ -94,6 +95,7 @@ export function OpsDesk() {
   const [preview, setPreview] = useState<string | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [recording, setRecording] = useState<{ ref: string; stage: "handover" | "return" } | null>(null);
 
   if (!hydrated) return <FlowSkeleton />;
 
@@ -101,6 +103,7 @@ export function OpsDesk() {
   const shown = filter === "all" ? sorted : sorted.filter((b) => b.status === filter);
   const counts = Object.fromEntries(STATUS_ORDER.map((s) => [s, list.filter((b) => b.status === s).length])) as Record<BookingStatus, number>;
   const previewing = preview ? list.find((b) => b.ref === preview) : undefined;
+  const checking = recording ? list.find((b) => b.ref === recording.ref) : undefined;
 
   const act = async (b: BookingRecord, to: BookingStatus) => {
     if (pending) return;
@@ -240,6 +243,7 @@ export function OpsDesk() {
                     </button>
                     <Link href={href(`/booking?ref=${b.ref}`)} className="btn btn-ghost btn-sm">{t("ops.openCustomer")}</Link>
                   </div>
+                  <OpsChecks b={b} onRecord={(stage) => setRecording({ ref: b.ref, stage })} />
                 </article>
               </li>
             );
@@ -250,6 +254,8 @@ export function OpsDesk() {
       <BottomSheet open={!!previewing} onClose={() => setPreview(null)} title={previewing ? t("ops.emailTitle", { ref: previewing.ref }) : ""} size="lg">
         {previewing && <EmailPreview b={previewing} pending={pending} onAction={(to) => void act(previewing, to)} />}
       </BottomSheet>
+
+      <ConditionReportSheet b={checking} stage={recording?.stage ?? "handover"} onClose={() => setRecording(null)} onSaved={setLive} />
 
       <BottomSheet
         open={confirmReset}

@@ -133,7 +133,7 @@ export function Dock({ hidden, className }: DockProps) {
   if (!target) return null;
   return createPortal(
     <>
-      <div ref={ref} hidden={hidden} className={clsx("pointer-events-none fixed inset-x-0 bottom-0 z-[var(--z-dock)] px-3 pb-[max(12px,env(safe-area-inset-bottom))] sm:px-4 lg:pb-5", className)}>
+      <div ref={ref} hidden={hidden} className={clsx("pointer-events-none fixed inset-x-0 bottom-0 z-[var(--z-dock)] print:hidden px-3 pb-[max(12px,env(safe-area-inset-bottom))] sm:px-4 lg:pb-5", className)}>
         {/* Desktop panel */}
         <section aria-label={t("dock.label")} className="glass pointer-events-auto mx-auto hidden max-w-[1080px] gap-2 p-3 ps-5 lg:grid">
           {continueLink && <div className="-mb-1 -mt-1">{continueLink}</div>}

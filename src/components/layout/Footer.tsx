@@ -16,7 +16,7 @@ export async function Footer() {
   ];
 
   return (
-    <footer className="relative z-[var(--z-content)] border-t border-line bg-bg pb-[calc(48px+var(--dock-h)+env(safe-area-inset-bottom))] pt-14">
+    <footer className="relative z-[var(--z-content)] print:hidden border-t border-line bg-bg pb-[calc(48px+var(--dock-h)+env(safe-area-inset-bottom))] pt-14">
       <div className="container-site grid gap-12">
         <div className="grid gap-10 lg:grid-cols-[1.2fr_repeat(4,1fr)]">
           <div className="grid content-start gap-4">

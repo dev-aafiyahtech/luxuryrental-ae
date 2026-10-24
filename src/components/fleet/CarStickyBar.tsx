@@ -24,7 +24,7 @@ export function CarStickyBar({ price, note, ctaLabel, ctaHref, watchId, external
   return (
     <div
       className={clsx(
-        "glass fixed inset-x-0 bottom-0 z-[var(--z-dock)] flex items-center justify-between gap-3 rounded-b-none rounded-t-[24px] px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] transition-transform duration-300 ease-out motion-reduce:transition-none lg:hidden",
+        "glass fixed inset-x-0 bottom-0 z-[var(--z-dock)] flex items-center justify-between gap-3 rounded-b-none rounded-t-[24px] px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] transition-transform duration-300 ease-out motion-reduce:transition-none lg:hidden print:hidden",
         hidden && "pointer-events-none translate-y-full",
       )}
       aria-hidden={hidden || undefined}
