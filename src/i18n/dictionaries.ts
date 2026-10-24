@@ -10,6 +10,8 @@ const loaders = {
     booking: (await import("@/messages/en/booking.json")).default,
     home: (await import("@/messages/en/home.json")).default,
     fleet: (await import("@/messages/en/fleet.json")).default,
+    account: (await import("@/messages/en/account.json")).default,
+    agreement: (await import("@/messages/en/agreement.json")).default,
   }),
 } satisfies Record<Locale, () => Promise<Record<string, unknown>>>;
 

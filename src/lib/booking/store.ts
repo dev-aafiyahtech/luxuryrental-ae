@@ -1,7 +1,7 @@
 "use client";
 
 import type { Quote } from "@/lib/pricing";
-import { transitions, type BookingRecord, type BookingStatus, type TripDraft } from "./types";
+import { transitions, type AgreementRecord, type BookingRecord, type BookingStatus, type ConditionReport, type TripDraft } from "./types";
 
 // SIMULATED BACKEND. Booking requests are kept in this browser's localStorage so the whole
 // flow (request → ops confirm → pay → status) can be demonstrated without a server.
@@ -114,6 +114,65 @@ export async function recordDemoPayment(ref: string, amount: number, kind: "adva
   };
   write(list.map((b) => (b.ref === ref ? updated : b)));
   return updated;
+}
+
+/* ---------- rental agreement and condition reports (simulated e-signature) ---------- */
+
+export const AGREEMENT_VERSION = "1.0 (demo)";
+/** Statuses in which the agreement exists and can be signed. */
+export const agreementOpen = (s: BookingStatus) => s === "confirmed" || s === "awaiting_payment" || s === "paid";
+
+function patch(ref: string, fn: (b: BookingRecord) => BookingRecord): BookingRecord {
+  const list = read();
+  const current = list.find((b) => b.ref === ref.toUpperCase());
+  if (!current) throw new Error(`Booking ${ref} not found`);
+  const updated = fn(current);
+  write(list.map((b) => (b.ref === current.ref ? updated : b)));
+  return updated;
+}
+
+const note = (b: BookingRecord, by: "customer" | "ops" | "system", text: string) => [...b.events, { at: new Date().toISOString(), status: b.status, by, note: text }];
+
+/** The agreement for a booking: the stored one, or a fresh unsigned one once the request is confirmed. */
+export function agreementFor(b: BookingRecord): AgreementRecord | undefined {
+  if (b.agreement) return b.agreement;
+  if (!agreementOpen(b.status)) return undefined;
+  const confirmed = [...b.events].reverse().find((e) => e.status === "confirmed")?.at ?? b.createdAt;
+  return { number: `RA-${b.ref.slice(3)}`, version: AGREEMENT_VERSION, issuedAt: confirmed };
+}
+
+/** POST /api/bookings/{ref}/agreement/sign: e-sign the rental agreement as the main driver. */
+export async function signAgreement(ref: string, input: { name: string; signature: string; accepted: NonNullable<AgreementRecord["accepted"]> }): Promise<BookingRecord> {
+  await wait(900);
+  return patch(ref, (b) => {
+    const base = agreementFor(b);
+    if (!base) throw new Error("The agreement opens once we confirm your request");
+    if (base.signedAt) throw new Error("This agreement is already signed");
+    const signedAt = new Date().toISOString();
+    return { ...b, agreement: { ...base, signedAt, signerName: input.name.trim(), signature: input.signature, accepted: input.accepted }, events: note(b, "customer", `Rental agreement ${base.number} e-signed`) };
+  });
+}
+
+/** Ops: record the condition report at handover or return (car checked with the customer). */
+export async function recordConditionReport(ref: string, report: Omit<ConditionReport, "recordedAt" | "customerSignedAt" | "customerName" | "customerSignature">): Promise<BookingRecord> {
+  await wait(600);
+  return patch(ref, (b) => {
+    const full: ConditionReport = { ...report, recordedAt: new Date().toISOString() };
+    const key = report.stage === "handover" ? "handoverCheck" : "returnCheck";
+    return { ...b, [key]: full, events: note(b, "ops", `${report.stage === "handover" ? "Handover" : "Return"} check recorded: ${report.odometerKm.toLocaleString("en")} km, fuel ${report.fuelEighths}/8, ${report.damages.length} damage mark(s)`) };
+  });
+}
+
+/** Customer: acknowledge a condition report with a typed name and signature. */
+export async function signConditionReport(ref: string, stage: ConditionReport["stage"], input: { name: string; signature: string }): Promise<BookingRecord> {
+  await wait(700);
+  return patch(ref, (b) => {
+    const key = stage === "handover" ? "handoverCheck" : "returnCheck";
+    const report = b[key];
+    if (!report) throw new Error("No condition report to sign yet");
+    const signedAt = new Date().toISOString();
+    return { ...b, [key]: { ...report, customerSignedAt: signedAt, customerName: input.name.trim(), customerSignature: input.signature }, events: note(b, "customer", `${stage === "handover" ? "Handover" : "Return"} condition report signed`) };
+  });
 }
 
 /** Clears every demo booking in this browser. */
