@@ -101,7 +101,7 @@ Model year, colour, cabin, wheels and equipment for each fleet car. Specs are ty
 | Bentley Bentayga EWB Azure | 2025 | Onyx | Linen and Beluga leather, open-pore walnut | 22-inch, 10-spoke, painted | Airline-style rear seats with posture adjustment; Naim audio; Panoramic roof; Rear entertainment screens |
 | Bentley Continental GTC Speed | 2025 | Glacier White | Beluga leather with Cricket Ball red | 22-inch forged, black and polished | Three-layer fabric roof, opens on the move; Neck warmers; Rotating display; Naim audio |
 | Rolls-Royce Phantom Series II EWB | 2025 | Arctic White | Seashell leather with navy piping | 22-inch polished, self-righting centres | Starlight Headliner; Rear picnic tables and screens; Rear coach doors; Champagne cooler |
-| Maserati MCPura Cielo | 2025 | Blu Infinito | Ghiaccio white leather, blue stitching | 20-inch forged, gloss black | Glass roof that turns opaque at a touch; Retractable roof; Sonus faber audio; Front-axle lift |
+| Maserati MCPura Cielo | 2026 | Blu Infinito | Ghiaccio white leather, blue stitching | 20-inch forged, gloss black | Glass roof that turns opaque at a touch; Retractable roof; Sonus faber audio; Front-axle lift |
 | Maserati GranTurismo Trofeo | 2025 | Grigio Lava | Black leather, red stitching | 20-inch forged, dark finish | Four full-size seats; Sonus faber audio; Head-up display; Air suspension |
 | Bugatti Chiron Sport | 2022 | Italian Red and Black | Italian red and black leather | 20-inch front, 21-inch rear forged, black | Active rear wing; Carbon-ceramic brakes; Accuphase audio; Front-axle lift |
 

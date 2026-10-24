@@ -144,7 +144,7 @@ export const cars: Car[] = [
     minDays: 1, ...RULES.L, minAge: 30, images: placeholder, addedAt: added,
   },
   {
-    slug: "maserati-mcpura-cielo", brand: "maserati", model: "MCPura Cielo", modelSlug: "mcpura-cielo", name: "Maserati MCPura Cielo", year: "2025",
+    slug: "maserati-mcpura-cielo", brand: "maserati", model: "MCPura Cielo", modelSlug: "mcpura-cielo", name: "Maserati MCPura Cielo", year: "2026",
     category: "convertibles", tags: ["supercars"], tier: "L", priceTier: "C", body: "spider", paint: { name: "Blu Infinito", hex: "#1D3E8A" },
     tagline: "Butterfly doors and a glass roof that turns clear.",
     details: { interior: "Ghiaccio white leather, blue stitching", wheels: "20-inch forged, gloss black", equipment: ["Glass roof that turns opaque at a touch", "Retractable roof", "Sonus faber audio", "Front-axle lift"] },

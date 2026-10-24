@@ -29,7 +29,7 @@ export default async function FleetPage() {
   const [t, href, today] = await Promise.all([getT("fleet"), getHref(), getToday()]);
 
   // Cards are rendered here on the server; the client view only chooses which to show and in what order.
-  const cards = Object.fromEntries(cars.map((car) => [car.slug, <CarCard key={car.slug} car={car} today={today} href={href} headingLevel="h2" className="h-full" />]));
+  const cards = Object.fromEntries(cars.map((car) => [car.slug, <CarCard key={car.slug} car={car} today={today} href={href} headingLevel="h2" className="h-full" priority={!!car.heroRank && car.heroRank <= 3} />]));
   const crossSell = <ChauffeurCrossSell href={href} t={t} />;
   const brandLinks = brands.map((b) => ({ label: b.name, href: href(`/cars/${b.slug}`) }));
   const shared = { today, cards, crossSell, brandLinks, brandCount: brands.length };

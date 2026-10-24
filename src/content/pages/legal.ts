@@ -549,7 +549,7 @@ export const legalDocs: LegalDoc[] = [
       {
         id: "images",
         title: "Car images",
-        blocks: ["Car images on this site are illustrations until photos of our own cars are available. The car supplied is the model listed; its colour and trim may differ from the illustration."],
+        blocks: ["Car images on this site are illustrative AI images, made to show each car in the colour and trim we list, until photos of our own cars are available. They are labelled as AI images. The car supplied is the model listed; its colour and trim may differ slightly from the image."],
       },
       {
         id: "trademarks",
@@ -616,7 +616,7 @@ export const legalDocs: LegalDoc[] = [
         blocks: [{
           list: [
             "The site is in English only. An Arabic version is planned.",
-            "Car images are illustrations until photos of our own cars are available.",
+            "Car images are illustrative AI images until photos of our own cars are available. Each car image has a text description (alt text).",
             "Some wide tables scroll sideways on small screens. The first column stays in view.",
           ],
         }],

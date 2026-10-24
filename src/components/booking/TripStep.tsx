@@ -77,7 +77,7 @@ function CarPicker({ today, onCancel }: { today: string; onCancel?: () => void }
         {list.map((car) => (
           <li key={car.slug}>
             <Link href={href(`/book/trip?car=${car.slug}`)} className="card card-hover grid h-full overflow-hidden no-underline">
-              <CarArt car={car} view="card" className="aspect-[16/9] w-full" />
+              <CarArt car={car} view="hero" className="aspect-[16/9] w-full" />
               <span className="grid gap-1 p-5">
                 <span className="font-semibold text-fg">{car.name}</span>
                 <span className="text-sm tabular text-muted">

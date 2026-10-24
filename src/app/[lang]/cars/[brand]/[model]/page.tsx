@@ -88,6 +88,8 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
   ];
 
   const specs = specRows(car);
+  // The hero is already at the top of the page, so the gallery starts with the other views.
+  const gallery = (carMedia[car.slug]?.gallery ?? []).filter((g) => g.src !== carMedia[car.slug]?.hero);
   if (car.chauffeur) specs.push({ label: t("car.chauffeurRow"), value: t("car.chauffeurRowValue", { price: formatAED(car.chauffeur.hourly) }) });
 
   // Mobile sticky bar: chauffeur-first for the Phantom, concierge for Bugatti, Reserve otherwise.
@@ -244,10 +246,10 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
               </div>
             </Section>
 
-            {(carMedia[car.slug]?.gallery?.length ?? 0) > 1 && (
+            {gallery.length > 1 && (
               <Section id="gallery" title={t("car.gallery")} lede={imageStatus(car).startsWith("ai") ? t("car.galleryLede", { model: car.model }) : undefined}>
                 <ul className="m-0 grid grid-cols-2 gap-3 p-0 [list-style:none] md:gap-4">
-                  {carMedia[car.slug]!.gallery!.map((g, i) => (
+                  {gallery.map((g, i) => (
                     <li key={g.src} className={i === 0 ? "col-span-2" : undefined}>
                       <a href={g.src} target="_blank" rel="noopener" className="relative block aspect-video overflow-hidden rounded-[16px] border border-line bg-card">
                         <Image src={g.src} alt={g.alt} fill sizes={i === 0 ? "(min-width: 1024px) 60vw, 100vw" : "(min-width: 1024px) 30vw, 50vw"} className="object-cover transition-transform duration-300 hover:scale-[1.02] motion-reduce:transition-none" />

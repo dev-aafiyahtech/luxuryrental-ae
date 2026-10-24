@@ -80,9 +80,9 @@ async function CategoryDetail({ params }: { params: PageProps<"/[lang]/cars/type
       <section aria-labelledby="category-cars" className="grid gap-6">
         <h2 id="category-cars" className="display-sm">{t("category.cars", { category: category.name })}</h2>
         <ul className="m-0 grid gap-4 p-0 [list-style:none] md:grid-cols-2 md:gap-5 min-[90rem]:grid-cols-3">
-          {list.map((car) => (
+          {list.map((car, i) => (
             <li key={car.slug} className="grid">
-              <CarCard car={car} today={today} href={href} headingLevel="h3" className="h-full" />
+              <CarCard car={car} today={today} href={href} headingLevel="h3" className="h-full" priority={i < 2} />
             </li>
           ))}
         </ul>

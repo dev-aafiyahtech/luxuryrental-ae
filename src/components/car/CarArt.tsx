@@ -10,7 +10,7 @@ interface Props {
   car: Car;
   view?: View;
   className?: string;
-  /** Load eagerly (above-the-fold hero). */
+  /** Load eagerly with high fetch priority (above-the-fold hero, the LCP image). */
   priority?: boolean;
   sizes?: string;
   /** Mirror for a car facing left. Never mirror real photos (badges would read backwards). */
@@ -32,7 +32,7 @@ export function CarArt({ car, view = "card", className, priority, sizes = "(min-
   if (src) {
     return (
       <div className={clsx("relative overflow-hidden bg-bg", className)}>
-        <Image src={src} alt={label} fill sizes={sizes} priority={priority} className="object-cover" />
+        <Image src={src} alt={label} fill sizes={sizes} loading={priority ? "eager" : undefined} fetchPriority={priority ? "high" : undefined} className="object-cover" />
         {tag && status.startsWith("ai") && (
           <span aria-hidden="true" className="absolute bottom-2 start-2 rounded-full bg-deep/85 px-2 py-0.5 text-[11px] font-semibold tracking-[0.04em] text-fg">AI image</span>
         )}

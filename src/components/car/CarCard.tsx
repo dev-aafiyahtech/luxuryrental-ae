@@ -7,14 +7,14 @@ import { CarArt } from "./CarArt";
 import { PriceFrom, headlineSpecs } from "./CarBits";
 
 /** Fleet card: image, name, headline specs, "from" price, details and Reserve links. */
-export function CarCard({ car, today, href, className, headingLevel = "h3" }: { car: Car; today: string; href: (path: string) => string; className?: string; headingLevel?: "h2" | "h3" }) {
+export function CarCard({ car, today, href, className, headingLevel = "h3", priority }: { car: Car; today: string; href: (path: string) => string; className?: string; headingLevel?: "h2" | "h3"; priority?: boolean }) {
   const Heading = headingLevel;
   const category = car.category === "chauffeur" ? "Chauffeur" : getCategory(car.category)?.singular;
   const badge = car.heroRank ? "Featured" : undefined;
   return (
     <article className={clsx("card card-hover group relative grid overflow-hidden", className)} data-car={car.slug} data-brand={car.brand} data-category={[car.category, ...car.tags].join(" ")}>
       <div className="relative">
-        <CarArt car={car} view="card" className="aspect-[4/3] w-full" />
+        <CarArt car={car} view="card" priority={priority} className="aspect-[4/3] w-full" />
         {badge && <span className="badge absolute start-3 top-3">{badge}</span>}
       </div>
       <div className="grid gap-3 p-5">
