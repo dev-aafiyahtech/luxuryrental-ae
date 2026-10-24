@@ -78,6 +78,10 @@
   },
   "car": {
     "illustrative": "Illustration. Our car images are being prepared. The colour, cabin and wheels of the car you get are listed further down this page.",
+    "aiIllustrative": "Illustrative AI image. The car you receive may differ in colour and trim; its details are listed further down this page.",
+    "aiVerified": "AI-generated image, checked against our actual car.",
+    "gallery": "Gallery",
+    "galleryLede": "Illustrative AI images of the {model}.",
     "rentalIn": "Rental in Dubai",
     "featured": "Featured",
     "onRequestBadge": "Price on request",

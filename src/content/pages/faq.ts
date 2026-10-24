@@ -106,6 +106,21 @@ export const faqGroups: FaqGroup[] = [
         a: `**Visitors:** passport, UAE entry stamp or visa page, driving licence, and an International Driving Permit if you need one. **Residents:** Emirates ID and UAE driving licence.\n\nBring the originals to the handover. We check them and hand them straight back. We never keep your passport or Emirates ID.`,
       },
       {
+        id: "upload-documents",
+        q: "Can I upload my documents before the handover?",
+        a: `Yes, and it makes the handover quicker. Once you send a request, open its [status page](/booking) or your [account](/account) and add a photo or PDF of each document. We check them before the day and tell you if one needs replacing. You still bring the originals to the handover.`,
+      },
+      {
+        id: "agreement",
+        q: "How do I sign the rental agreement?",
+        a: `Once we confirm your request, your rental agreement appears on the request's status page. You can read it and sign it online with your finger, mouse or typed name, or sign it at the handover. At handover we also check the car with you and you sign the condition report.`,
+      },
+      {
+        id: "account",
+        q: "Do I need an account?",
+        a: `No. You can send a request without one and follow it from the link we send. An [account](/account) keeps your requests, documents and agreements in one place. You sign in with a one-time code on WhatsApp or by email, so there is no password to remember.`,
+      },
+      {
         id: "additional-drivers",
         q: "Can someone else drive the car?",
         a: `Yes, if they meet the same age and licence rules and are named on the rental agreement. Each additional driver costs ${formatAED(rules.additionalDriverPerDay)} a day. If someone who is not named drives the car, the insurance does not cover it.`,

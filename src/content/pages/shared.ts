@@ -10,9 +10,9 @@ import { monthName } from "@/lib/dates";
 // in cars.ts / rules.ts / zones.ts updates every page, FAQ and legal summary at once.
 
 /** Date the fact pages (pricing, requirements) were last changed. Bump only when content changes. */
-export const factsUpdated = "2026-10-23";
+export const factsUpdated = "2026-10-24";
 /** Date the legal drafts were last changed. */
-export const legalUpdated = "2026-10-23";
+export const legalUpdated = "2026-10-24";
 
 /** "23 Oct 2026" */
 export function shortDate(iso: string): string {

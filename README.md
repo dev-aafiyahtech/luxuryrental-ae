@@ -28,7 +28,7 @@ npm run dev        # then open http://localhost:3000
 
 Checks: `npx tsc --noEmit`, `npx eslint src`, `npx next build`, and with the dev server running `node qa/scripts/audit.mjs` (every route at 390 and 1440 px). How the code is organised and the rules for changing it: [docs/dev/FRONTEND-GUIDE.md](docs/dev/FRONTEND-GUIDE.md).
 
-**What's simulated.** Booking requests, ops actions and payments are stored in the browser (`src/lib/booking/store.ts`), so everything works without a server, but each browser has its own data. Every page shows a demo bar. The WhatsApp buttons open a real chat with +971 52 965 2722. Car pictures are antique-gold line-art illustrations in the slots the AI images will fill.
+**What's simulated.** Booking requests, ops actions, payments, accounts, document uploads and e-signatures are stored in the browser (`src/lib/booking/store.ts`, `src/lib/customer/store.ts`), so everything works without a server, but each browser has its own data. Uploaded files are never stored or sent: only their name and size are kept. Every page shows a demo bar. The WhatsApp buttons open a real chat with +971 52 965 2722. Car pictures are antique-gold line-art illustrations in the slots the AI images will fill.
 
 **Demo walk-through**
 1. Home: scroll the four chapters (night skyline, Velocity Tunnel, Kinetic Sculpture with the top-5 tabs, Reserve). "Pause motion" sits in the chapter rail.
@@ -37,7 +37,10 @@ Checks: `npx tsc --noEmit`, `npx eslint src`, `npx next build`, and with the dev
 4. Confirmation: reference number, **Confirm on WhatsApp**, add to calendar, **Track this request**.
 5. Open **Ops view** (top bar) in a second tab and press **Confirm**. The customer's status page updates live.
 6. On the status page, **Pay advance (demo)**: try a failed, then a successful demo payment. No card details are collected.
-7. Also try: the Phantom (chauffeur first), a Bugatti (price on request), `/book/review?fail=1` (send error and retry), and the dock's "Edit trip" on a phone.
+7. Before the rental: on the status page, upload the driver's documents, then open the **rental agreement** and sign it with a finger, mouse or typed name.
+8. In the ops view, verify or reject the documents and **record the handover check** (km, fuel, damage marks on the car diagram). Back on the agreement page, the customer signs the vehicle check.
+9. **Your account** (person icon in the header): sign in with the one-time code shown on screen to see every request, document and agreement in one place, and edit the driver profile.
+10. Also try: the Phantom (chauffeur first), a Bugatti (price on request), `/book/review?fail=1` (send error and retry), and the dock's "Edit trip" on a phone.
 
 ## View the prototype
 
@@ -62,6 +65,7 @@ docs/
   brief/requirements-answers.md        The client's answers (23 Oct 2026)
   brief/plan-answers.md                Zubair's answers to the plan's first questions (23 Oct 2026)
   brief/assumptions.md                 Every value assumed for the demo, to confirm later (24 Oct 2026)
+  brief/car-image-brief.md             The 58 AI car images the site needs: views, colours, prompt, file names
   plan/PROJECT-PLAN.md                 Project plan: scope, decisions, timeline, budget, launch checklist
   plan/workstreams/                    The 7 specialist sections behind the plan (architecture, Vercel,
                                        car visuals, fleet and pricing, booking rules, UX, SEO)
@@ -89,6 +93,7 @@ qa/
   scripts/contrast.py                  WCAG contrast check for the palette
 tools/
   ui-ux-pro-max.md                     Skill used to generate the design system, with commands
+  ingest-car-images.mjs                Imports car images: `node tools/ingest-car-images.mjs <folder>`
 ```
 
 ## Decisions log

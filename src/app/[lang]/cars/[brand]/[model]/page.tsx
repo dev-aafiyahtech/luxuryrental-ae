@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import type { Metadata } from "next";
@@ -5,6 +6,7 @@ import { notFound } from "next/navigation";
 import { ArrowRight, Check, Info, UserRound } from "lucide-react";
 import type { Car } from "@/content/types";
 import { carPath, cars, getCarByPath } from "@/content/cars";
+import { carMedia, imageStatus } from "@/content/car-media";
 import { carCopy } from "@/content/copy";
 import { rules } from "@/content/rules";
 import { getHref, getT } from "@/i18n/dictionaries";
@@ -119,10 +121,10 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
               <div className="relative overflow-hidden rounded-[24px] border border-line bg-card">
                 <CarArt car={car} view="hero" priority className="aspect-video w-full" sizes="(min-width: 1024px) 66vw, 100vw" />
               </div>
-              {car.images.status !== "photo" && (
+              {imageStatus(car) !== "photo" && (
                 <figcaption className="fine flex items-start gap-2">
                   <Info className="mt-px h-3.5 w-3.5 flex-none text-info" aria-hidden="true" />
-                  <span>{t("car.illustrative")}</span>
+                  <span>{t(imageStatus(car) === "ai-illustrative" ? "car.aiIllustrative" : imageStatus(car) === "ai-verified" ? "car.aiVerified" : "car.illustrative")}</span>
                 </figcaption>
               )}
             </figure>
@@ -241,6 +243,20 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
                 </div>
               </div>
             </Section>
+
+            {(carMedia[car.slug]?.gallery?.length ?? 0) > 1 && (
+              <Section id="gallery" title={t("car.gallery")} lede={imageStatus(car).startsWith("ai") ? t("car.galleryLede", { model: car.model }) : undefined}>
+                <ul className="m-0 grid grid-cols-2 gap-3 p-0 [list-style:none] md:gap-4">
+                  {carMedia[car.slug]!.gallery!.map((g, i) => (
+                    <li key={g.src} className={i === 0 ? "col-span-2" : undefined}>
+                      <a href={g.src} target="_blank" rel="noopener" className="relative block aspect-video overflow-hidden rounded-[16px] border border-line bg-card">
+                        <Image src={g.src} alt={g.alt} fill sizes={i === 0 ? "(min-width: 1024px) 60vw, 100vw" : "(min-width: 1024px) 30vw, 50vw"} className="object-cover transition-transform duration-300 hover:scale-[1.02] motion-reduce:transition-none" />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </Section>
+            )}
 
             <Section id="included" title={t("car.included")} lede={t("car.includedLede")}>
               <Included car={car} today={today} t={t} />

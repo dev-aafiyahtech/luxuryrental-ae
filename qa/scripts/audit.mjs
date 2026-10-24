@@ -8,7 +8,7 @@ const routes = [
   "/cars/type/supercars", "/cars/type/hypercars", "/chauffeur", "/delivery", "/delivery/dubai-airport-dxb", "/delivery/dubai-silicon-oasis",
   "/pricing", "/requirements", "/about", "/faq", "/contact", "/legal/terms-of-rental", "/legal/cancellation", "/legal/privacy",
   "/legal/cookies", "/legal/terms-of-use", "/legal/accessibility", "/book/trip?car=ferrari-296-gts", "/book/extras", "/book/driver",
-  "/book/review", "/book/confirmed", "/booking", "/pay", "/demo/ops", "/no-such-page",
+  "/book/review", "/book/confirmed", "/booking", "/booking/agreement", "/account", "/pay", "/demo/ops", "/no-such-page",
 ];
 const sizes = [{ name: "390", width: 390, height: 844, mobile: true }, { name: "1440", width: 1440, height: 900, mobile: false }];
 

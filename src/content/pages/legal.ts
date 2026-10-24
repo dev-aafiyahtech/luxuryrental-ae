@@ -220,7 +220,7 @@ export const legalDocs: LegalDoc[] = [
       {
         id: "precedence",
         title: "Rental agreement",
-        blocks: ["At handover you sign a rental agreement for the specific car. It sets out the full terms and takes precedence over this summary."],
+        blocks: ["Once we confirm your request, we issue a rental agreement for the specific car. You can sign it online in advance or at handover. It sets out the full terms and takes precedence over this summary. At handover we check the car with you and record its condition, fuel and km in a condition report that you sign too, and we do the same at return."],
       },
       {
         id: "law",
@@ -350,7 +350,9 @@ export const legalDocs: LegalDoc[] = [
           list: [
             "**Website:** basic technical data such as pages visited and device type, through cookieless analytics. See our [cookie policy](/legal/cookies).",
             "**Booking request:** name, mobile or WhatsApp number, email (optional), the car, dates, times and places, self-drive or chauffeur, the main driver's age band, licence country, whether you live in the UAE, your flight number for airport handovers, your notes and a record of the consents you gave.",
-            "**What we do not collect online:** ID or licence images, passport or licence numbers, card details or date of birth.",
+            "**Account (optional):** your name, mobile number, email, licence country and residency, so you can follow your requests and sign documents. You sign in with a one-time code; there is no password.",
+            "**Document uploads (optional):** photos or PDFs of your passport or Emirates ID, visa or entry stamp, driving licence and International Driving Permit, so we can check them before handover. We never collect card details or date of birth online.",
+            "**E-signatures:** your typed name, drawn signature and the time you signed the rental agreement and condition reports.",
             "**At handover:** copies of the passport or Emirates ID, licence and International Driving Permit attached to the rental agreement, the signed agreement, the deposit authorisation reference, condition photos, km and fuel.",
             "**During and after the rental:** fines and toll notices, damage reports, invoices and the deposit release.",
             "**Vehicle tracking:** the car's GPS location, used only as described below.",
@@ -401,7 +403,9 @@ export const legalDocs: LegalDoc[] = [
             head: ["Record", "How long"],
             rows: [
               ["Requests that never become rentals", "Deleted 90 days after the requested end date"],
+              ["Uploaded documents for a request that never becomes a rental", "Deleted 30 days after the requested end date"],
               ["ID and licence copies, completed rental", "12 months after return, or until open fines or claims close"],
+              ["Your account", "Until you delete it, or 24 months after your last sign-in"],
               ["Rental agreements, invoices and payment records", "At least 5 years from the end of the tax period"],
               ["Condition photos", "12 months after return, or until any claim closes"],
               ["GPS trip data", "90 days after return, unless there is an incident"],
@@ -448,7 +452,7 @@ export const legalDocs: LegalDoc[] = [
       {
         id: "demo",
         title: "This demo",
-        blocks: ["While this website runs as a demo, booking requests and payments are simulated. Requests you make are stored only in your own browser and are never sent to us."],
+        blocks: ["While this website runs as a demo, booking requests, accounts, document uploads, signatures and payments are simulated. What you enter is stored only in your own browser and is never sent to us. Uploaded files are not stored at all: the demo keeps only their name and size."],
       },
       {
         id: "changes",
@@ -483,7 +487,10 @@ export const legalDocs: LegalDoc[] = [
               head: ["Name", "Purpose", "How long"],
               rows: [
                 ["lr.trip.v1", "Keeps your trip details (car, dates, handover) while you fill in a booking request", "Until you clear it or start a new trip"],
-                ["lr.bookings.v1", "Demo only: keeps the booking requests you make on this device", "Until you clear your browser data"],
+                ["lr.bookings.v1", "Demo only: keeps the booking requests, signatures and vehicle checks made on this device", "Until you clear your browser data"],
+                ["lr.account.v1", "Demo only: keeps you signed in to your account on this device", "Until you sign out, delete the account or clear your browser data"],
+                ["lr.docs.v1", "Demo only: the names and sizes of documents you upload (never the files)", "Until you remove them or clear your browser data"],
+                ["lr.signin-code.v1", "Demo only: the one-time sign-in code while you sign in (session storage)", "Until you close the tab"],
                 ["lr.home.motionPaused", "Remembers if you paused the homepage animation", "Until you clear your browser data"],
               ],
             },

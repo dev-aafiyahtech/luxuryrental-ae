@@ -67,7 +67,7 @@ export const requirementsPage = {
   documents: {
     visitors: ["Passport", "UAE entry stamp or visa page", "Driving licence", "International Driving Permit, if needed"],
     residents: ["Emirates ID", "UAE driving licence"],
-    note: "Bring the originals to the handover. We check them and hand them straight back, and we never keep your passport or Emirates ID. You do not upload any documents on this website.",
+    note: "You can upload photos of them in advance from your request's status page or your account, so we check them before the day and the handover takes minutes. Bring the originals to the handover too: we check them and hand them straight back, and we never keep your passport or Emirates ID.",
   },
   deposit: () => {
     const { L, S, H } = rules.tiers;
