@@ -20,7 +20,7 @@ export async function ChauffeurCarCard({ car: source, href }: { car: Car; href: 
   return (
     <article className="card card-hover group relative grid content-start overflow-hidden">
       <div className="relative">
-        <CarArt car={car} view="card" className="aspect-[4/3] w-full" sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" />
+        <CarArt car={car} view="card" className="aspect-[4/3] w-full" sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" locale={locale} />
         {car.chauffeurFirst && <span className="badge absolute start-3 top-3">{ui.chauffeurFirst}</span>}
       </div>
       <div className="grid gap-4 p-5 md:p-6">
