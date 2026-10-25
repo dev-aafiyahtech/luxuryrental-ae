@@ -474,14 +474,26 @@ async function processCar(slug, file) {
   // contact shadow on the floor under the car is not part of it. Tyres are always car.
   const band = Math.round(0.5 * (rear.r + front.r) * 0.5);
   mask = open;
+  // Per column, where the run hanging down from the body ends (ground + 1 if it reaches the
+  // floor); then a low percentile over a short window, so a mostly visible strip of lit floor
+  // under the sill defines a clean sill line instead of a comb.
+  const cut = new Int32Array(W).fill(ground + 1);
+  for (let x = X0; x <= X1; x++) {
+    if (!mask[(ground - band - 1) * W + x]) { cut[x] = ground - band; continue; }
+    for (let y = ground - band; y <= ground; y++) if (!mask[y * W + x] && !inWheel(x, y)) { cut[x] = y; break; }
+  }
+  const win = Math.max(4, Math.round(0.03 * Lpx));
+  const cutS = new Int32Array(W);
   for (let x = 0; x < W; x++) {
-    let attached = mask[(ground - band - 1) * W + x] === 1;
+    const vals = [];
+    for (let k = Math.max(X0, x - win); k <= Math.min(X1, x + win); k++) vals.push(cut[k]);
+    cutS[x] = vals.length ? Math.round(percentile(vals, 0.3)) : ground + 1;
+  }
+  for (let x = 0; x < W; x++) {
     for (let y = ground - band; y < H; y++) {
       const p = y * W + x;
-      if (inWheel(x, y)) { mask[p] = y <= ground + 1 ? 1 : 0; continue; }
-      if (y > ground) { mask[p] = 0; continue; }
-      if (!mask[p]) attached = false;
-      if (!attached) mask[p] = 0;
+      if (inWheel(x, y)) mask[p] = y <= ground + 1 ? 1 : 0;
+      else if (y > ground || y >= cutS[x]) mask[p] = 0;
     }
   }
   mask = fillHoles(largestComponent(mask, W, H), W, H);
