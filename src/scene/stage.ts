@@ -184,6 +184,7 @@ export function createStage(opts: StageOptions): Stage {
   // Callouts: DOM labels pinned to projected part anchors while the car is exploded
   const centreV = new THREE.Vector3();
   let calloutsShown = true;
+  const LABEL_W = 250, RAIL_W = 190;
   const placeCallouts = (explode: number) => {
     if (!overlay) return;
     const els = overlay.querySelectorAll<HTMLElement>("[data-anchor]");
@@ -205,7 +206,12 @@ export function createStage(opts: StageOptions): Stage {
       if (!a) return;
       tmp.set(a.p[0] + a.e[0] * ee, a.p[1] + a.e[1] * ee, a.p[2] + a.e[2] * ee).applyMatrix4(rig.matrixWorld).project(camera);
       const x = (tmp.x * 0.5 + 0.5) * width, y = (-tmp.y * 0.5 + 0.5) * height;
-      el.toggleAttribute("data-flip", x < cx);
+      // Labels open away from the car's centre, unless that would run into the chapter rail
+      // (on the end side: right in English, left in Arabic).
+      let flip = x < cx;
+      if (!flip && side > 0 && x + LABEL_W > width - RAIL_W) flip = true;
+      if (flip && side < 0 && x - LABEL_W < RAIL_W) flip = false;
+      el.toggleAttribute("data-flip", flip);
       el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
       el.style.opacity = (tmp.z < 1 ? show : 0).toFixed(3);
     });

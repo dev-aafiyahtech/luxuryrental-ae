@@ -215,7 +215,7 @@ export function TripStep() {
         </div>
       )}
       <div id="trip-car" tabIndex={-1} className="flex items-center gap-4 outline-none">
-        <CarArt car={car} view="card" className="aspect-[4/3] w-24 flex-none rounded-xl border border-line bg-bg" sizes="96px" locale={locale} />
+        <CarArt car={car} view="card" className="aspect-[4/3] w-24 flex-none rounded-xl border border-line bg-bg" sizes="96px" locale={locale} tag={false} />
         <div className="grid min-w-0 flex-1 gap-0.5">
           <p className="font-semibold leading-snug">{car.name}</p>
           <p className="text-[12px] text-muted">{t("flow.illustration")}</p>
