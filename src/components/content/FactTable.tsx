@@ -55,7 +55,7 @@ export function FactTable({
         )}
       >
         <table className={clsx("tabular w-full border-separate border-spacing-0 text-[14px] leading-snug", stack && "max-md:block")} style={!stack && minWidth ? { minWidth } : undefined}>
-          <caption id={captionId} className={clsx("text-start", captionHidden ? "sr-only" : "px-5 pb-1 pt-5 font-semibold text-fg max-md:px-0", stack && !captionHidden && "md:px-5")}>
+          <caption id={captionId} className={clsx("text-start", captionHidden ? "sr-only" : "px-5 pb-1 pt-5 font-semibold text-fg max-md:px-0", stack && !captionHidden && "md:px-5 max-md:block")}>
             {caption}
           </caption>
           <thead className={clsx(stack && "max-md:sr-only")}>

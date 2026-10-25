@@ -3,7 +3,7 @@ import { rules } from "@/content/rules";
 import { site } from "@/content/site";
 import type { Tier } from "@/content/types";
 import { formatAED, formatPerDay } from "@/lib/format";
-import type { FaqEntry } from "../faq";
+import { faqsById, type FaqEntry } from "./faq";
 import type { requirementsPage as RequirementsPageEn } from "../requirements";
 import {
   carsInTier, commonKmPerDay, countText, depositRange, festiveDates, festiveMinDays, flagshipCars, hypercars,
@@ -139,34 +139,14 @@ export const requirementsPage: typeof RequirementsPageEn = {
     "يُحتسب وقت الانتظار ضمن مدة الحجز. وتُحتسب رسوم المواقف بتكلفتها الفعلية.",
     "يلتزم سائقك الخاص بقوانين السير في دولة الإمارات، ويحق له رفض أي طلب غير آمن أو مخالف للقانون.",
   ],
-  // The last four entries mirror faq.ts by id ("idp", "documents", "deposit-release",
-  // "insurance"). Switch to faqsById from ./faq once the Arabic FAQ module ships.
+  // The last four entries come from the Arabic FAQ by id, so the two pages cannot drift.
   faqs: (): FaqEntry[] => [
     {
       id: "under-25",
       q: `هل يمكنني استئجار سيارة إذا كان عمري أقل من ${tierL.minAge} عاماً؟`,
       a: `ليس للقيادة بنفسك. يجب أن يكون السائق الرئيسي وأي سائقين إضافيين بعمر ${tierL.minAge} عاماً أو أكثر لجميع السيارات التي نؤجرها، و${tierH.minAge} عاماً أو أكثر لسيارات Bugatti. ولا توجد قاعدة عمرية للركاب في حجوزات السائق الخاص، لذا فإن [خدمة السائق الخاص](/chauffeur) لدينا هي طريقتك للتنقل في إحدى سياراتنا.`,
     },
-    {
-      id: "idp",
-      q: "هل أحتاج إلى رخصة قيادة دولية؟",
-      a: "يعتمد ذلك على مكان إصدار رخصتك. يجب على المقيمين في دولة الإمارات القيادة برخصة إماراتية. ويمكن للزوار القيادة برخصة من إحدى دول مجلس التعاون الخليجي، أو من دولة مدرجة في قائمة الدول المعتمدة لدى هيئة الطرق والمواصلات، مثل المملكة المتحدة ودول الاتحاد الأوروبي والولايات المتحدة وكندا وأستراليا واليابان وكوريا الجنوبية وسنغافورة. أما الزوار الذين يحملون رخصة من أي مكان آخر فيحتاجون إلى رخصة قيادة دولية إلى جانب رخصة بلدهم.\n\nأخبرنا ببلد إصدار رخصتك عند إرسال الطلب، وسنتحقق منها عبر واتساب قبل أن نؤكد الحجز.",
-    },
-    {
-      id: "documents",
-      q: "ما المستندات التي يجب أن أحضرها؟",
-      a: "**الزوار:** جواز السفر، وختم الدخول إلى الإمارات أو صفحة التأشيرة، ورخصة القيادة، ورخصة القيادة الدولية إذا كنت تحتاج إليها. **المقيمون:** بطاقة الهوية الإماراتية ورخصة القيادة الإماراتية.\n\nأحضر المستندات الأصلية إلى التسليم. نتحقق منها ونعيدها إليك فوراً، ولا نحتفظ أبداً بجواز سفرك أو بطاقة هويتك الإماراتية.",
-    },
-    {
-      id: "deposit-release",
-      q: "متى أسترد مبلغ التأمين؟",
-      a: `نُفرج عن المبلغ المحجوز بعد ${sameRelease ? days(tierL.releaseDays) : `${days(tierL.releaseDays)} (${tierName("L", A)}) أو ${days(tierS.releaseDays)} (${tierName("S", A)})`} من إرجاع السيارة، أو بعد ${days(tierH.releaseDays)} لسيارات Bugatti، بعد خصم أي مخالفات أو رسوم طرق أو رسوم أخرى. وقد يحتاج مصرفك إلى مدة إضافية تتراوح ${workingDays(rules.bankReleaseWorkingDays)} لإظهاره. وإذا وصلت مخالفة بعد الإفراج عن المبلغ، نحصّلها من البطاقة المسجلة لدينا ونرسل إليك إشعار المخالفة.`,
-    },
-    {
-      id: "insurance",
-      q: "هل التأمين مشمول؟",
-      a: `نعم، يشمل كل إيجار تأميناً شاملاً. وعن كل مطالبة بأضرار تدفع ما لا يزيد على مبلغ التحمّل: ${aed(tierL.excess)} للسيارات الفاخرة، و${aed(tierS.excess)} للسيارات الخارقة، و${aed(tierH.excess)} لسيارات Bugatti.\n\nلا يسري التأمين على القيادة تحت تأثير الكحول أو المخدرات، أو القيادة من قِبل سائقين غير مذكورين في العقد، أو السباقات أو الاستخدام على الحلبات، أو القيادة على الطرق الوعرة أو الرمال، أو مغادرة دولة الإمارات، أو الأضرار التي لا يوجد بشأنها تقرير من الشرطة.`,
-    },
+    ...faqsById("idp", "documents", "deposit-release", "insurance"),
   ],
   ui: {
     crumbs: { home: "الرئيسية", page: "متطلبات الإيجار" },

@@ -135,7 +135,7 @@ export const faqGroups: FaqGroup[] = [
       {
         id: "deposit-release",
         q: "متى أستعيد مبلغ التأمين؟",
-        a: `نُلغي الحجز على بطاقتك بعد ${sameRelease ? countText(L.releaseDays, "day", A) : `${countText(L.releaseDays, "day", A)} (${tierName("L", A)}) أو ${countText(S.releaseDays, "day", A)} (${tierName("S", A)})`} من إعادة السيارة، أو بعد ${countText(H.releaseDays, "day", A)} لسيارات Bugatti، بعد خصم أي مخالفات أو رسوم طرق أو رسوم أخرى. وقد يحتاج البنك بعد ذلك إلى ${span(rules.bankReleaseWorkingDays)} يوم عمل حتى يظهر المبلغ في حسابك. وإذا وصلت مخالفة بعد إلغاء الحجز، نخصمها من البطاقة المسجلة ونرسل إليك إشعار المخالفة.`,
+        a: `نُفرج عن مبلغ التأمين المحجوز بعد ${sameRelease ? countText(L.releaseDays, "day", A) : `${countText(L.releaseDays, "day", A)} (${tierName("L", A)}) أو ${countText(S.releaseDays, "day", A)} (${tierName("S", A)})`} من إعادة السيارة، أو بعد ${countText(H.releaseDays, "day", A)} لسيارات Bugatti، بعد خصم أي مخالفات أو رسوم طرق أو رسوم أخرى. وقد يحتاج البنك بعد ذلك إلى ${span(rules.bankReleaseWorkingDays)} يوم عمل حتى يظهر المبلغ في حسابك. وإذا وصلت مخالفة بعد الإفراج عن المبلغ، نخصمها من البطاقة المسجلة ونرسل إليك إشعار المخالفة.`,
       },
       {
         id: "payment",
@@ -166,7 +166,7 @@ export const faqGroups: FaqGroup[] = [
       {
         id: "salik",
         q: "كيف تُحتسب رسوم سالك؟",
-        a: `سالك هو نظام تعرفة الطرق في دبي. تُحتسب كل مرة عبور بتعرفة سالك، ${salikTariff(A)}، إضافة إلى رسوم إدارية قدرها ${aed(rules.tollAdminFee)}. وتُحتسب رسوم درب في أبوظبي (${aed(rules.tolls.darbPeak)} في أوقات الذروة) بالطريقة نفسها. نخصمها من مبلغ التأمين قبل إلغاء الحجز على بطاقتك. وفي طلبات السائق الخاص، تكون رسوم سالك ودرب مشمولة في السعر.`,
+        a: `سالك هو نظام تعرفة الطرق في دبي. تُحتسب كل مرة عبور بتعرفة سالك، ${salikTariff(A)}، إضافة إلى رسوم إدارية قدرها ${aed(rules.tollAdminFee)}. وتُحتسب رسوم درب في أبوظبي (${aed(rules.tolls.darbPeak)} في أوقات الذروة) بالطريقة نفسها. نخصمها من مبلغ التأمين قبل الإفراج عنه. وفي طلبات السائق الخاص، تكون رسوم سالك ودرب مشمولة في السعر.`,
       },
       {
         id: "fines",
