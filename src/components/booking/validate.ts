@@ -24,9 +24,9 @@ export const tripFieldId: Record<QuoteField, string> = {
 const isAirport = (slug?: string) => !!slug && getZone(slug)?.kind === "airport";
 
 /** Step 1 errors: the quote's issues, the car's availability and the flight-number format. */
-export function tripErrors(trip: TripDraft, q: Quote | null, service: ServiceMode, t: T, clash?: Busy | null, carName?: string): FormError[] {
+export function tripErrors(trip: TripDraft, q: Quote | null, service: ServiceMode, t: T, clash?: Busy | null, carName?: string, locale?: string): FormError[] {
   const out: FormError[] = [];
-  if (clash) out.push({ id: tripFieldId.pickupDate, message: clashMessage(clash, t, carName) });
+  if (clash) out.push({ id: tripFieldId.pickupDate, message: clashMessage(clash, t, carName, locale) });
   for (const i of q?.issues ?? []) {
     if (!out.some((e) => e.message === i.message)) out.push({ id: tripFieldId[i.field], message: i.message });
   }

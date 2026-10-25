@@ -78,22 +78,25 @@ export async function submitBookingRequest(trip: TripDraft, quote: Quote, carNam
     trip: structuredClone(trip),
     quote: structuredClone(quote),
     events: [
-      { at: now, status: "requested", by: "customer", note: "Request sent from the website" },
-      { at: now, status: "requested", by: "system", note: "Ops emailed (simulated)" },
+      { at: now, status: "requested", by: "customer", note: "Request sent from the website", code: "requestSent" },
+      { at: now, status: "requested", by: "system", note: "Ops emailed (simulated)", code: "opsEmailed" },
     ],
   };
   write([record, ...read()]);
   return record;
 }
 
-/** Ops actions (email links / ops console) and customer cancellation. */
-export async function updateBookingStatus(ref: string, status: BookingStatus, by: "customer" | "ops" | "system", note?: string): Promise<BookingRecord> {
+/**
+ * Ops actions (email links / ops console) and customer cancellation. `code` (optional) names the
+ * note as a message id, so the history shows it in each viewer's language.
+ */
+export async function updateBookingStatus(ref: string, status: BookingStatus, by: "customer" | "ops" | "system", note?: string, code?: string): Promise<BookingRecord> {
   await wait(400);
   const list = read();
   const current = list.find((b) => b.ref === ref);
   if (!current) throw new Error(`Booking ${ref} not found`);
   if (!transitions[current.status].includes(status)) throw new Error(`Can't change ${current.status} to ${status}`);
-  const updated: BookingRecord = { ...current, status, events: [...current.events, { at: new Date().toISOString(), status, by, note }] };
+  const updated: BookingRecord = { ...current, status, events: [...current.events, { at: new Date().toISOString(), status, by, note, ...(code ? { code } : {}) }] };
   write(list.map((b) => (b.ref === ref ? updated : b)));
   return updated;
 }
@@ -110,7 +113,7 @@ export async function recordDemoPayment(ref: string, amount: number, kind: "adva
     ...current,
     status: "paid",
     payment: { amount, kind, reference: `DEMO-${current.ref.slice(3)}`, paidAt, method: "demo-card" },
-    events: [...current.events, { at: paidAt, status: "paid", by: "system", note: "Demo payment, nothing charged" }],
+    events: [...current.events, { at: paidAt, status: "paid", by: "system", note: "Demo payment, nothing charged", code: "demoPayment" }],
   };
   write(list.map((b) => (b.ref === ref ? updated : b)));
   return updated;
@@ -131,7 +134,10 @@ function patch(ref: string, fn: (b: BookingRecord) => BookingRecord): BookingRec
   return updated;
 }
 
-const note = (b: BookingRecord, by: "customer" | "ops" | "system", text: string) => [...b.events, { at: new Date().toISOString(), status: b.status, by, note: text }];
+const note = (b: BookingRecord, by: "customer" | "ops" | "system", text: string, code?: string, vars?: Record<string, string | number>) => [
+  ...b.events,
+  { at: new Date().toISOString(), status: b.status, by, note: text, ...(code ? { code } : {}), ...(vars ? { vars } : {}) },
+];
 
 /** The agreement for a booking: the stored one, or a fresh unsigned one once the request is confirmed. */
 export function agreementFor(b: BookingRecord): AgreementRecord | undefined {
@@ -149,7 +155,7 @@ export async function signAgreement(ref: string, input: { name: string; signatur
     if (!base) throw new Error("The agreement opens once we confirm your request");
     if (base.signedAt) throw new Error("This agreement is already signed");
     const signedAt = new Date().toISOString();
-    return { ...b, agreement: { ...base, signedAt, signerName: input.name.trim(), signature: input.signature, accepted: input.accepted }, events: note(b, "customer", `Rental agreement ${base.number} e-signed`) };
+    return { ...b, agreement: { ...base, signedAt, signerName: input.name.trim(), signature: input.signature, accepted: input.accepted }, events: note(b, "customer", `Rental agreement ${base.number} e-signed`, "agreementSigned", { number: base.number }) };
   });
 }
 
@@ -159,7 +165,8 @@ export async function recordConditionReport(ref: string, report: Omit<ConditionR
   return patch(ref, (b) => {
     const full: ConditionReport = { ...report, recordedAt: new Date().toISOString() };
     const key = report.stage === "handover" ? "handoverCheck" : "returnCheck";
-    return { ...b, [key]: full, events: note(b, "ops", `${report.stage === "handover" ? "Handover" : "Return"} check recorded: ${report.odometerKm.toLocaleString("en")} km, fuel ${report.fuelEighths}/8, ${report.damages.length} damage mark(s)`) };
+    const vars = { km: report.odometerKm, fuel: report.fuelEighths, marks: report.damages.length };
+    return { ...b, [key]: full, events: note(b, "ops", `${report.stage === "handover" ? "Handover" : "Return"} check recorded: ${report.odometerKm.toLocaleString("en")} km, fuel ${report.fuelEighths}/8, ${report.damages.length} damage mark(s)`, `${report.stage}CheckRecorded`, vars) };
   });
 }
 
@@ -171,7 +178,7 @@ export async function signConditionReport(ref: string, stage: ConditionReport["s
     const report = b[key];
     if (!report) throw new Error("No condition report to sign yet");
     const signedAt = new Date().toISOString();
-    return { ...b, [key]: { ...report, customerSignedAt: signedAt, customerName: input.name.trim(), customerSignature: input.signature }, events: note(b, "customer", `${stage === "handover" ? "Handover" : "Return"} condition report signed`) };
+    return { ...b, [key]: { ...report, customerSignedAt: signedAt, customerName: input.name.trim(), customerSignature: input.signature }, events: note(b, "customer", `${stage === "handover" ? "Handover" : "Return"} condition report signed`, `${stage}CheckSigned`) };
   });
 }
 

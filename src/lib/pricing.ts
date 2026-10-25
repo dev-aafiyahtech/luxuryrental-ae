@@ -1,8 +1,10 @@
 import type { Car, Offer, Season } from "@/content/types";
 import { getZone } from "@/content/zones";
 import { offers, rules, seasonFor, seasons } from "@/content/rules";
+import { localizeOffer, localizeZone, seasonName } from "@/content/localize";
+import { arabicCount, arabicUnits } from "@/content/ar/data";
 import { dayOfWeek, isValidIsoDate, isValidTime, isWithin, minutesNow, toMinutes, todayInDubai } from "./dates";
-import { formatAED } from "./format";
+import { formatAED as aed } from "./format";
 
 // One pricing module for the whole site (plan D-10). It is pure: the same function gives
 // the instant preview in the browser and, later, the authoritative quote on the server.
@@ -24,6 +26,8 @@ export interface QuoteInput {
   chauffeur?: { package: ChauffeurPackage; hours?: number };
   /** The moment the quote is made; defaults to now. Used for lead time and offer validity. */
   now?: Date;
+  /** Language of line labels, details and issue messages ("en" default, or "ar"). Amounts and ids never change. */
+  locale?: string;
 }
 
 export type QuoteField = "car" | "pickupDate" | "pickupTime" | "returnDate" | "returnTime" | "pickupZone" | "returnZone" | "hours";
@@ -64,6 +68,121 @@ export interface Quote {
 }
 
 const round50 = (n: number) => Math.round(n / 50) * 50;
+
+/* ---------- words (English and Arabic; numbers and ids are the same in both) ---------- */
+
+/** "3 أيام", "يومان" (nominative) or "يومين" (after a preposition), "12 يوماً": Arabic agreement from content/ar/data.ts. */
+export const arabicDays = (n: number, nominative = true) => arabicCount(n, arabicUnits.day, nominative);
+/** "5 ساعات", "ساعتان" / "ساعتين", "12 ساعة" */
+export const arabicHours = (n: number, nominative = true) => arabicCount(n, arabicUnits.hour, nominative);
+/** Keeps a Latin run (a time range, "+20%") in reading order inside Arabic text. */
+const ltr = (s: string) => `\u2066${s}\u2069`;
+/** "عرض …" (Arabic offer names usually start with the word already). */
+const offerAr = (name: string) => (name.startsWith("عرض") ? name : `عرض ${name}`);
+
+const EN = {
+  pickupDate: "Choose a pickup date.",
+  returnDate: "Choose a return date.",
+  noticeDays: (d: number) => `This car needs ${d} days' notice.`,
+  noticeHours: (h: number) => `Pickup needs at least ${h} hours' notice. Need it sooner? Ask us on WhatsApp.`,
+  maxAdvance: "You can book up to 12 months ahead.",
+  returnAfter: "Return must be after pickup.",
+  minDays: (n: number) => `The minimum rental for these dates is ${n} days.`,
+  maxOnline: "Rentals over 30 days are quoted personally. Message us on WhatsApp.",
+  monthly: (days: number) => `Monthly rate, ${days} days`,
+  ladder: (days: number, rate: string, pct: number) => `${days} days × ${rate} (${pct}% multi-day rate)`,
+  perDay: (days: number, rate: string) => `${days} ${days === 1 ? "day" : "days"} × ${rate}`,
+  capped: (days: number) => `${days} days, capped at the 30-day rate`,
+  rental: (car: string, season?: string) => `${car}${season ? `, ${season.toLowerCase()}` : ""}`,
+  weekday: "Weekday rate",
+  weekdayDetail: "Mon–Thu pickup and return",
+  offer: (name: string) => `${name} offer`,
+  longOfferDetail: "10% off your first booking of 3+ days",
+  outsideZones: "Deliveries outside Dubai, Sharjah, Ajman and Abu Dhabi are quoted personally.",
+  delivery: "Delivery",
+  collection: "Collection",
+  free: " · free",
+  foundingNote: (name: string) => ` · ${name} offer`,
+  ooh: "Out-of-hours handover",
+  oohDetail: (n: number, from: string, to: string) => `${n} × outside ${from}–${to}`,
+  fullCover: "Full Cover",
+  fullCoverDetail: (days: number, perDay: string, excess: string) => `${days} days × ${perDay}, excess ${excess}`,
+  driver: "Additional driver",
+  driverDetail: (n: number, days: number, fee: string) => `${n} × ${days} days × ${fee}`,
+  seat: "Child seat",
+  seatDetail: (n: number) => `${n} × free on request`,
+  noChauffeur: "Chauffeur service is available on the Rolls-Royce Phantom, Rolls-Royce Cullinan and Bentley Bentayga.",
+  chooseDate: "Choose a date.",
+  chauffeurNotice: (h: number) => `Chauffeur bookings need ${h} hours' notice. Need it sooner? Ask us on WhatsApp.`,
+  minHours: (n: number) => `The minimum is ${n} hours.`,
+  hourly: (hours: number, rate: string) => `${hours} hours × ${rate}`,
+  halfDay: (hours: number) => `Half day, ${hours} hours`,
+  fullDay: (hours: number) => `Full day, ${hours} hours`,
+  airport: "Airport transfer, one way, within Dubai",
+  withChauffeur: (car: string) => `${car} with chauffeur`,
+  night: "Night surcharge",
+  nightDetail: (pct: number) => `Starts between 00:00 and 06:00 (+${pct}%)`,
+  festive: "Festive peak",
+  festiveDetail: (pct: number) => `20 Dec – 5 Jan (+${pct}%)`,
+  emiratesOnRequest: "Trips to these emirates are quoted personally.",
+  outsideDubai: "Outside Dubai",
+  introOffer: (name: string) => `${name} offer`,
+  introDetail: "One free hour",
+};
+type Words = typeof EN;
+
+// Arabic (UAE): Modern Standard Arabic, Western digits, amounts as "3,500 درهم". Demo translation, to be reviewed.
+const AR: Words = {
+  pickupDate: "اختر تاريخ الاستلام.",
+  returnDate: "اختر تاريخ الإرجاع.",
+  noticeDays: (d) => `يلزم طلب هذه السيارة قبل ${arabicDays(d, false)} على الأقل.`,
+  noticeHours: (h) => `يلزم طلب الاستلام قبل ${arabicHours(h, false)} على الأقل. تحتاجها في وقت أقرب؟ تواصل معنا عبر واتساب.`,
+  maxAdvance: "يمكنك إرسال طلبك قبل 12 شهرًا كحد أقصى.",
+  returnAfter: "يجب أن يكون موعد الإرجاع بعد موعد الاستلام.",
+  minDays: (n) => `الحد الأدنى لمدة الإيجار في هذه التواريخ ${arabicDays(n)}.`,
+  maxOnline: "نقدّم عرض سعر خاصًا للإيجار لأكثر من 30 يومًا. راسلنا عبر واتساب.",
+  monthly: (days) => `السعر الشهري، ${arabicDays(days)}`,
+  ladder: (days, rate, pct) => `${arabicDays(days)} × ${rate} (خصم ${pct}% للإيجار لعدة أيام)`,
+  perDay: (days, rate) => `${arabicDays(days)} × ${rate}`,
+  capped: (days) => `${arabicDays(days)}، بحدّ أقصى سعر 30 يومًا`,
+  rental: (car, season) => `${car}${season ? `، ${season}` : ""}`,
+  weekday: "سعر أيام الأسبوع",
+  weekdayDetail: "الاستلام والإرجاع من الاثنين إلى الخميس",
+  offer: (name) => offerAr(name),
+  longOfferDetail: "خصم 10% على أول إيجار لمدة 3 أيام أو أكثر",
+  outsideZones: "نقدّم عرض سعر خاصًا للتوصيل خارج دبي والشارقة وعجمان وأبوظبي.",
+  delivery: "التوصيل",
+  collection: "استلام السيارة منك",
+  free: " · مجانًا",
+  foundingNote: (name) => ` · ${offerAr(name)}`,
+  ooh: "تسليم خارج ساعات العمل",
+  oohDetail: (n, from, to) => `${n} × خارج ${ltr(`${from}–${to}`)}`,
+  fullCover: "التغطية الشاملة",
+  fullCoverDetail: (days, perDay, excess) => `${arabicDays(days)} × ${perDay}، مبلغ التحمّل ${excess}`,
+  driver: "سائق إضافي",
+  driverDetail: (n, days, fee) => `${n} × ${arabicDays(days)} × ${fee}`,
+  seat: "مقعد أطفال",
+  seatDetail: (n) => `${n} × مجانًا عند الطلب`,
+  noChauffeur: "خدمة السائق الخاص متاحة على Rolls-Royce Phantom وRolls-Royce Cullinan وBentley Bentayga.",
+  chooseDate: "اختر تاريخًا.",
+  chauffeurNotice: (h) => `تحتاج طلبات السائق الخاص إلى ${arabicHours(h, false)} على الأقل مسبقًا. تحتاجها في وقت أقرب؟ تواصل معنا عبر واتساب.`,
+  minHours: (n) => `الحد الأدنى ${arabicHours(n)}.`,
+  hourly: (hours, rate) => `${arabicHours(hours)} × ${rate}`,
+  halfDay: (hours) => `نصف يوم، ${arabicHours(hours)}`,
+  fullDay: (hours) => `يوم كامل، ${arabicHours(hours)}`,
+  airport: "توصيل من المطار أو إليه، اتجاه واحد، داخل دبي",
+  withChauffeur: (car) => `${car} مع سائق خاص`,
+  night: "رسوم الرحلات الليلية",
+  nightDetail: (pct) => `تبدأ بين 00:00 و06:00 (${ltr(`+${pct}%`)})`,
+  festive: "ذروة موسم الأعياد",
+  festiveDetail: (pct) => `20 ديسمبر – 5 يناير (${ltr(`+${pct}%`)})`,
+  emiratesOnRequest: "نقدّم عرض سعر خاصًا للرحلات إلى هذه الإمارات.",
+  outsideDubai: "خارج دبي",
+  introOffer: (name) => offerAr(name),
+  introDetail: "ساعة مجانية",
+};
+
+const wordsFor = (locale?: string): Words => (locale === "ar" ? AR : EN);
 
 /** Daily rate in a season. Peak uses the approved peak rate card. */
 export function seasonalDaily(car: Car, season: Season): number {
@@ -117,7 +236,9 @@ const offerValid = (id: string, today: string) => {
 };
 
 export function quote(input: QuoteInput): Quote {
-  const { car, service } = input;
+  const { car, service, locale } = input;
+  const w = wordsFor(locale);
+  const formatAED = (n: number) => aed(n, locale);
   const now = input.now ?? new Date();
   const today = todayInDubai(now);
   const pickupDate = input.pickupDate && isValidIsoDate(input.pickupDate) ? input.pickupDate : undefined;
@@ -134,8 +255,8 @@ export function quote(input: QuoteInput): Quote {
   const pickupTime = isValidTime(input.pickupTime) ? input.pickupTime : "10:00";
   const returnTime = isValidTime(input.returnTime) ? input.returnTime : pickupTime;
   const returnDate = input.returnDate && isValidIsoDate(input.returnDate) ? input.returnDate : undefined;
-  if (!pickupDate) issues.push({ field: "pickupDate", message: "Choose a pickup date." });
-  if (!returnDate) issues.push({ field: "returnDate", message: "Choose a return date." });
+  if (!pickupDate) issues.push({ field: "pickupDate", message: w.pickupDate });
+  if (!returnDate) issues.push({ field: "returnDate", message: w.returnDate });
   if (!pickupDate || !returnDate) return base;
 
   const start = toMinutes(pickupDate, pickupTime);
@@ -143,13 +264,13 @@ export function quote(input: QuoteInput): Quote {
   if (start < minutesNow(now) + car.leadHours * 60) {
     issues.push({
       field: "pickupDate",
-      message: car.leadHours >= 24 ? `This car needs ${car.leadHours / 24} days' notice.` : `Pickup needs at least ${car.leadHours} hours' notice. Need it sooner? Ask us on WhatsApp.`,
+      message: car.leadHours >= 24 ? w.noticeDays(car.leadHours / 24) : w.noticeHours(car.leadHours),
       resolution: car.leadHours < 24 ? "whatsapp" : undefined,
     });
   }
-  if (toMinutes(pickupDate) > toMinutes(today) + rules.maxAdvanceDays * 1440) issues.push({ field: "pickupDate", message: "You can book up to 12 months ahead." });
+  if (toMinutes(pickupDate) > toMinutes(today) + rules.maxAdvanceDays * 1440) issues.push({ field: "pickupDate", message: w.maxAdvance });
   if (end <= start) {
-    issues.push({ field: "returnDate", message: "Return must be after pickup." });
+    issues.push({ field: "returnDate", message: w.returnAfter });
     return base;
   }
 
@@ -157,8 +278,8 @@ export function quote(input: QuoteInput): Quote {
   const minDays = minDaysFor(car, pickupDate);
   base.days = days;
   base.minDays = minDays;
-  if (days < minDays) issues.push({ field: "returnDate", message: `The minimum rental for these dates is ${minDays} days.` });
-  if (days > rules.maxOnlineDays) issues.push({ field: "returnDate", message: "Rentals over 30 days are quoted personally. Message us on WhatsApp.", resolution: "whatsapp" });
+  if (days < minDays) issues.push({ field: "returnDate", message: w.minDays(minDays) });
+  if (days > rules.maxOnlineDays) issues.push({ field: "returnDate", message: w.maxOnline, resolution: "whatsapp" });
 
   // Rental
   const daily = seasonalDaily(car, season);
@@ -166,22 +287,22 @@ export function quote(input: QuoteInput): Quote {
   let detail: string;
   if (days >= 30 && car.rates.monthly) {
     rental = Math.round((car.rates.monthly / 30) * days);
-    detail = `Monthly rate, ${days} days`;
+    detail = w.monthly(days);
   } else {
     const pct = ladderPct(days);
     rental = Math.round(daily * (pct / 100) * days);
-    detail = pct < 100 ? `${days} days × ${formatAED(Math.round(daily * (pct / 100)))} (${Math.round(100 - pct)}% multi-day rate)` : `${days} ${days === 1 ? "day" : "days"} × ${formatAED(daily)}`;
+    detail = pct < 100 ? w.ladder(days, formatAED(Math.round(daily * (pct / 100))), Math.round(100 - pct)) : w.perDay(days, formatAED(daily));
     if (car.rates.monthly && days >= 24 && rental > car.rates.monthly) {
       rental = car.rates.monthly;
-      detail = `${days} days, capped at the 30-day rate`;
+      detail = w.capped(days);
     }
   }
-  lines.push({ id: "rental", label: `${car.name}${season.id === "standard" ? "" : `, ${season.name.toLowerCase()}`}`, detail, amount: rental, kind: "rate" });
+  lines.push({ id: "rental", label: w.rental(car.name, season.id === "standard" ? undefined : seasonName(season, locale)), detail, amount: rental, kind: "rate" });
 
   // Weekday rate: Mon–Thu pickup and return, standard and summer only
   const weekday = (d: string) => [1, 2, 3, 4].includes(dayOfWeek(d));
   if ((season.id === "standard" || season.id === "summer") && weekday(pickupDate) && weekday(returnDate) && !car.rates.onRequest) {
-    lines.push({ id: "weekday", label: "Weekday rate", detail: "Mon–Thu pickup and return", amount: -Math.round(rental * rules.weekdayDiscountPct / 100), kind: "discount" });
+    lines.push({ id: "weekday", label: w.weekday, detail: w.weekdayDetail, amount: -Math.round(rental * rules.weekdayDiscountPct / 100), kind: "discount" });
   }
 
   // Offer: one per booking, the one worth most to the customer
@@ -194,7 +315,7 @@ export function quote(input: QuoteInput): Quote {
   let offer: Offer | undefined;
   if (longRental && longValue > foundingValue) {
     offer = longRental;
-    lines.push({ id: "offer", label: `${longRental.name} offer`, detail: "10% off your first booking of 3+ days", amount: -longValue, kind: "discount" });
+    lines.push({ id: "offer", label: w.offer(localizeOffer(longRental, locale).name), detail: w.longOfferDetail, amount: -longValue, kind: "discount" });
   } else if (founding) {
     offer = founding;
   }
@@ -204,22 +325,23 @@ export function quote(input: QuoteInput): Quote {
   const pickupFee = handoverFee(input.pickupZone, days, waiveDubai);
   const returnZone = input.returnZone ?? input.pickupZone;
   const returnFee = handoverFee(returnZone, days, waiveDubai);
-  if (pickupFee.onRequest || returnFee.onRequest) issues.push({ field: "pickupZone", message: "Deliveries outside Dubai, Sharjah, Ajman and Abu Dhabi are quoted personally.", resolution: "whatsapp" });
-  const zoneLabel = (slug?: string) => (slug ? getZone(slug)?.name ?? "" : "");
-  if (input.pickupZone) lines.push({ id: "pickup", label: "Delivery", detail: zoneLabel(input.pickupZone) + (pickupFee.amount === 0 && input.pickupZone !== "dso" ? (waiveDubai && input.pickupZone === "dubai" ? " · Founding Client offer" : " · free") : ""), amount: pickupFee.amount, kind: "fee" });
-  if (returnZone) lines.push({ id: "return", label: "Collection", detail: zoneLabel(returnZone) + (returnFee.amount === 0 && returnZone !== "dso" ? (waiveDubai && returnZone === "dubai" ? " · Founding Client offer" : " · free") : ""), amount: returnFee.amount, kind: "fee" });
+  if (pickupFee.onRequest || returnFee.onRequest) issues.push({ field: "pickupZone", message: w.outsideZones, resolution: "whatsapp" });
+  const zoneLabel = (slug?: string) => (slug ? localizeZone(getZone(slug), locale)?.name ?? "" : "");
+  const foundingNote = w.foundingNote(localizeOffer(offers.find((o) => o.id === "founding-client")!, locale).name);
+  if (input.pickupZone) lines.push({ id: "pickup", label: w.delivery, detail: zoneLabel(input.pickupZone) + (pickupFee.amount === 0 && input.pickupZone !== "dso" ? (waiveDubai && input.pickupZone === "dubai" ? foundingNote : w.free) : ""), amount: pickupFee.amount, kind: "fee" });
+  if (returnZone) lines.push({ id: "return", label: w.collection, detail: zoneLabel(returnZone) + (returnFee.amount === 0 && returnZone !== "dso" ? (waiveDubai && returnZone === "dubai" ? foundingNote : w.free) : ""), amount: returnFee.amount, kind: "fee" });
 
   const { from, to } = rules.handoverHours;
   const ooh = [pickupTime, returnTime].filter((t) => !isWithin(t, from, to)).length;
-  if (ooh) lines.push({ id: "out-of-hours", label: "Out-of-hours handover", detail: `${ooh} × outside ${from}–${to}`, amount: ooh * rules.outOfHoursFee, kind: "fee" });
+  if (ooh) lines.push({ id: "out-of-hours", label: w.ooh, detail: w.oohDetail(ooh, from, to), amount: ooh * rules.outOfHoursFee, kind: "fee" });
 
   // Extras
   const tier = rules.tiers[car.tier];
-  if (input.extras?.fullCover) lines.push({ id: "full-cover", label: "Full Cover", detail: `${days} days × ${formatAED(tier.fullCoverPerDay)}, excess ${formatAED(tier.fullCoverExcess)}`, amount: tier.fullCoverPerDay * days, kind: "extra" });
+  if (input.extras?.fullCover) lines.push({ id: "full-cover", label: w.fullCover, detail: w.fullCoverDetail(days, formatAED(tier.fullCoverPerDay), formatAED(tier.fullCoverExcess)), amount: tier.fullCoverPerDay * days, kind: "extra" });
   const drivers = input.extras?.additionalDrivers ?? 0;
-  if (drivers > 0) lines.push({ id: "drivers", label: "Additional driver", detail: `${drivers} × ${days} days × ${formatAED(rules.additionalDriverPerDay)}`, amount: drivers * days * rules.additionalDriverPerDay, kind: "extra" });
+  if (drivers > 0) lines.push({ id: "drivers", label: w.driver, detail: w.driverDetail(drivers, days, formatAED(rules.additionalDriverPerDay)), amount: drivers * days * rules.additionalDriverPerDay, kind: "extra" });
   const seats = input.extras?.childSeats ?? 0;
-  if (seats > 0) lines.push({ id: "child-seats", label: "Child seat", detail: `${seats} × free on request`, amount: 0, kind: "extra" });
+  if (seats > 0) lines.push({ id: "child-seats", label: w.seat, detail: w.seatDetail(seats), amount: 0, kind: "extra" });
 
   const total = lines.reduce((sum, l) => sum + l.amount, 0);
   const kmPerDay = car.rates.kmPerDay + (waiveDubai ? 50 : 0);
@@ -230,28 +352,30 @@ export function quote(input: QuoteInput): Quote {
     vat: Math.round((total * 5) / 105),
     deposit: car.rates.deposit,
     includedKm: days >= 30 ? car.rates.kmPerMonth ?? 4500 : kmPerDay * days,
-    offer,
+    offer: offer && localizeOffer(offer, locale),
     perDay: Math.round(rental / days),
   };
 }
 
 function chauffeurQuote(input: QuoteInput, base: Quote, now: Date, today: string): Quote {
-  const { car } = input;
+  const { car, locale } = input;
+  const w = wordsFor(locale);
+  const formatAED = (n: number) => aed(n, locale);
   const { issues, lines } = base;
   const rates = car.chauffeur;
   if (!rates) {
-    issues.push({ field: "car", message: "Chauffeur service is available on the Rolls-Royce Phantom, Rolls-Royce Cullinan and Bentley Bentayga." });
+    issues.push({ field: "car", message: w.noChauffeur });
     return base;
   }
   const date = input.pickupDate && isValidIsoDate(input.pickupDate) ? input.pickupDate : undefined;
   const time = isValidTime(input.pickupTime) ? input.pickupTime : "10:00";
   if (!date) {
-    issues.push({ field: "pickupDate", message: "Choose a date." });
+    issues.push({ field: "pickupDate", message: w.chooseDate });
     return base;
   }
   const season = seasonFor(date);
   const c = rules.chauffeur;
-  if (toMinutes(date, time) < minutesNow(now) + c.leadHours * 60) issues.push({ field: "pickupDate", message: `Chauffeur bookings need ${c.leadHours} hours' notice. Need it sooner? Ask us on WhatsApp.`, resolution: "whatsapp" });
+  if (toMinutes(date, time) < minutesNow(now) + c.leadHours * 60) issues.push({ field: "pickupDate", message: w.chauffeurNotice(c.leadHours), resolution: "whatsapp" });
 
   const pkg = input.chauffeur?.package ?? "hourly";
   let hours = 0;
@@ -259,34 +383,53 @@ function chauffeurQuote(input: QuoteInput, base: Quote, now: Date, today: string
   let label = "";
   if (pkg === "hourly") {
     hours = Math.max(c.minHours, Math.min(c.maxHours, Math.round(input.chauffeur?.hours ?? c.minHours)));
-    if ((input.chauffeur?.hours ?? c.minHours) < c.minHours) issues.push({ field: "hours", message: `The minimum is ${c.minHours} hours.` });
+    if ((input.chauffeur?.hours ?? c.minHours) < c.minHours) issues.push({ field: "hours", message: w.minHours(c.minHours) });
     amount = rates.hourly * hours;
-    label = `${hours} hours × ${formatAED(rates.hourly)}`;
+    label = w.hourly(hours, formatAED(rates.hourly));
   } else if (pkg === "half-day") {
-    hours = c.halfDayHours; amount = rates.halfDay; label = `Half day, ${hours} hours`;
+    hours = c.halfDayHours; amount = rates.halfDay; label = w.halfDay(hours);
   } else if (pkg === "full-day") {
-    hours = c.fullDayHours; amount = rates.fullDay; label = `Full day, ${hours} hours`;
+    hours = c.fullDayHours; amount = rates.fullDay; label = w.fullDay(hours);
   } else {
-    hours = 0; amount = rates.airport; label = "Airport transfer, one way, within Dubai";
+    hours = 0; amount = rates.airport; label = w.airport;
   }
-  lines.push({ id: "chauffeur", label: `${car.name} with chauffeur`, detail: label, amount, kind: "rate" });
+  lines.push({ id: "chauffeur", label: w.withChauffeur(car.name), detail: label, amount, kind: "rate" });
 
-  if (time < "06:00") lines.push({ id: "night", label: "Night surcharge", detail: `Starts between 00:00 and 06:00 (+${c.nightSurchargePct}%)`, amount: Math.round(amount * c.nightSurchargePct / 100), kind: "fee" });
-  if (season.id === "super-peak") lines.push({ id: "festive", label: "Festive peak", detail: `20 Dec – 5 Jan (+${c.superPeakSurchargePct}%)`, amount: Math.round(amount * c.superPeakSurchargePct / 100), kind: "fee" });
+  if (time < "06:00") lines.push({ id: "night", label: w.night, detail: w.nightDetail(c.nightSurchargePct), amount: Math.round(amount * c.nightSurchargePct / 100), kind: "fee" });
+  if (season.id === "super-peak") lines.push({ id: "festive", label: w.festive, detail: w.festiveDetail(c.superPeakSurchargePct), amount: Math.round(amount * c.superPeakSurchargePct / 100), kind: "fee" });
 
   const zone = input.pickupZone ? getZone(input.pickupZone) : undefined;
-  if (zone?.fee === null) issues.push({ field: "pickupZone", message: "Trips to these emirates are quoted personally.", resolution: "whatsapp" });
-  if (zone?.chauffeurSurcharge) lines.push({ id: "emirate", label: "Outside Dubai", detail: zone.name, amount: zone.chauffeurSurcharge, kind: "fee" });
+  if (zone?.fee === null) issues.push({ field: "pickupZone", message: w.emiratesOnRequest, resolution: "whatsapp" });
+  if (zone?.chauffeurSurcharge) lines.push({ id: "emirate", label: w.outsideDubai, detail: localizeZone(zone, locale).name, amount: zone.chauffeurSurcharge, kind: "fee" });
 
   let offer: Offer | undefined;
   const intro = offerValid("chauffeur-intro", today);
   if (intro && (pkg === "half-day" || pkg === "full-day") && season.id !== "super-peak") {
-    offer = intro;
-    lines.push({ id: "offer", label: "Chauffeur Intro offer", detail: "One free hour", amount: -rates.hourly, kind: "discount" });
+    offer = localizeOffer(intro, locale);
+    lines.push({ id: "offer", label: w.introOffer(offer.name), detail: w.introDetail, amount: -rates.hourly, kind: "discount" });
   }
 
   const total = lines.reduce((sum, l) => sum + l.amount, 0);
   return { ...base, ok: issues.length === 0, season, hours, total, vat: Math.round((total * 5) / 105), deposit: 0, includedKm: 0, extraKmFee: 0, offer, perDay: 0 };
+}
+
+/**
+ * A stored quote (e.g. on a booking request) with its line labels and details re-written in
+ * `input.locale`: the quote is re-run for the same trip at the moment it was made (`input.now`)
+ * and the words are taken line by line (matched by id). Amounts, totals and ids are kept exactly
+ * as stored; a line the re-run doesn't produce keeps its stored words.
+ */
+export function localizeQuote(stored: Quote, input: QuoteInput): Quote {
+  const fresh = quote(input);
+  const byId = new Map(fresh.lines.map((l) => [l.id, l]));
+  return {
+    ...stored,
+    lines: stored.lines.map((l) => {
+      const f = byId.get(l.id);
+      return f ? { ...l, label: f.label, detail: f.detail } : l;
+    }),
+    offer: stored.offer ? localizeOffer(stored.offer, input.locale) : stored.offer,
+  };
 }
 
 export { seasons };

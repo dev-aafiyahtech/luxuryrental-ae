@@ -3,18 +3,26 @@ import clsx from "clsx";
 import type { Car } from "@/content/types";
 import { getBrand, getCategory } from "@/content/brands";
 import { carPath } from "@/content/cars";
+import { localizeCategory } from "@/content/localize";
+import { getLocale } from "@/i18n/dictionaries";
+import { commonT } from "@/i18n/static";
 import { CarArt } from "./CarArt";
 import { PriceFrom, headlineSpecs } from "./CarBits";
 
-/** Fleet card: image, name, headline specs, "from" price, details and Reserve links. */
-export function CarCard({ car, today, href, className, headingLevel = "h3", priority }: { car: Car; today: string; href: (path: string) => string; className?: string; headingLevel?: "h2" | "h3"; priority?: boolean }) {
+/**
+ * Fleet card: image, name, headline specs, "from" price, details and Reserve links.
+ * Server Component: it reads the page's locale itself unless `locale` is passed.
+ */
+export async function CarCard({ car, today, href, className, headingLevel = "h3", priority, locale }: { car: Car; today: string; href: (path: string) => string; className?: string; headingLevel?: "h2" | "h3"; priority?: boolean; locale?: string }) {
+  const lc = locale ?? (await getLocale());
+  const t = commonT(lc);
   const Heading = headingLevel;
-  const category = car.category === "chauffeur" ? "Chauffeur" : getCategory(car.category)?.singular;
-  const badge = car.heroRank ? "Featured" : undefined;
+  const category = car.category === "chauffeur" ? t("car.chauffeur") : localizeCategory(getCategory(car.category), lc)?.singular;
+  const badge = car.heroRank ? t("car.featured") : undefined;
   return (
     <article className={clsx("card card-hover group relative grid overflow-hidden", className)} data-car={car.slug} data-brand={car.brand} data-category={[car.category, ...car.tags].join(" ")}>
       <div className="relative">
-        <CarArt car={car} view="card" priority={priority} className="aspect-[4/3] w-full" />
+        <CarArt car={car} view="card" priority={priority} className="aspect-[4/3] w-full" locale={lc} />
         {badge && <span className="badge absolute start-3 top-3">{badge}</span>}
       </div>
       <div className="grid gap-3 p-5">
@@ -26,11 +34,11 @@ export function CarCard({ car, today, href, className, headingLevel = "h3", prio
             </Link>
           </Heading>
         </div>
-        <p className="text-sm text-muted">{headlineSpecs(car).join(" · ")}</p>
+        <p className="text-sm text-muted">{headlineSpecs(car, lc).join(" · ")}</p>
         <div className="flex flex-wrap items-end justify-between gap-3 border-t border-line pt-4">
-          <PriceFrom car={car} today={today} />
+          <PriceFrom car={car} today={today} locale={lc} />
           <Link href={href(`/book/trip?car=${car.slug}`)} className="btn btn-secondary btn-sm relative z-[1]">
-            {car.rates.onRequest ? "Request" : "Reserve"}
+            {car.rates.onRequest ? t("car.request") : t("car.reserve")}
           </Link>
         </div>
       </div>

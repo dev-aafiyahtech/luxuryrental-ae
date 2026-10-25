@@ -3,6 +3,7 @@ import clsx from "clsx";
 import type { Car } from "@/content/types";
 import { carMedia, imageStatus } from "@/content/car-media";
 import { profiles, smoothPath } from "@/scene/car/profiles";
+import { commonT } from "@/i18n/static";
 
 type View = "hero" | "side" | "card";
 
@@ -17,24 +18,27 @@ interface Props {
   alt?: string;
   /** Show the small "AI image" tag on AI-generated pictures (plan 03 §3.4). Default on. */
   tag?: boolean;
+  /** Language of the alt text and tag (English when omitted). Pass the page's locale. */
+  locale?: string;
 }
 
 /**
  * The car's picture. Uses the real image for the slot when one exists (AI image or photo),
  * otherwise a gold line-art placeholder drawn from the car's body profile.
  */
-export function CarArt({ car, view = "card", className, priority, sizes = "(min-width: 1024px) 33vw, 100vw", alt, tag = true }: Props) {
+export function CarArt({ car, view = "card", className, priority, sizes = "(min-width: 1024px) 33vw, 100vw", alt, tag = true, locale }: Props) {
+  const t = commonT(locale);
   const media = carMedia[car.slug];
   const src = (view === "hero" ? car.images.hero ?? media?.hero : view === "side" ? car.images.side ?? media?.side ?? media?.hero : car.images.card ?? media?.card ?? media?.hero) ?? undefined;
   const status = imageStatus(car);
-  const label = alt ?? `${car.name}${status === "placeholder" ? ", illustration" : status.startsWith("ai") ? ", AI image" : ""}`;
+  const label = alt ?? (status === "placeholder" ? t("car.altIllustration", { name: car.name }) : status.startsWith("ai") ? t("car.altAi", { name: car.name }) : car.name);
 
   if (src) {
     return (
       <div className={clsx("relative overflow-hidden bg-bg", className)}>
         <Image src={src} alt={label} fill sizes={sizes} loading={priority ? "eager" : undefined} fetchPriority={priority ? "high" : undefined} className="object-cover" />
         {tag && status.startsWith("ai") && (
-          <span aria-hidden="true" className="absolute bottom-2 start-2 rounded-full bg-deep/85 px-2 py-0.5 text-[11px] font-semibold tracking-[0.04em] text-fg">AI image</span>
+          <span aria-hidden="true" className="absolute bottom-2 start-2 rounded-full bg-deep/85 px-2 py-0.5 text-[11px] font-semibold tracking-[0.04em] text-fg">{t("car.aiTag")}</span>
         )}
       </div>
     );

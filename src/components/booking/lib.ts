@@ -1,12 +1,16 @@
 import type { Car } from "@/content/types";
+import { getCar } from "@/content/cars";
 import { getZone, zones } from "@/content/zones";
 import { rules } from "@/content/rules";
 import { site } from "@/content/site";
-import { quote, type Quote, type QuoteInput, type ServiceMode } from "@/lib/pricing";
+import { localizeZone, siteFor } from "@/content/localize";
+import { localizeQuote, quote, type Quote, type QuoteInput, type ServiceMode } from "@/lib/pricing";
 import { addDays, dayOfWeek, daysBetween, formatDay, isWithin, nowInDubai, toMinutes } from "@/lib/dates";
 import { formatAED } from "@/lib/format";
-import { draftMessage } from "@/lib/whatsapp";
-import type { BookingRecord, BookingStatus, TripDraft } from "@/lib/booking/types";
+import { draftMessage, waWords } from "@/lib/whatsapp";
+import type { BookingEvent, BookingRecord, BookingStatus, TripDraft } from "@/lib/booking/types";
+
+type T = (key: string, vars?: Record<string, string | number>) => string;
 
 // Booking-flow helpers (no React). Prices always come from lib/pricing quote(); this file
 // only maps the shared TripDraft onto quote inputs and derives display values.
@@ -49,9 +53,49 @@ export function quoteInputFor(car: Car, trip: TripDraft): QuoteInput {
   };
 }
 
-/** quote() for the draft, with optional overrides (e.g. to price an option before it is chosen). */
+/** quote() for the draft, with optional overrides (e.g. `{ locale }`, or to price an option before it is chosen). */
 export function quoteFor(car: Car, trip: TripDraft, now?: Date, override: Partial<QuoteInput> = {}): Quote {
   return quote({ ...quoteInputFor(car, trip), now, ...override });
+}
+
+/** A stored request's quote with its line words in `locale` (amounts exactly as stored). */
+export function recordQuote(b: BookingRecord, locale?: string): Quote {
+  const car = getCar(b.carSlug);
+  if (!car) return b.quote;
+  return localizeQuote(b.quote, { ...quoteInputFor(car, b.trip), now: new Date(b.createdAt), locale });
+}
+
+/* ---------- words ---------- */
+
+/**
+ * A counted noun from the messages, by CLDR plural category (`count.days.few`…), so Arabic gets
+ * its six forms. Falls back to `other`, then to `fallback()` while a translation is missing.
+ */
+export function countText(t: T, locale: string, key: string, n: number, fallback?: () => string): string {
+  const cat = new Intl.PluralRules(locale).select(n);
+  for (const k of [`${key}.${cat}`, `${key}.other`]) {
+    const s = t(k, { n });
+    if (s !== k) return s;
+  }
+  return fallback ? fallback() : String(n);
+}
+
+/** "3 days" / "3 أيام" from the booking messages. */
+export const daysText = (t: T, locale: string, n: number) => countText(t, locale, "count.days", n, () => (n === 1 ? t("quote.day") : t("quote.days", { n })));
+/** "5 hours" / "5 ساعات" from the booking messages. */
+export const hoursText = (t: T, locale: string, n: number) => countText(t, locale, "count.hours", n, () => t("quote.hours", { n }));
+
+/** ", " or the Arabic comma "، " between items. */
+export const listSep = (locale?: string) => (locale === "ar" ? "، " : ", ");
+
+/** A booking event's note in the viewer's language: by its code, else the stored text. */
+export function eventText(e: BookingEvent, t: T): string | undefined {
+  if (e.code) {
+    const key = e.code.startsWith("ops.") ? `ops.notes.${e.code.slice(4)}` : `status.events.${e.code}`;
+    const text = t(key, e.vars);
+    if (text !== key) return text;
+  }
+  return e.note;
 }
 
 /* ---------- time ---------- */
@@ -145,30 +189,33 @@ export function stepPath(step: StepId | "confirmed", car?: Car, service?: Servic
 
 /* ---------- WhatsApp text for an unsent draft ---------- */
 
-/** draftMessage() plus everything else entered so far (used by "Finish on WhatsApp" and the send-failed fallback). */
-export function fullDraftMessage(trip: TripDraft, car?: Car, q?: Quote | null): string {
-  const lines = [draftMessage(trip, car?.name)];
+/** draftMessage() plus everything else entered so far (used by "Finish on WhatsApp" and the send-failed fallback). Arabic when `locale` is "ar". */
+export function fullDraftMessage(trip: TripDraft, car?: Car, q?: Quote | null, locale?: string): string {
+  const w = waWords(locale);
+  const lines = [draftMessage(trip, car?.name, locale)];
   const service = car ? serviceFor(car, trip) : trip.service;
-  if (service === "self-drive" && trip.pickupDate && trip.returnDate) lines.push(`Times: pickup ${trip.pickupTime}, return ${trip.returnTime}`);
-  if (service === "chauffeur") lines.push(`Package: ${packageText(trip)}`);
-  if (service === "self-drive" && !trip.sameReturn && trip.handover) lines.push(`Return: ${getZone(trip.dropoff.zone)?.name ?? trip.dropoff.zone}${trip.dropoff.address ? `, ${trip.dropoff.address}` : ""}`);
+  if (service === "self-drive" && trip.pickupDate && trip.returnDate) lines.push(w.times(trip.pickupTime, trip.returnTime));
+  if (service === "chauffeur") lines.push(`${w.package}: ${packageText(trip, locale)}`);
+  if (service === "self-drive" && !trip.sameReturn && trip.handover) lines.push(`${w.return}: ${zoneName(trip.dropoff.zone, locale)}${trip.dropoff.address ? `${w.comma}${trip.dropoff.address}` : ""}`);
   const extras: string[] = [];
-  if (service === "self-drive" && trip.extras.fullCover) extras.push("Full Cover");
-  if (service === "self-drive" && trip.extras.additionalDrivers) extras.push(`${trip.extras.additionalDrivers} additional driver(s)`);
-  if (trip.extras.childSeats) extras.push(`${trip.extras.childSeats} child seat(s)`);
-  if (extras.length) lines.push(`Extras: ${extras.join(", ")}`);
-  if (q && q.total > 0) lines.push(`Quote: ${q.onRequest ? "from " : ""}${formatAED(q.total)} incl. VAT${q.deposit ? ` · Refundable deposit: ${formatAED(q.deposit)}` : ""}`);
-  if (trip.driver.name) lines.push(`Name: ${trip.driver.name}`);
-  if (trip.driver.notes) lines.push(`Notes: ${trip.driver.notes}`);
+  if (service === "self-drive" && trip.extras.fullCover) extras.push(w.fullCover);
+  if (service === "self-drive" && trip.extras.additionalDrivers) extras.push(w.drivers(trip.extras.additionalDrivers));
+  if (trip.extras.childSeats) extras.push(w.seats(trip.extras.childSeats));
+  if (extras.length) lines.push(`${w.extras}: ${extras.join(w.comma)}`);
+  if (q && q.total > 0) lines.push(`${w.quote}: ${q.onRequest ? w.fromPrice : ""}${formatAED(q.total, locale)} ${w.inclVat}${q.deposit ? ` · ${w.deposit}: ${formatAED(q.deposit, locale)}` : ""}`);
+  if (trip.driver.name) lines.push(`${w.name}: ${trip.driver.name}`);
+  if (trip.driver.notes) lines.push(`${w.notes}: ${trip.driver.notes}`);
   return lines.join("\n");
 }
 
-export function packageText(trip: TripDraft): string {
+/** "Half day, 5 hours" / "نصف يوم، 5 ساعات" */
+export function packageText(trip: TripDraft, locale?: string): string {
+  const w = waWords(locale);
   const c = trip.chauffeur;
-  if (c.package === "hourly") return `${c.hours} hours`;
-  if (c.package === "half-day") return `Half day, ${rules.chauffeur.halfDayHours} hours`;
-  if (c.package === "full-day") return `Full day, ${rules.chauffeur.fullDayHours} hours`;
-  return "Airport transfer";
+  if (c.package === "hourly") return w.hours(c.hours);
+  if (c.package === "half-day") return w.halfDay(rules.chauffeur.halfDayHours);
+  if (c.package === "full-day") return w.fullDay(rules.chauffeur.fullDayHours);
+  return w.airportTransfer;
 }
 
 /* ---------- payments (mock provider, plan D-09) ---------- */
@@ -204,8 +251,11 @@ function icsStamp(date: string, time: string): string {
 }
 const icsText = (s: string) => s.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\\;");
 
-/** A one-event .ics for the request (generated in the browser, nothing is sent anywhere). */
-export function buildIcs(b: BookingRecord, now: Date): string {
+/**
+ * A one-event .ics for the request (generated in the browser, nothing is sent anywhere).
+ * Pass the booking translator and locale to write it in the visitor's language.
+ */
+export function buildIcs(b: BookingRecord, now: Date, tr?: T, locale?: string): string {
   const t = b.trip;
   const start = t.pickupDate ?? b.createdAt.slice(0, 10);
   let endDate = t.returnDate ?? start;
@@ -216,11 +266,29 @@ export function buildIcs(b: BookingRecord, now: Date): string {
     endDate = end.date;
     endTime = end.time;
   }
-  const where = t.service === "chauffeur" || t.handover === "delivery" ? `${getZone(t.pickup.zone)?.name ?? ""}${t.pickup.address ? `, ${t.pickup.address}` : ""}` : `${site.businessName}, ${site.address.area}, Dubai`;
+  const sep = listSep(locale);
+  const where = t.service === "chauffeur" || t.handover === "delivery" ? `${localizeZone(getZone(t.pickup.zone), locale)?.name ?? ""}${t.pickup.address ? `${sep}${t.pickup.address}` : ""}` : [site.businessName, siteFor(locale).address.area, siteFor(locale).address.city].join(sep);
   const stampNow = (() => {
     const d = now;
     return `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}${pad(d.getUTCSeconds())}Z`;
   })();
+  // English (and the fallback while a translation is missing) matches the original wording.
+  const amount = formatAED(b.quote.total, locale);
+  const msg = (key: string, vars: Record<string, string | number>, en: string) => {
+    const text = tr ? tr(key, vars) : key;
+    return text === key ? en : text;
+  };
+  const words = {
+    summary: t.service === "chauffeur"
+      ? msg("ics.summaryChauffeur", { car: b.carName, ref: b.ref }, `${b.carName} with chauffeur (request ${b.ref}, not yet confirmed)`)
+      : msg("ics.summary", { car: b.carName, ref: b.ref }, `${b.carName} (request ${b.ref}, not yet confirmed)`),
+    description: [
+      msg("ics.description", { ref: b.ref, business: site.businessName }, `Booking request ${b.ref}. Not confirmed until ${site.businessName} confirms it on WhatsApp.`),
+      b.quote.onRequest ? msg("ics.quoteFrom", { amount }, `Quote: from ${amount} incl. VAT.`) : msg("ics.quote", { amount }, `Quote: ${amount} incl. VAT.`),
+      msg("ics.whatsapp", { number: site.whatsappDisplay }, `WhatsApp: ${site.whatsappDisplay}`),
+    ].join("\n"),
+  };
+  const lang = locale && locale !== "en" ? `;LANGUAGE=${locale}` : "";
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
@@ -232,9 +300,9 @@ export function buildIcs(b: BookingRecord, now: Date): string {
     `DTSTAMP:${stampNow}`,
     `DTSTART:${icsStamp(start, t.pickupTime)}`,
     `DTEND:${icsStamp(endDate, endTime)}`,
-    `SUMMARY:${icsText(`${b.carName}${t.service === "chauffeur" ? " with chauffeur" : ""} (request ${b.ref}, not yet confirmed)`)}`,
-    `DESCRIPTION:${icsText(`Booking request ${b.ref}. Not confirmed until ${site.businessName} confirms it on WhatsApp.\nQuote: ${b.quote.onRequest ? "from " : ""}${formatAED(b.quote.total)} incl. VAT.\nWhatsApp: ${site.whatsappDisplay}`)}`,
-    `LOCATION:${icsText(where)}`,
+    `SUMMARY${lang}:${icsText(words.summary)}`,
+    `DESCRIPTION${lang}:${icsText(words.description)}`,
+    `LOCATION${lang}:${icsText(where)}`,
     "STATUS:TENTATIVE",
     "END:VEVENT",
     "END:VCALENDAR",
@@ -255,9 +323,9 @@ export function downloadFile(name: string, content: string, type: string) {
 
 /* ---------- display rows for a trip ---------- */
 
-export const zoneName = (slug?: string) => (slug ? getZone(slug)?.name ?? slug : "");
+export const zoneName = (slug?: string, locale?: string) => (slug ? localizeZone(getZone(slug), locale)?.name ?? slug : "");
 export const deliveryZones = zones.filter((z) => z.slug !== "dso");
-export const dateTime = (date?: string, time?: string) => (date ? `${formatDay(date)}, ${time ?? ""}` : "");
+export const dateTime = (date?: string, time?: string, locale?: string) => (date ? `${formatDay(date, locale)}${listSep(locale)}${time ?? ""}` : "");
 
 /* ---------- drivers: licences and phones ---------- */
 
@@ -279,7 +347,32 @@ export const countries: { code: string; name: string }[] = [
     .sort((a, b) => a.name.localeCompare(b.name)),
   { code: "XX", name: "Another country" },
 ];
-export const countryName = (code?: string) => countries.find((c) => c.code === code)?.name ?? code ?? "";
+
+/** Country names in the visitor's language (CLDR via Intl.DisplayNames), English list as the fallback. */
+function regionName(code: string, locale?: string): string | undefined {
+  if (!locale || locale === "en") return undefined;
+  try {
+    const name = new Intl.DisplayNames([locale], { type: "region" }).of(code);
+    return name && name !== code ? name : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export const countryName = (code?: string, locale?: string, other?: string) =>
+  code === "XX" && other ? other : (code && regionName(code, locale)) ?? countries.find((c) => c.code === code)?.name ?? code ?? "";
+
+/** The licence-country list in the visitor's language, sorted for that language, UAE first and "Another country" last. */
+export function countriesFor(locale: string, other: string): { code: string; name: string }[] {
+  if (locale === "en") return countries.map((c) => (c.code === "XX" ? { ...c, name: other } : c));
+  const collator = new Intl.Collator(locale);
+  const named = countries.map((c) => ({ code: c.code, name: c.code === "XX" ? other : countryName(c.code, locale) }));
+  const middle = named.slice(1, -1).sort((a, b) => collator.compare(a.name, b.name));
+  return [named[0], ...middle, named[named.length - 1]];
+}
+
+/** Dial-code country name in the visitor's language. */
+export const dialName = (c: DialCode, locale?: string) => regionName(c.iso, locale) ?? c.name;
 
 export interface DialCode { iso: string; name: string; dial: string }
 export const dialCodes: DialCode[] = [

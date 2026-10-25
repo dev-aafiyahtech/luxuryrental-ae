@@ -1,16 +1,17 @@
 import Link from "next/link";
 import { UserRound } from "lucide-react";
-import { getHref, getT } from "@/i18n/dictionaries";
+import { getHref, getLocale, getT } from "@/i18n/dictionaries";
 import { brands, categories } from "@/content/brands";
+import { localizeCategory } from "@/content/localize";
 import { site } from "@/content/site";
 import { whatsappHref } from "@/lib/whatsapp";
 import { Logo } from "@/components/brand/Logo";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { MobileMenu } from "./MobileMenu";
+import { LanguageSwitch } from "./LanguageSwitch";
 
 export async function Header() {
-  const t = await getT("common");
-  const href = await getHref();
+  const [t, href, locale] = await Promise.all([getT("common"), getHref(), getLocale()]);
   const nav = [
     { label: t("nav.fleet"), href: href("/cars") },
     { label: t("nav.chauffeur"), href: href("/chauffeur") },
@@ -21,13 +22,13 @@ export async function Header() {
   ];
   const groups = [
     { label: t("nav.brands"), links: brands.map((b) => ({ label: b.name, href: href(`/cars/${b.slug}`) })) },
-    { label: t("nav.types"), links: categories.map((c) => ({ label: c.name, href: href(`/cars/type/${c.slug}`) })) },
+    { label: t("nav.types"), links: categories.map((c) => ({ label: localizeCategory(c, locale).name, href: href(`/cars/type/${c.slug}`) })) },
   ];
 
   return (
     <header className="site-header sticky top-0 print:hidden z-[var(--z-header)] bg-gradient-to-b from-bg/90 to-bg/0 pt-[env(safe-area-inset-top)]">
       <div className="container-site flex h-[var(--header-h)] items-center justify-between gap-4">
-        <Link href={href("/")} className="inline-flex min-h-11 items-center no-underline" aria-label={`${site.brandName} home`}>
+        <Link href={href("/")} className="inline-flex min-h-11 items-center no-underline" aria-label={t("nav.homeLabel", { brand: site.brandName })}>
           <Logo />
         </Link>
         <nav aria-label={t("nav.label")} className="hidden items-center gap-1 lg:flex">
@@ -38,6 +39,7 @@ export async function Header() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
+          <LanguageSwitch variant="header" className="hidden lg:inline-flex" />
           <a href={whatsappHref()} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-line text-fg transition-colors hover:border-accent" aria-label={t("nav.whatsapp")} target="_blank" rel="noopener">
             <WhatsAppIcon />
           </a>

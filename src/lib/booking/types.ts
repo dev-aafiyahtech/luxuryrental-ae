@@ -46,7 +46,12 @@ export interface BookingEvent {
   at: string; // ISO timestamp
   status: BookingStatus;
   by: "customer" | "ops" | "system";
+  /** Stored as written (English for system events); shown through `code` when there is one. */
   note?: string;
+  /** What happened, as a message id the UI shows in the viewer's language (e.g. "requestSent", "ops.confirmed"). */
+  code?: string;
+  /** Values for the coded message (agreement number, km, fuel, marks, stage). */
+  vars?: Record<string, string | number>;
 }
 
 /** Rental agreement issued once a request is confirmed, e-signed by the main driver. */

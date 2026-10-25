@@ -1,7 +1,7 @@
 import Link from "next/link";
 import clsx from "clsx";
 import type { ComponentProps, ReactNode } from "react";
-import { ChevronRight, Info, CircleAlert, CircleCheck, TriangleAlert } from "lucide-react";
+import { Info, CircleAlert, CircleCheck, TriangleAlert } from "lucide-react";
 
 type Variant = "primary" | "secondary" | "ghost";
 type Size = "md" | "sm";
@@ -24,20 +24,7 @@ export function Button({ variant = "primary", size = "md", block, busy, classNam
   );
 }
 
-export function Breadcrumbs({ items }: { items: { label: string; href?: string }[] }) {
-  return (
-    <nav aria-label="Breadcrumb" className="text-[12px] text-muted">
-      <ol className="flex flex-wrap items-center gap-1 p-0 [list-style:none]">
-        {items.map((item, i) => (
-          <li key={i} className="inline-flex items-center gap-1">
-            {item.href ? <Link href={item.href} className="no-underline hover:text-fg">{item.label}</Link> : <span aria-current="page" className="text-fg">{item.label}</span>}
-            {i < items.length - 1 && <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" aria-hidden="true" />}
-          </li>
-        ))}
-      </ol>
-    </nav>
-  );
-}
+export { Breadcrumbs } from "./Breadcrumbs";
 
 export function Badge({ children, muted, className }: { children: ReactNode; muted?: boolean; className?: string }) {
   return <span className={clsx("badge", muted && "badge-muted", className)}>{children}</span>;

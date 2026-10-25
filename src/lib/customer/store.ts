@@ -27,7 +27,9 @@ export interface CustomerDocument {
   uploadedAt: string;
   status: DocStatus;
   reviewedAt?: string;
-  reviewNote?: string; // reason when rejected
+  reviewNote?: string; // reason when rejected, as written
+  /** Reason id when rejected for a listed reason ("blurry", "expired"…), so the customer sees it in their language. */
+  reviewReason?: string;
 }
 
 /** One document the driver must provide, with the sides it needs. */
@@ -322,11 +324,11 @@ export async function removeDocument(phone: string, docId: string): Promise<void
   writeDocs({ ...all, [phone]: (all[phone] ?? []).filter((d) => d.id !== docId) });
 }
 
-/** Ops: verify or reject an uploaded document (with a reason the customer sees). */
-export async function reviewDocument(phone: string, docId: string, status: "verified" | "rejected", reviewNote?: string): Promise<void> {
+/** Ops: verify or reject an uploaded document (with a reason the customer sees; `reviewReason` is its id when it is a listed one). */
+export async function reviewDocument(phone: string, docId: string, status: "verified" | "rejected", reviewNote?: string, reviewReason?: string): Promise<void> {
   await wait(400);
   const all = readDocs();
-  writeDocs({ ...all, [phone]: (all[phone] ?? []).map((d) => (d.id === docId ? { ...d, status, reviewNote, reviewedAt: new Date().toISOString() } : d)) });
+  writeDocs({ ...all, [phone]: (all[phone] ?? []).map((d) => (d.id === docId ? { ...d, status, reviewNote, reviewReason, reviewedAt: new Date().toISOString() } : d)) });
 }
 
 /** Consent (plan C-03) to use uploaded documents for the eligibility check, given before the first upload. */

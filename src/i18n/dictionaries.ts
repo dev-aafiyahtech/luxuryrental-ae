@@ -1,6 +1,10 @@
+import { cache } from "react";
 import { lang } from "next/root-params";
 import { notFound } from "next/navigation";
-import { isLocale, type Locale } from "./config";
+import { isLocale, localeHref, type Locale } from "./config";
+import { translate, withFallback, type Vars } from "./translate";
+
+export { translate };
 
 // UI strings live in src/messages/{locale}/{namespace}.json.
 // Each feature owns one namespace file; add new namespaces to the loader below.
@@ -32,17 +36,15 @@ export async function getLocale(): Promise<Locale> {
   return value;
 }
 
+/** A locale's messages, with English filling any key not translated yet. Once per request. */
+const load = cache(async (locale: Locale): Promise<Messages> => {
+  const en = await loaders.en();
+  if (locale === "en") return en;
+  return withFallback(en, await loaders[locale]());
+});
+
 export async function getMessages(): Promise<Messages> {
-  return loaders[await getLocale()]();
-}
-
-type Vars = Record<string, string | number>;
-
-/** Look up "a.b.c" in a namespace and fill {placeholders}. Returns the key if missing. */
-export function translate(messages: Record<string, unknown>, key: string, vars?: Vars): string {
-  const value = key.split(".").reduce<unknown>((node, part) => (node && typeof node === "object" ? (node as Record<string, unknown>)[part] : undefined), messages);
-  if (typeof value !== "string") return key;
-  return vars ? value.replace(/\{(\w+)\}/g, (_, name: string) => String(vars[name] ?? `{${name}}`)) : value;
+  return load(await getLocale());
 }
 
 /** Server-side translator for one namespace: `const t = await getT("common"); t("nav.fleet")`. */
@@ -54,6 +56,5 @@ export async function getT<N extends keyof Messages>(namespace: N) {
 /** Server-side path builder: `const href = await getHref(); href("/cars")`. */
 export async function getHref() {
   const locale = await getLocale();
-  const { localeHref } = await import("./config");
   return (path: string) => localeHref(locale, path);
 }

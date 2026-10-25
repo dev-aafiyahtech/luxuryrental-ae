@@ -1,151 +1,151 @@
 {
   "meta": {
-    "title": "Luxury Car Rental in Dubai, Delivered",
-    "description": "Supercars, luxury SUVs and chauffeur cars from Lamborghini, Ferrari, Rolls-Royce, Bugatti and more, delivered across Dubai including DXB and DWC. Request online, confirm on WhatsApp."
+    "title": "تأجير السيارات الفاخرة في دبي، مع التوصيل",
+    "description": "سيارات خارقة وسيارات دفع رباعي فاخرة وسيارات بسائق خاص من Lamborghini و Ferrari و Rolls-Royce و Bugatti وغيرها، نوصلها في جميع أنحاء دبي، بما في ذلك مطار دبي الدولي (DXB) ومطار آل مكتوم الدولي (DWC). أرسل طلبك عبر الإنترنت وأكّده على واتساب."
   },
   "rail": {
-    "label": "Chapters",
-    "skyline": "Skyline",
-    "fleet": "Fleet",
-    "sculpture": "Sculpture",
-    "reserve": "Reserve",
-    "pause": "Pause motion",
-    "play": "Play motion"
+    "label": "الفصول",
+    "skyline": "أفق المدينة",
+    "fleet": "الأسطول",
+    "sculpture": "المنحوتة",
+    "reserve": "اطلب الحجز",
+    "pause": "إيقاف الحركة مؤقتًا",
+    "play": "تشغيل الحركة"
   },
   "sky": {
-    "eyebrow": "Burj by Night",
-    "title": "Dubai after dark",
-    "lede": "Supercars, luxury SUVs and chauffeur cars, delivered to your door anywhere in Dubai. Comprehensive insurance included.",
-    "check": "Check availability",
-    "skip": "Skip intro",
-    "noteEyebrow": "Door-to-door handover",
-    "noteTitle": "Your car comes to you",
-    "noteBody": "Delivery to hotels, villas and DXB or DWC arrivals. Keys handed over in person, with late handovers by arrangement.",
-    "cue": "Scroll to descend"
+    "eyebrow": "البرج ليلًا",
+    "title": "دبي حين يحلّ الليل",
+    "lede": "سيارات خارقة وسيارات دفع رباعي فاخرة وسيارات بسائق خاص، نوصلها إلى بابك في أي مكان في دبي. التأمين الشامل مشمول.",
+    "check": "تحقّق من التوفر",
+    "skip": "تخطَّ المقدمة",
+    "noteEyebrow": "تسليم من الباب إلى الباب",
+    "noteTitle": "سيارتك تأتي إليك",
+    "noteBody": "نوصلها إلى الفنادق والفلل وصالات الوصول في مطار دبي الدولي (DXB) ومطار آل مكتوم الدولي (DWC). نسلّمك المفاتيح شخصيًا، ويمكن ترتيب التسليم في وقت متأخر.",
+    "cue": "مرّر للأسفل"
   },
   "tunnel": {
-    "eyebrow": "Velocity Tunnel",
-    "title": "Choose your speed",
-    "lede": "Three ways to drive Dubai. Every car is delivered clean, insured and ready to drive.",
+    "eyebrow": "نفق السرعة",
+    "title": "اختر سرعتك",
+    "lede": "ثلاث طرق لقيادة دبي. تصلك كل سيارة نظيفة ومؤمّنة وجاهزة للانطلاق.",
     "supercars": {
-      "kicker": "Supercars",
-      "title": "Mid-engine coupés and spiders",
-      "body": "Lamborghini, Ferrari, McLaren and Maserati, for the Jumeirah coast road and the climb up Jebel Jais."
+      "kicker": "سيارات خارقة",
+      "title": "كوبيه وسبايدر بمحرك وسطي",
+      "body": "Lamborghini و Ferrari و McLaren و Maserati، لطريق جميرا الساحلي والصعود إلى جبل جيس."
     },
     "suvs": {
-      "kicker": "Luxury SUVs",
-      "title": "Room for four or five",
-      "body": "Hatta day trips, family airport runs and dinner out in Al Qudra."
+      "kicker": "سيارات دفع رباعي فاخرة",
+      "title": "تتسع لأربعة أو خمسة",
+      "body": "رحلات يومية إلى حتا، ومشاوير المطار مع العائلة، وعشاء في القدرة."
     },
     "chauffeur": {
-      "kicker": "Chauffeur",
-      "title": "Driven, by appointment",
-      "body": "Airport transfers, city hours and evening events in a Rolls-Royce or Bentley, with a professional chauffeur."
+      "kicker": "سائق خاص",
+      "title": "بسائق خاص، في الموعد الذي تحدده",
+      "body": "التنقل من المطار وإليه، وساعات في المدينة، وأمسيات المناسبات في Rolls-Royce أو Bentley، مع سائق خاص محترف."
     },
-    "from": "From",
-    "perDay": "/ day",
-    "perHour": "/ hour",
-    "minHours": "{hours}-hour minimum",
-    "featured": "See the featured cars"
+    "from": "ابتداءً من",
+    "perDay": "/ يوم",
+    "perHour": "/ ساعة",
+    "minHours": "حد أدنى {hours} ساعات",
+    "featured": "شاهد السيارات المميزة"
   },
   "sculpture": {
-    "eyebrow": "Kinetic Sculpture",
-    "title": "Every part on display",
-    "lede": "Keep scrolling to take the car apart, part by part. Then watch it come back together.",
-    "tabs": "Featured cars",
-    "schematic": "The kinetic view is a schematic.",
-    "see": "See this car",
-    "powertrain": "Powertrain",
-    "performance": "Performance",
-    "cabin": "Cabin",
-    "drive": "Drive"
+    "eyebrow": "المنحوتة الحركية",
+    "title": "كل قطعة معروضة",
+    "lede": "تابع التمرير لتفكيك السيارة قطعةً قطعة، ثم شاهدها تعود كما كانت.",
+    "tabs": "سيارات مميزة",
+    "schematic": "العرض الحركي رسم تخطيطي.",
+    "see": "شاهد هذه السيارة",
+    "powertrain": "مجموعة الحركة",
+    "performance": "الأداء",
+    "cabin": "المقصورة",
+    "drive": "نظام الدفع"
   },
   "reserve": {
-    "eyebrow": "Reserve",
-    "title": "Ready when you land",
-    "lede": "Send a request now and we bring the car to your door. {reply} Nothing is charged on this website.",
-    "trustLabel": "What's included",
+    "eyebrow": "اطلب الحجز",
+    "title": "جاهزة لحظة وصولك",
+    "lede": "أرسل طلبك الآن ونوصل السيارة إلى بابك. {reply} لا تُخصم أي رسوم على هذا الموقع.",
+    "trustLabel": "ما يشمله السعر",
     "trust": {
-      "insurance": "Comprehensive insurance",
-      "vat": "VAT included, no hidden fees",
-      "delivery": "Delivered across Dubai"
+      "insurance": "تأمين شامل",
+      "vat": "ضريبة القيمة المضافة مشمولة، دون رسوم خفية",
+      "delivery": "توصيل في جميع أنحاء دبي"
     },
-    "cardEyebrow": "Your request"
+    "cardEyebrow": "طلبك"
   },
   "fleet": {
-    "eyebrow": "The fleet",
-    "title": "{cars} cars, {brands} marques",
-    "lede": "Every car we rent, grouped by marque. Prices are per day and include 5% VAT.",
-    "all": "Browse and filter the fleet",
-    "brand": "All {brand} cars",
-    "prev": "Previous cars",
-    "next": "Next cars",
-    "region": "The fleet, scrollable"
+    "eyebrow": "الأسطول",
+    "title": "{cars} سيارة من {brands} علامات",
+    "lede": "كل السيارات التي نؤجرها، مرتّبة حسب العلامة. الأسعار لليوم الواحد وتشمل ضريبة القيمة المضافة 5%.",
+    "all": "تصفّح الأسطول وصفّه",
+    "brand": "كل سيارات {brand}",
+    "prev": "السيارات السابقة",
+    "next": "السيارات التالية",
+    "region": "الأسطول، قابل للتمرير"
   },
   "how": {
-    "eyebrow": "How it works",
-    "title": "Three steps to the keys",
+    "eyebrow": "كيف يعمل",
+    "title": "ثلاث خطوات إلى المفاتيح",
     "steps": {
       "pick": {
-        "title": "Pick a car and dates",
-        "body": "Choose from {cars} cars and tell us where to bring it: your hotel, your villa or the arrivals hall at DXB or DWC."
+        "title": "اختر سيارة وتواريخ",
+        "body": "اختر من بين {cars} سيارة، وأخبرنا أين نوصلها: إلى فندقك أو فيلتك أو صالة الوصول في مطار دبي الدولي (DXB) أو مطار آل مكتوم الدولي (DWC)."
       },
       "request": {
-        "title": "Send a request, nothing is charged",
-        "body": "Add your details and send the request. Nothing is charged on this website."
+        "title": "أرسل طلبك، دون أي رسوم",
+        "body": "أضف بياناتك وأرسل الطلب. لا تُخصم أي رسوم على هذا الموقع."
       },
       "confirm": {
-        "title": "Confirm on WhatsApp",
-        "body": "{reply} Once we confirm, pay at handover or by secure link."
+        "title": "التأكيد عبر واتساب",
+        "body": "{reply} بعد أن نؤكد طلبك، ادفع عند التسليم أو عبر رابط دفع آمن."
       }
     },
-    "cta": "Start a request"
+    "cta": "ابدأ طلبًا"
   },
   "delivery": {
-    "eyebrow": "Delivery",
-    "title": "Delivered across Dubai",
-    "lede": "We're based in Dubai Silicon Oasis and bring the car to you, wherever you're staying.",
+    "eyebrow": "التوصيل",
+    "title": "توصيل في جميع أنحاء دبي",
+    "lede": "مقرّنا في واحة دبي للسيليكون، ونوصل السيارة إليك أينما كنت تقيم.",
     "base": {
-      "title": "Our office",
-      "body": "Collect and return at Dubai Silicon Oasis at no charge."
+      "title": "مكتبنا",
+      "body": "استلم السيارة وأعدها في واحة دبي للسيليكون دون أي رسوم."
     },
     "city": {
-      "title": "Anywhere in Dubai",
-      "body": "Free for rentals of {days} days or more, {fee} each way for shorter ones."
+      "title": "أي مكان في دبي",
+      "body": "مجانًا للإيجارات التي لا يقل عدد أيامها عن {days}، و {fee} لكل اتجاه للإيجارات الأقصر."
     },
     "airport": {
-      "title": "DXB and DWC",
-      "body": "Meet-and-greet at arrivals, {fee} each way, airport parking included. We track your flight."
+      "title": "مطارا DXB و DWC",
+      "body": "استقبال في صالة الوصول مقابل {fee} لكل اتجاه، شاملًا رسوم مواقف المطار. ونتابع رحلتك."
     },
-    "cta": "Delivery zones and fees"
+    "cta": "مناطق التوصيل ورسومه"
   },
   "trust": {
-    "label": "Why rent with us",
-    "base": "Based in Dubai Silicon Oasis"
+    "label": "لماذا تستأجر معنا",
+    "base": "مقرّنا في واحة دبي للسيليكون"
   },
   "faq": {
-    "eyebrow": "Questions",
-    "title": "Before you book",
-    "all": "Read all FAQs",
+    "eyebrow": "أسئلة",
+    "title": "قبل أن ترسل طلبك",
+    "all": "اقرأ كل الأسئلة الشائعة",
     "age": {
-      "q": "How old do I need to be?",
-      "a": "{age} or older for most cars, with a licence held for at least {years} years ({supercarYears} years for supercars). Bugatti drivers must be {hyperAge} or older with {hyperYears} years' driving."
+      "q": "ما الحد الأدنى لعمر السائق؟",
+      "a": "{age} عامًا فأكثر لمعظم السيارات، مع رخصة قيادة مضى على إصدارها {years} سنوات على الأقل ({supercarYears} سنوات للسيارات الخارقة). ويجب أن يكون سائق Bugatti بعمر {hyperAge} عامًا فأكثر، مع خبرة قيادة لا تقل عن {hyperYears} سنوات."
     },
     "deposit": {
-      "q": "Is there a deposit?",
-      "a": "Yes. A refundable hold of {from} to {to} is placed on your card at handover, depending on the car, and shown separately from the price. We release it {days} days after the rental ends.",
-      "hyper": "Bugatti: from {amount}, released after {days} days."
+      "q": "هل يوجد مبلغ تأمين؟",
+      "a": "نعم. نحجز على بطاقتك عند التسليم مبلغ تأمين مستردًا يتراوح بين {from} و {to} حسب السيارة، ويظهر منفصلًا عن السعر. ونُفرج عنه بعد {days} يومًا من انتهاء الإيجار.",
+      "hyper": "Bugatti: ابتداءً من {amount}، ويُفرج عنه بعد {days} يومًا."
     },
     "airport": {
-      "q": "Can you deliver to the airport?",
-      "a": "Yes. We meet you in the arrivals hall at DXB or DWC for {fee} each way, airport parking included, and we track your flight in case it's late."
+      "q": "هل توصلون السيارة إلى المطار؟",
+      "a": "نعم. نستقبلك في صالة الوصول في مطار دبي الدولي (DXB) أو مطار آل مكتوم الدولي (DWC) مقابل {fee} لكل اتجاه، شاملًا رسوم مواقف المطار، ونتابع رحلتك تحسّبًا لأي تأخير."
     },
     "included": {
-      "q": "What does the daily rate include?",
-      "a": "5% VAT, comprehensive insurance and {kmFrom} to {kmTo} km a day, depending on the car. Salik tolls are passed on at AED 4 to AED 6 per crossing, plus AED {salik} each."
+      "q": "ماذا يشمل السعر اليومي؟",
+      "a": "ضريبة القيمة المضافة 5%، والتأمين الشامل، ومن {kmFrom} إلى {kmTo} كم يوميًا حسب السيارة. تُحتسب رسوم سالك بقيمة 4 إلى 6 دراهم لكل عبور، مضافًا إليها {salik} درهم عن كل عبور."
     }
   },
   "stage": {
-    "illustration": "Illustrative AI image"
+    "illustration": "صورة توضيحية مُنشأة بالذكاء الاصطناعي"
   }
 }

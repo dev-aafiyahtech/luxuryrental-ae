@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useSyncExternalStore, type
 import { useSearchParams } from "next/navigation";
 import { getCar } from "@/content/cars";
 import type { Car } from "@/content/types";
+import { useLocale } from "@/i18n/client";
 import { useTripDraft } from "@/lib/booking/draft";
 import type { Quote, ServiceMode } from "@/lib/pricing";
 import { todayInDubai } from "@/lib/dates";
@@ -72,10 +73,11 @@ export interface DraftQuote {
 /** The shared draft priced for a car, plus clock-derived values. Everything is null/empty until hydrated. */
 export function useDraftQuote(car: Car | undefined): DraftQuote {
   const [trip, update, hydrated] = useTripDraft();
+  const locale = useLocale();
   const now = useNow();
   const ready = hydrated && now > 0;
   const service: ServiceMode = car ? serviceFor(car, trip) : trip.service;
-  const q = useMemo(() => (car && ready ? quoteFor(car, trip, new Date(now)) : null), [car, trip, ready, now]);
+  const q = useMemo(() => (car && ready ? quoteFor(car, trip, new Date(now), { locale }) : null), [car, trip, ready, now, locale]);
   const earliest = useMemo(() => (car && ready ? earliestStart(car, service, new Date(now)) : null), [car, service, ready, now]);
   return {
     trip,

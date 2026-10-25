@@ -5,7 +5,7 @@ import { getZone } from "@/content/zones";
 import { formatAED } from "@/lib/format";
 import { advanceRule, refundWindows } from "./cancellation";
 import {
-  carsInTier, commonKmPerDay, depositRange, kmExceptions, legalUpdated, listJoin, noticeText, tierName, tierOrder, salikTariff,
+  carsInTier, commonKmPerDay, depositRange, kmExceptions, legalUpdated, listJoin, longDate, noticeText, tierName, tierOrder, salikTariff,
 } from "./shared";
 
 // Legal pages (workstream 05 §2 and §4): website summaries written from the assumed rules
@@ -636,3 +636,18 @@ export const legalDocs: LegalDoc[] = [
 ];
 
 export const getLegalDoc = (slug: string) => legalDocs.find((d) => d.slug === slug);
+
+/** Labels for the legal page template (app/[lang]/legal/[slug]). ar/legal.ts has the same shape. */
+export const legalUi = {
+  home: "Home",
+  legal: "Legal",
+  version: (version: string) => `Version: ${version}`,
+  updated: "Last updated",
+  date: (iso: string) => longDate(iso),
+  demoTitle: "Demo terms",
+  demoText: "Written for the demo from our assumed booking rules. A UAE lawyer reviews the final text before launch.",
+  contents: "Contents",
+  otherPages: "Other legal pages",
+  /** BCP 47 tag for JSON-LD `inLanguage`; left out on English pages. */
+  inLanguage: undefined as string | undefined,
+};

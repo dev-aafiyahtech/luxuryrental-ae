@@ -7,7 +7,7 @@ import { ChevronUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { Car } from "@/content/types";
 import { getZone } from "@/content/zones";
-import { useHref, useT } from "@/i18n/client";
+import { useHref, useLocale, useT } from "@/i18n/client";
 import type { Quote, ServiceMode } from "@/lib/pricing";
 import type { TripDraft } from "@/lib/booking/types";
 import { formatDay } from "@/lib/dates";
@@ -18,25 +18,28 @@ import { ErrorSummary, type FormError } from "./ErrorSummary";
 import { QuoteTable, TotalText } from "./QuoteTable";
 import { FinishOnWhatsApp, StepHeader } from "./bits";
 import { useDockHeight, useDraftQuote, useFlowCar, usePortalTarget, useReducedMotion } from "./hooks";
-import { fullDraftMessage, packageText, stepPath, zoneName, type StepId } from "./lib";
+import { fullDraftMessage, listSep, packageText, stepPath, zoneName, type StepId } from "./lib";
 
-/** Short "when" and "where" lines for a draft. */
-export function tripLines(trip: TripDraft, service: ServiceMode, t: (k: string, v?: Record<string, string | number>) => string) {
+/** Short "when" and "where" lines for a draft, in `locale` (dates, zone names, package, punctuation). */
+export function tripLines(trip: TripDraft, service: ServiceMode, t: (k: string, v?: Record<string, string | number>) => string, locale?: string) {
+  const sep = listSep(locale);
+  const arrow = locale === "ar" ? "←" : "→";
   const when =
     service === "chauffeur"
-      ? trip.pickupDate ? `${formatDay(trip.pickupDate)}, ${trip.pickupTime} · ${packageText(trip)}` : ""
-      : trip.pickupDate && trip.returnDate ? `${formatDay(trip.pickupDate)}, ${trip.pickupTime} → ${formatDay(trip.returnDate)}, ${trip.returnTime}` : "";
+      ? trip.pickupDate ? `${formatDay(trip.pickupDate, locale)}${sep}${trip.pickupTime} · ${packageText(trip, locale)}` : ""
+      : trip.pickupDate && trip.returnDate ? `${formatDay(trip.pickupDate, locale)}${sep}${trip.pickupTime} ${arrow} ${formatDay(trip.returnDate, locale)}${sep}${trip.returnTime}` : "";
   let where: string;
-  if (service === "chauffeur") where = `${t("trip.pickupZone")}: ${zoneName(trip.pickup.zone)}${trip.pickup.address ? `, ${trip.pickup.address}` : ""}`;
+  if (service === "chauffeur") where = `${t("trip.pickupZone")}: ${zoneName(trip.pickup.zone, locale)}${trip.pickup.address ? `${sep}${trip.pickup.address}` : ""}`;
   else if (trip.handover === "collect") where = t("trip.dsoTitle");
-  else where = `${t("trip.delivery")}: ${zoneName(trip.pickup.zone)}${trip.pickup.address ? `, ${trip.pickup.address}` : ""}`;
-  const back = service === "self-drive" && !trip.sameReturn ? `${t("review.return")}: ${zoneName(trip.dropoff.zone)}${trip.dropoff.address ? `, ${trip.dropoff.address}` : ""}` : "";
+  else where = `${t("trip.delivery")}: ${zoneName(trip.pickup.zone, locale)}${trip.pickup.address ? `${sep}${trip.pickup.address}` : ""}`;
+  const back = service === "self-drive" && !trip.sameReturn ? `${t("review.return")}: ${zoneName(trip.dropoff.zone, locale)}${trip.dropoff.address ? `${sep}${trip.dropoff.address}` : ""}` : "";
   return { when, where, back };
 }
 
 export function QuoteSummary({ car, trip, quote, service, className }: { car: Car; trip: TripDraft; quote: Quote | null; service: ServiceMode; className?: string }) {
   const t = useT("booking");
-  const { when, where, back } = tripLines(trip, service, t);
+  const locale = useLocale();
+  const { when, where, back } = tripLines(trip, service, t, locale);
   return (
     <section aria-label={t("quote.summary")} className={clsx("glass grid gap-5 p-6", className)}>
       <div className="flex items-center gap-4">
@@ -145,6 +148,7 @@ export function FlowShell({ step, title, backHref, car, trip, quote, service, fo
   intro?: ReactNode;
 }) {
   const t = useT("booking");
+  const locale = useLocale();
   const [sheet, setSheet] = useState(false);
   return (
     <div className="container-site pb-40 lg:pb-24">
@@ -162,7 +166,7 @@ export function FlowShell({ step, title, backHref, car, trip, quote, service, fo
             </button>
           </div>
           {after}
-          <FinishOnWhatsApp text={fullDraftMessage(trip, car, quote)} className="border-t border-line pt-6" />
+          <FinishOnWhatsApp text={fullDraftMessage(trip, car, quote, locale)} className="border-t border-line pt-6" />
         </div>
         <aside className="hidden lg:block">
           <div className="sticky top-[calc(var(--header-h)+24px)]">

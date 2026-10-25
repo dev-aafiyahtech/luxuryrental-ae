@@ -3,6 +3,7 @@ import { cars } from "@/content/cars";
 import { categories, getBrand, getCategory } from "@/content/brands";
 import { offers } from "@/content/rules";
 import { fromPrice } from "@/lib/pricing";
+import { monthName } from "@/lib/dates";
 
 // Small, pure helpers shared by the brand, car and category pages. Facts always come from
 // the content modules; nothing here invents a number.
@@ -22,11 +23,10 @@ export function activeOffer(id: string, today: string) {
   return offer && today <= offer.validUntil ? offer : undefined;
 }
 
-/** "31 Dec 2026" from an ISO date. */
-export function shortDate(iso: string): string {
+/** "31 Dec 2026" from an ISO date (Arabic: "31 ديسمبر 2026"). */
+export function shortDate(iso: string, locale?: string): string {
   const [y, m, d] = iso.split("-").map(Number);
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  return `${d} ${months[m - 1]} ${y}`;
+  return `${d} ${monthName(m, false, locale)} ${y}`;
 }
 
 /**

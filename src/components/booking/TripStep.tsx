@@ -8,12 +8,13 @@ import type { Car } from "@/content/types";
 import { cars, carPath, heroCars } from "@/content/cars";
 import { rules } from "@/content/rules";
 import { getZone, zones } from "@/content/zones";
-import { useHref, useT } from "@/i18n/client";
+import { chauffeurIncluded, localizeZone, localizeZones } from "@/content/localize";
+import { useHref, useLocale, useT } from "@/i18n/client";
 import type { DeliveryZone } from "@/content/types";
 import type { ChauffeurPackage, Quote, QuoteIssue, ServiceMode } from "@/lib/pricing";
 import { fromPrice } from "@/lib/pricing";
 import { formatDay, formatRange } from "@/lib/dates";
-import { formatAED } from "@/lib/format";
+import { formatAED, formatNumber, formatPerDay } from "@/lib/format";
 import { draftMessage, whatsappHref } from "@/lib/whatsapp";
 import type { TripDraft } from "@/lib/booking/types";
 import { CarArt } from "@/components/car/CarArt";
@@ -30,22 +31,24 @@ import { TimeSelect } from "./TimeSelect";
 import { FlowSkeleton, StepHeader } from "./bits";
 import { FlowShell, useErrors, useFlow, zoneIsAirport } from "./FlowShell";
 import { useMediaQuery } from "./hooks";
-import { bumpTime, deliveryZones, maxDate, stepPath } from "./lib";
+import { bumpTime, daysText, deliveryZones, maxDate, stepPath } from "./lib";
 import { tripErrors, tripFieldId } from "./validate";
 
 type T = ReturnType<typeof useT>;
 
-function zoneHint(z: DeliveryZone | undefined, t: T) {
+function zoneHint(z: DeliveryZone | undefined, t: T, locale: string) {
   if (!z) return undefined;
-  if (z.fee === null) return `${t("trip.zoneOnRequest")}. ${z.note ?? ""}`.trim();
+  const stop = locale === "ar" ? "." : ".";
+  if (z.fee === null) return `${t("trip.zoneOnRequest")}${stop} ${z.note ?? ""}`.trim();
   if (z.fee === 0) return t("trip.zoneFree");
-  if (z.freeFromDays) return t("trip.zoneFreeFrom", { fee: z.fee, days: z.freeFromDays });
-  return `${t("trip.zoneFee", { fee: formatAED(z.fee) })}${z.note ? `. ${z.note}` : ""}`;
+  if (z.freeFromDays) return t("trip.zoneFreeFrom", { fee: formatNumber(z.fee), days: z.freeFromDays });
+  return `${t("trip.zoneFee", { fee: formatAED(z.fee, locale) })}${z.note ? `${stop} ${z.note}` : ""}`;
 }
 
 /** Inline issue from quote(): text plus a WhatsApp way out when the request can't be made online. */
 function IssueList({ issues, trip, car }: { issues: QuoteIssue[]; trip: TripDraft; car: Car }) {
   const t = useT("booking");
+  const locale = useLocale();
   if (!issues.length) return null;
   return (
     <ul className="m-0 grid list-none gap-2 p-0">
@@ -55,7 +58,7 @@ function IssueList({ issues, trip, car }: { issues: QuoteIssue[]; trip: TripDraf
           <span className="grid gap-1">
             <span>{i.message}</span>
             {(i.resolution === "whatsapp" || i.field === "pickupDate") && (
-              <a href={whatsappHref(draftMessage(trip, car.name))} target="_blank" rel="noopener" className="inline-flex min-h-11 w-fit items-center gap-1.5 font-semibold text-fg underline decoration-accent/60 underline-offset-4">
+              <a href={whatsappHref(draftMessage(trip, car.name, locale))} target="_blank" rel="noopener" className="inline-flex min-h-11 w-fit items-center gap-1.5 font-semibold text-fg underline decoration-accent/60 underline-offset-4">
                 <WhatsAppIcon className="h-4 w-4" />
                 {t("reserve.askWhatsApp")}
               </a>
@@ -69,6 +72,7 @@ function IssueList({ issues, trip, car }: { issues: QuoteIssue[]; trip: TripDraf
 
 function CarPicker({ today, onCancel }: { today: string; onCancel?: () => void }) {
   const t = useT("booking");
+  const locale = useLocale();
   const href = useHref();
   const list = [...heroCars(), ...cars.filter((c) => c.chauffeurFirst)];
   return (
@@ -84,7 +88,7 @@ function CarPicker({ today, onCancel }: { today: string; onCancel?: () => void }
                 <span className="font-semibold text-fg">{car.name}</span>
                 <span className="text-sm tabular text-muted">
                   {car.rates.onRequest ? `${t("reserve.from")} ` : ""}
-                  {formatAED(fromPrice(car, today))} / day
+                  {formatPerDay(fromPrice(car, today), locale)}
                 </span>
               </span>
             </Link>
@@ -123,8 +127,9 @@ function ZoneFields({ prefix, zone, address, flight, onZone, onAddress, onFlight
   issues?: React.ReactNode;
 }) {
   const t = useT("booking");
-  const z = getZone(zone);
-  const hint = zoneHint(z, t);
+  const locale = useLocale();
+  const z = localizeZone(getZone(zone), locale);
+  const hint = zoneHint(z, t, locale);
   const zoneId = prefix === "trip" ? tripFieldId.pickupZone : tripFieldId.returnZone;
   return (
     <div className="grid gap-5">
@@ -161,6 +166,7 @@ function ZoneFields({ prefix, zone, address, flight, onZone, onAddress, onFlight
 
 export function TripStep() {
   const t = useT("booking");
+  const locale = useLocale();
   const f = useFlow();
   const { car, carParam, trip, update, hydrated, today, earliest, quote: q, service, outOfHours, go, href, router } = f;
   const { touch, visible, check, submitted, summaryRef } = useErrors();
@@ -176,7 +182,7 @@ export function TripStep() {
   const start = earliest!;
   const chauffeur = service === "chauffeur";
   const clash = avail.clash(trip.pickupDate, trip.returnDate, service);
-  const errors = tripErrors(trip, quote, service, t, clash, car.name);
+  const errors = tripErrors(trip, quote, service, t, clash, car.name, locale);
   const issuesFor = (fields: string[]) => quote.issues.filter((i, n, all) => fields.includes(i.field) && all.findIndex((x) => x.message === i.message) === n);
   const setRange = (r: { start: string; end?: string }) => update({ pickupDate: r.start, ...(r.end ? { returnDate: r.end } : {}), pickupTime: bumpTime(r.start, trip.pickupTime, start) });
   const setService = (v: ServiceMode) => {
@@ -191,11 +197,12 @@ export function TripStep() {
     }
   };
 
-  const range = trip.pickupDate && trip.returnDate ? formatRange(trip.pickupDate, trip.returnDate) : "";
-  const days = quote.days === 1 ? t("quote.day") : t("quote.days", { n: quote.days });
+  const range = trip.pickupDate && trip.returnDate ? formatRange(trip.pickupDate, trip.returnDate, locale) : "";
+  const days = daysText(t, locale, quote.days);
   const announce = chauffeur
-    ? trip.pickupDate ? t("picker.announceSingle", { date: formatDay(trip.pickupDate), total: formatAED(quote.total) }) : ""
-    : range && quote.total ? t("picker.announce", { range, days, total: formatAED(quote.total) }) : range;
+    ? trip.pickupDate ? t("picker.announceSingle", { date: formatDay(trip.pickupDate, locale), total: formatAED(quote.total, locale) }) : ""
+    : range && quote.total ? t("picker.announce", { range, days, total: formatAED(quote.total, locale) }) : range;
+  const zoneList = localizeZones(deliveryZones, locale);
   const showBanner = !carParam && trip.updatedAt > 0;
   const rates = car.chauffeur;
 
@@ -278,8 +285,8 @@ export function TripStep() {
               <div className="grid gap-3">
                 {(["hourly", "half-day", "full-day", "airport"] as ChauffeurPackage[]).map((p) => {
                   const on = trip.chauffeur.package === p;
-                  const price = p === "hourly" ? `${formatAED(rates.hourly)} / h` : formatAED(p === "half-day" ? rates.halfDay : p === "full-day" ? rates.fullDay : rates.airport);
-                  const detail = p === "hourly" ? t("packages.hourlyDetail", { min: rules.chauffeur.minHours, rate: rates.hourly }) : p === "airport" ? t("packages.airportDetail") : t(`packages.${p}Detail`, { hours: p === "half-day" ? rules.chauffeur.halfDayHours : rules.chauffeur.fullDayHours });
+                  const price = p === "hourly" ? t("packages.perHour", { amount: formatAED(rates.hourly, locale) }) : formatAED(p === "half-day" ? rates.halfDay : p === "full-day" ? rates.fullDay : rates.airport, locale);
+                  const detail = p === "hourly" ? t("packages.hourlyDetail", { min: rules.chauffeur.minHours, rate: formatNumber(rates.hourly) }) : p === "airport" ? t("packages.airportDetail") : t(`packages.${p}Detail`, { hours: p === "half-day" ? rules.chauffeur.halfDayHours : rules.chauffeur.fullDayHours });
                   return (
                     <RadioCard
                       key={p}
@@ -304,7 +311,7 @@ export function TripStep() {
             <Section legend={t("trip.pickup")}>
               <ZoneFields
                 prefix="trip"
-                list={deliveryZones}
+                list={zoneList}
                 label={t("trip.pickupZone")}
                 addressLabel={t("trip.address")}
                 zone={trip.pickup.zone === "dso" ? "dubai" : trip.pickup.zone}
@@ -319,7 +326,7 @@ export function TripStep() {
               />
               <p className="flex items-start gap-2 text-sm text-muted">
                 <MapPin className="mt-0.5 h-4 w-4 flex-none text-accent" aria-hidden="true" />
-                {t("trip.chauffeurIncluded", { included: rules.chauffeur.included })}
+                {t("trip.chauffeurIncluded", { included: chauffeurIncluded(locale) })}
               </p>
             </Section>
           </>
@@ -373,7 +380,7 @@ export function TripStep() {
               {trip.handover === "delivery" ? (
                 <ZoneFields
                   prefix="trip"
-                  list={deliveryZones}
+                  list={zoneList}
                   label={t("trip.zone")}
                   addressLabel={t("trip.address")}
                   zone={trip.pickup.zone === "dso" ? "dubai" : trip.pickup.zone}
@@ -406,7 +413,7 @@ export function TripStep() {
               {!trip.sameReturn && (
                 <ZoneFields
                   prefix="trip-return"
-                  list={zones}
+                  list={localizeZones(zones, locale)}
                   label={t("trip.returnZone")}
                   addressLabel={t("trip.returnAddress")}
                   zone={trip.dropoff.zone}

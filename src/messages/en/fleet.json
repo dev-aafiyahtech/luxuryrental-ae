@@ -251,7 +251,15 @@
     "stickyNoteRequest": "On request · from, incl. VAT",
     "perHourChauffeur": "/ hour with chauffeur",
     "selfDriveFrom": "Self-drive on approval, from {price} / day",
-    "stickyChauffeurCta": "Book chauffeur"
+    "stickyChauffeurCta": "Book chauffeur",
+    "views": {
+      "front": "front three-quarter view",
+      "side": "side view",
+      "rear": "rear three-quarter view",
+      "interior": "interior",
+      "wheel": "wheel and brake detail"
+    },
+    "galleryAlt": "{name}, {view}"
   },
   "brand": {
     "title": "Rent a {brand} in Dubai",
@@ -320,5 +328,13 @@
     "escortA": "In person, by our team. We deliver the car anywhere in Dubai with an escort, check your documents and give you a full briefing before you drive. We need {hours} hours' notice to prepare the car and confirm the insurance.",
     "selfDriveQ": "Can I drive the {model} myself?",
     "selfDriveA": "Yes, with our approval. Self-drive is open to drivers aged {age} or older with a licence held for at least {years} years, from {price} a day. Most guests book it with one of our chauffeurs, for weddings, airport arrivals and evenings out."
+  },
+  "ld": {
+    "transmission": "Automatic",
+    "fuel": "Petrol",
+    "fuelHybrid": "Petrol plug-in hybrid",
+    "sprint": "0-100 km/h",
+    "city": "Dubai",
+    "onRequest": "Price on request; the daily rate shown is the starting price."
   }
 }

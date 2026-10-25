@@ -156,7 +156,8 @@
     "airport": "Airport transfer",
     "airportDetail": "DXB or DWC to anywhere in Dubai, one way",
     "hours": "Hours",
-    "hoursUnit": "{n} h"
+    "hoursUnit": "{n} h",
+    "perHour": "{amount} / h"
   },
   "dock": {
     "label": "Plan your trip",
@@ -270,7 +271,8 @@
     "documents": "No documents now",
     "documentsText": "We ask for your licence and passport or Emirates ID on WhatsApp after you send the request, and check the originals at handover. We never keep your passport.",
     "privacy": "We use these details only to handle this request.",
-    "selfDriveAlt": "Prefer not to drive? Book a chauffeur instead."
+    "selfDriveAlt": "Prefer not to drive? Book a chauffeur instead.",
+    "otherCountry": "Another country"
   },
   "errors": {
     "name": "Enter your full name.",
@@ -467,7 +469,18 @@
     "balance": "Balance due at handover",
     "newRequest": "Start a new request",
     "browse": "Browse cars",
-    "live": "Updates live when our team changes the status."
+    "live": "Updates live when our team changes the status.",
+    "events": {
+      "requestSent": "Request sent from the website",
+      "opsEmailed": "Ops emailed (simulated)",
+      "customerCancelled": "Cancelled by the customer on the website",
+      "demoPayment": "Demo payment, nothing charged",
+      "agreementSigned": "Rental agreement {number} e-signed",
+      "handoverCheckRecorded": "Handover check recorded: {km} km, fuel {fuel}/8, damage marks: {marks}",
+      "returnCheckRecorded": "Return check recorded: {km} km, fuel {fuel}/8, damage marks: {marks}",
+      "handoverCheckSigned": "Handover condition report signed",
+      "returnCheckSigned": "Return condition report signed"
+    }
   },
   "pay": {
     "banner": "Demo payment: no card details are collected and nothing is charged.",
@@ -563,5 +576,19 @@
   },
   "badge": {
     "demo": "Demo"
+  },
+  "count": {
+    "note": "Counted nouns by CLDR plural category; {n} is the number. English uses only one and other. Arabic uses all six: zero (0), one (1), two (2), few (3–10), many (11–99), other (100+).",
+    "days": { "zero": "{n} days", "one": "1 day", "two": "{n} days", "few": "{n} days", "many": "{n} days", "other": "{n} days" },
+    "hours": { "zero": "{n} hours", "one": "1 hour", "two": "{n} hours", "few": "{n} hours", "many": "{n} hours", "other": "{n} hours" },
+    "requests": { "zero": "{n} requests", "one": "1 request", "two": "{n} requests", "few": "{n} requests", "many": "{n} requests", "other": "{n} requests" }
+  },
+  "ics": {
+    "summary": "{car} (request {ref}, not yet confirmed)",
+    "summaryChauffeur": "{car} with chauffeur (request {ref}, not yet confirmed)",
+    "description": "Booking request {ref}. Not confirmed until {business} confirms it on WhatsApp.",
+    "quote": "Quote: {amount} incl. VAT.",
+    "quoteFrom": "Quote: from {amount} incl. VAT.",
+    "whatsapp": "WhatsApp: {number}"
   }
 }

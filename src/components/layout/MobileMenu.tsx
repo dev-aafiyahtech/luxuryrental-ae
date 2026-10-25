@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { Menu, UserRound, X } from "lucide-react";
+import { LanguageSwitch } from "./LanguageSwitch";
 
 interface LinkItem { label: string; href: string }
 
@@ -32,9 +33,12 @@ export function MobileMenu({ nav, groups, labels, reserveHref, account }: { nav:
             ) : (
               <span />
             )}
-            <button type="button" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-line" aria-label={labels.close} onClick={() => ref.current?.close()} autoFocus>
-              <X className="h-5 w-5" aria-hidden="true" />
-            </button>
+            <div className="flex items-center gap-2">
+              <LanguageSwitch variant="menu" />
+              <button type="button" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-line" aria-label={labels.close} onClick={() => ref.current?.close()} autoFocus>
+                <X className="h-5 w-5" aria-hidden="true" />
+              </button>
+            </div>
           </div>
           <nav className="grid gap-1" aria-label={labels.menu}>
             {nav.map((item) => (

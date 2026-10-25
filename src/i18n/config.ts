@@ -19,3 +19,27 @@ export function localeHref(locale: string, path: string): string {
   if (locale === defaultLocale) return clean;
   return clean === "/" ? `/${locale}` : `/${locale}${clean}`;
 }
+
+/** Each language's name in that language, for the language switcher. Never translated. */
+export const localeNames: Record<Locale, string> = { en: "English", ar: "العربية" };
+
+/** Open Graph locale for each site locale (UAE audience). */
+export const ogLocales: Record<Locale, string> = { en: "en_AE", ar: "ar_AE" };
+
+/** The other language on this two-language site (the switcher's target). */
+export const otherLocale = (locale: string): Locale => (locale === "ar" ? "en" : "ar");
+
+/** Drop a locale prefix from a pathname: "/ar/cars" → "/cars", "/en" → "/", "/cars" → "/cars". */
+export function stripLocale(pathname: string): string {
+  const [, first = "", ...rest] = pathname.split("/");
+  if (!isLocale(first)) return pathname || "/";
+  return rest.length ? `/${rest.join("/")}` : "/";
+}
+
+/**
+ * Keep a left-to-right run (phone number, booking reference, licence or plate code) in order
+ * inside Arabic text when it is interpolated into a plain string, such as a translated message
+ * or an aria-label. Wraps it in Unicode isolates (LRI … PDI). In JSX prefer `<span dir="ltr">`.
+ * Not for metadata or structured data, where the invisible marks would leak into search results.
+ */
+export const ltr = (value: string | number) => `⁦${value}⁩`;

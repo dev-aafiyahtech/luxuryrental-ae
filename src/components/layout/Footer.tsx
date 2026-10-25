@@ -1,15 +1,17 @@
 import Link from "next/link";
-import { getHref, getT } from "@/i18n/dictionaries";
+import { getHref, getLocale, getT } from "@/i18n/dictionaries";
 import { brands, categories } from "@/content/brands";
-import { site } from "@/content/site";
+import { localizeCategory, siteFor } from "@/content/localize";
 import { whatsappHref } from "@/lib/whatsapp";
 import { Logo } from "@/components/brand/Logo";
+import { LanguageSwitch } from "./LanguageSwitch";
 
 export async function Footer() {
-  const t = await getT("common");
-  const href = await getHref();
+  const [t, href, locale] = await Promise.all([getT("common"), getHref(), getLocale()]);
+  const site = siteFor(locale);
+  const comma = locale === "ar" ? "، " : ", ";
   const cols = [
-    { title: t("footer.fleet"), links: [...brands.map((b) => ({ label: b.name, href: `/cars/${b.slug}` })), ...categories.map((c) => ({ label: c.name, href: `/cars/type/${c.slug}` }))] },
+    { title: t("footer.fleet"), links: [...brands.map((b) => ({ label: b.name, href: `/cars/${b.slug}` })), ...categories.map((c) => ({ label: localizeCategory(c, locale).name, href: `/cars/type/${c.slug}` }))] },
     { title: t("footer.services"), links: [{ label: t("nav.chauffeur"), href: "/chauffeur" }, { label: t("nav.delivery"), href: "/delivery" }, { label: t("footer.airport"), href: "/delivery/dubai-airport-dxb" }, { label: t("nav.pricing"), href: "/pricing" }, { label: t("footer.requirements"), href: "/requirements" }] },
     { title: t("footer.company"), links: [{ label: t("footer.about"), href: "/about" }, { label: t("nav.faq"), href: "/faq" }, { label: t("nav.contact"), href: "/contact" }] },
     { title: t("footer.legal"), links: [{ label: t("footer.terms"), href: "/legal/terms-of-rental" }, { label: t("footer.cancellation"), href: "/legal/cancellation" }, { label: t("footer.privacy"), href: "/legal/privacy" }, { label: t("footer.cookies"), href: "/legal/cookies" }, { label: t("footer.termsOfUse"), href: "/legal/terms-of-use" }, { label: t("footer.accessibility"), href: "/legal/accessibility" }] },
@@ -23,14 +25,15 @@ export async function Footer() {
             <Link href={href("/")} className="no-underline"><Logo /></Link>
             <address className="not-italic text-sm leading-relaxed text-muted">
               {site.businessName}<br />
-              {site.address.line1}, {site.address.area}<br />
-              {site.address.city}, {site.address.country}<br />
+              {site.address.line1}{comma}{site.address.area}<br />
+              {site.address.city}{comma}{site.address.country}<br />
               {site.hours}
             </address>
             <p className="text-sm text-muted">
-              <a href={whatsappHref()} target="_blank" rel="noopener" className="text-fg">WhatsApp {site.whatsappDisplay}</a><br />
-              <a href={`mailto:${site.email}`}>{site.email}</a>
+              <a href={whatsappHref()} target="_blank" rel="noopener" className="text-fg">{t("footer.whatsapp")} <span dir="ltr">{site.whatsappDisplay}</span></a><br />
+              <a href={`mailto:${site.email}`} dir="ltr">{site.email}</a>
             </p>
+            <LanguageSwitch variant="footer" className="justify-self-start" />
           </div>
           {cols.map((col) => (
             <nav key={col.title} aria-label={col.title} className="grid content-start gap-3">

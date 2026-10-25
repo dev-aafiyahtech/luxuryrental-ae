@@ -1,8 +1,13 @@
 {
+  "meta": {
+    "title": "Luxury Car Rental in Dubai, Delivered | LuxuryRental.ae",
+    "description": "16 cars from Ferrari, Lamborghini, Rolls-Royce, Bugatti and more, delivered across Dubai including DXB. Request online, confirm on WhatsApp."
+  },
   "demo": {
     "bar": "Demo site: bookings and payments are simulated. Nothing is booked or charged.",
     "ops": "Ops view",
-    "reset": "Reset demo"
+    "reset": "Reset demo",
+    "badge": "Demo"
   },
   "nav": {
     "label": "Main",
@@ -19,7 +24,10 @@
     "account": "Your account",
     "skip": "Skip to content",
     "brands": "Brands",
-    "types": "Types"
+    "types": "Types",
+    "homeLabel": "{brand} home",
+    "language": "Language",
+    "breadcrumb": "Breadcrumb"
   },
   "footer": {
     "fleet": "Fleet",
@@ -40,7 +48,8 @@
     "trademarks": "Ferrari, Lamborghini, Rolls-Royce, Bugatti, McLaren, Bentley, Aston Martin and Maserati are trademarks of their owners. Luxuryrentals is not affiliated with or endorsed by them.",
     "licence": "Trade licence {licence} · RTA permit {rta} · VAT TRN {trn}",
     "rights": "© 2026 {name}. All rights reserved.",
-    "sample": "Demo: the company name, licence, permit and TRN shown are sample values."
+    "sample": "Demo: the company name, licence, permit and TRN shown are sample values.",
+    "whatsapp": "WhatsApp"
   },
   "car": {
     "from": "From",
@@ -51,6 +60,42 @@
     "details": "See details",
     "chauffeurAvailable": "Chauffeur available",
     "newArrival": "New arrival",
-    "featured": "Featured"
+    "featured": "Featured",
+    "onRequestFrom": "On request · from",
+    "request": "Request",
+    "chauffeur": "Chauffeur",
+    "aiTag": "AI image",
+    "altIllustration": "{name}, illustration",
+    "altAi": "{name}, AI image",
+    "hp": "{hp} hp",
+    "hpPs": "{hp} hp ({ps} PS)",
+    "sprint": "0–100 in {s}",
+    "seats": "{seats} seats",
+    "km": "{km} km",
+    "minAge": "{age}+",
+    "awd": "All-wheel drive",
+    "rwd": "Rear-wheel drive",
+    "spec": {
+      "engine": "Engine",
+      "power": "Power",
+      "sprint": "0–100 km/h",
+      "top": "Top speed",
+      "seats": "Seats",
+      "body": "Body",
+      "drive": "Drive"
+    },
+    "callout": {
+      "powerHybrid": "{hp} hp combined",
+      "sprint": "0–100 km/h in {s}",
+      "top": "Top speed {speed}",
+      "km": "{km} km a day included"
+    }
+  },
+  "notFound": {
+    "eyebrow": "Wrong turn",
+    "title": "This road doesn't go anywhere",
+    "body": "The page you were looking for has moved or never existed.",
+    "fleet": "Browse the fleet",
+    "home": "Home"
   }
 }

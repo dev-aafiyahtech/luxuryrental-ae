@@ -91,6 +91,7 @@
     },
     "formats": "Photos (JPG, PNG, HEIC) or PDFs, up to 10 MB each.",
     "consentLabel": "I agree that Luxuryrentals may use these documents to check that the driver can rent this car, as set out in the Privacy Notice. They are deleted after the rental.",
+    "consentLabelLinked": "I agree that Luxuryrentals may use these documents to check that the driver can rent this car, as set out in the [Privacy Notice](/legal/privacy). They are deleted after the rental.",
     "consentNeeded": "Tick the box above to add your documents.",
     "consentGiven": "You agreed to the document check on {when}.",
     "consentWithdraw": "Withdraw and delete my documents",

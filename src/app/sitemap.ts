@@ -5,12 +5,19 @@ import { site } from "@/content/site";
 import { areaPages } from "@/content/pages/delivery";
 import { legalDocs } from "@/content/pages/legal";
 import { factsUpdated, legalUpdated } from "@/content/pages/shared";
+import { defaultLocale, localeHref, locales } from "@/i18n/config";
 
-// English URLs only (unprefixed). Arabic alternates are added in Phase 3.
+// Every public page in every locale (English unprefixed, Arabic under /ar), each entry listing
+// its language alternates and x-default (English).
 // Booking, status, payment and demo pages are left out: they are per-visitor.
 export default function sitemap(): MetadataRoute.Sitemap {
-  const url = (path: string) => `${site.url}${path === "/" ? "" : path}`;
-  const page = (path: string, priority: number, lastModified = factsUpdated) => ({ url: url(path), lastModified, priority });
+  const url = (locale: string, path: string) => {
+    const p = localeHref(locale, path);
+    return `${site.url}${p === "/" ? "" : p}`;
+  };
+  const languages = (path: string) => ({ ...Object.fromEntries(locales.map((l) => [l, url(l, path)])), "x-default": url(defaultLocale, path) });
+  const page = (path: string, priority: number, lastModified = factsUpdated) =>
+    locales.map((locale) => ({ url: url(locale, path), lastModified, priority, alternates: { languages: languages(path) } }));
   return [
     page("/", 1),
     page("/cars", 0.9),
@@ -26,5 +33,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     page("/faq", 0.6),
     page("/contact", 0.6),
     ...legalDocs.map((d) => page(`/legal/${d.slug}`, 0.3, legalUpdated)),
-  ];
+  ].flat();
 }
