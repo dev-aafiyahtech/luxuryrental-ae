@@ -60,7 +60,7 @@ export function DriverStep() {
           </Field>
           <PhoneInput id="driver-phone" label={t("driver.phone")} value={d.phone} onChange={(v) => set({ phone: v })} onBlur={() => touch("driver-phone")} error={err("driver-phone")} hint={t("phone.hint")} />
           <Field id="driver-email" label={t("driver.email")} optional={d.channel !== "email"} hint={t("driver.emailHint")} error={err("driver-email")}>
-            <input id="driver-email" type="email" inputMode="email" autoComplete="email" spellCheck={false} className="input" value={d.email ?? ""} onChange={(e) => set({ email: e.target.value })} onBlur={() => touch("driver-email")} aria-invalid={err("driver-email") ? true : undefined} aria-describedby={describedBy("driver-email", true, err("driver-email"))} />
+            <input id="driver-email" type="email" dir="ltr" inputMode="email" autoComplete="email" spellCheck={false} className="input" value={d.email ?? ""} onChange={(e) => set({ email: e.target.value })} onBlur={() => touch("driver-email")} aria-invalid={err("driver-email") ? true : undefined} aria-describedby={describedBy("driver-email", true, err("driver-email"))} />
           </Field>
           <Segmented<DriverDetails["channel"]>
             legend={t("driver.channel")}

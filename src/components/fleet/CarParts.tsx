@@ -45,7 +45,7 @@ export function HeadlineStats({ car, t }: { car: Car; t: T }) {
     { value: car.specs.seats, unit: "", label: t("car.statSeats") },
   ];
   return (
-    <dl className="grid grid-cols-3 divide-x divide-line rounded-[16px] border border-line bg-card/60 rtl:divide-x-reverse">
+    <dl className="grid grid-cols-3 divide-x divide-line rounded-[16px] border border-line bg-card/60">
       {stats.map((s) => (
         <div key={s.label} className="grid content-start gap-1 px-3 py-4 sm:px-5">
           <dt className="label order-2 text-[10px] sm:text-[11px]">{s.label}</dt>

@@ -14,6 +14,9 @@ export function longStamp(iso: string, locale?: string): string {
 /** "Friday 24 October 2026" in Dubai time. */
 export const longDate = (iso: string, locale?: string) => formatDayLong(nowInDubai(new Date(iso)).date, locale);
 
+/** Terms version for display: "1.0 (demo)" with the demo word in the visitor's language ("1.0 (تجريبي)"). */
+export const versionText = (version: string, demo: string) => version.replace("(demo)", `(${demo})`);
+
 /** Numbered section of the agreement document. */
 export function DocSection({ n, id, title, lede, children, className }: { n: number; id: string; title: string; lede?: ReactNode; children: ReactNode; className?: string }) {
   return (

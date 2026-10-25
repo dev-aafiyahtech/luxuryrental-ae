@@ -12,6 +12,7 @@ import { rules } from "@/content/rules";
 import { chauffeurIncluded, localizeCar, localizeCategory } from "@/content/localize";
 import { getHref, getLocale, getT } from "@/i18n/dictionaries";
 import { alternatesFor, ogLocaleFor } from "@/i18n/metadata";
+import { isolateFor } from "@/i18n/config";
 import { getToday } from "@/lib/server-time";
 import { fromPrice } from "@/lib/pricing";
 import { formatAED, formatNumber } from "@/lib/format";
@@ -84,19 +85,21 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
   const brand = brandName(car);
   const category = localizeCategory(primaryCategory(car), locale);
   const copy = copyFor(locale).carCopy[car.slug];
+  // Latin model names keep their own order inside Arabic sentences ("296 GTS", not "GTS 296").
+  const modelName = isolateFor(locale)(car.model);
   const paragraphs = copy?.description ? copy.description.split("\n\n") : [car.tagline];
   const highlights = copy?.highlights ?? [];
   const price = fromPrice(car, today);
   const path = carPath(car);
   const similar = similarCars(car, today);
-  const faqs = carFaqs(car, today, t, locale);
+  const faqs = carFaqs({ ...car, model: modelName }, today, t, locale);
   const { description } = metaFor(car, today, t);
 
   const crumbs = [
     { label: t("nav.home"), href: href("/") },
     { label: t("nav.fleet"), href: href("/cars") },
     { label: brand, href: href(`/cars/${car.brand}`) },
-    { label: car.model },
+    { label: modelName },
   ];
 
   const specs = specRows(car, locale);
@@ -179,7 +182,7 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
           </header>
 
           {/* Booking module: sticky right column on desktop, inline under the hero on mobile */}
-          <aside aria-label={t("car.bookingLabel", { model: car.model })} className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
+          <aside aria-label={t("car.bookingLabel", { model: modelName })} className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
             <div id="booking" className="grid scroll-mt-28 grid-cols-1 gap-4 lg:sticky lg:top-28">
               {car.rates.onRequest ? (
                 <ConciergePanel car={car} today={today} t={t} href={href} locale={locale} />
@@ -205,7 +208,7 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
 
           {/* Details */}
           <div className="grid min-w-0 content-start gap-16 lg:col-start-1">
-            <Section id="about" title={t("car.about", { model: car.model })}>
+            <Section id="about" title={t("car.about", { model: modelName })}>
               <div className="grid gap-4 text-[16px] leading-relaxed text-champagne">
                 {paragraphs.map((p) => <p key={p.slice(0, 32)} className="max-w-[68ch]">{p}</p>)}
               </div>
@@ -224,13 +227,13 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
               )}
             </Section>
 
-            <KineticCallouts id="kinetic" car={car} t={t} locale={locale} />
+            <KineticCallouts id="kinetic" car={{ ...car, model: modelName }} t={t} locale={locale} />
 
             <Section id="specs" title={t("car.specs")}>
               <SpecList car={car} rows={specs} />
             </Section>
 
-            <Section id="this-car" title={t("car.thisCar", { model: car.model })} lede={t("car.thisCarLede")}>
+            <Section id="this-car" title={t("car.thisCar", { model: modelName })} lede={t("car.thisCarLede")}>
               <div className="grid gap-8 md:grid-cols-2 md:gap-10">
                 <dl className="spec-list">
                   <div><dt>{t("car.modelYear")}</dt><dd>{car.year}</dd></div>
@@ -259,7 +262,7 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
             </Section>
 
             {gallery.length > 1 && (
-              <Section id="gallery" title={t("car.gallery")} lede={imageStatus(car).startsWith("ai") ? t("car.galleryLede", { model: car.model }) : undefined}>
+              <Section id="gallery" title={t("car.gallery")} lede={imageStatus(car).startsWith("ai") ? t("car.galleryLede", { model: modelName }) : undefined}>
                 <ul className="m-0 grid grid-cols-2 gap-3 p-0 [list-style:none] md:gap-4">
                   {gallery.map((g, i) => (
                     <li key={g.src} className={i === 0 ? "col-span-2" : undefined}>
@@ -314,7 +317,7 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
         </div>
 
         <div className="mt-20 grid gap-20">
-          <Faqs id="faqs" title={t("car.faqs", { model: car.model })} items={faqs} className="max-w-4xl" />
+          <Faqs id="faqs" title={t("car.faqs", { model: modelName })} items={faqs} className="max-w-4xl" />
 
           <section aria-labelledby="similar" className="grid gap-6">
             <div className="flex flex-wrap items-end justify-between gap-4">

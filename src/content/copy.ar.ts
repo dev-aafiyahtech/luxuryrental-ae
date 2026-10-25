@@ -3,7 +3,7 @@ import { cars, chauffeurCars, getCar } from "./cars";
 import { rules } from "./rules";
 import type { Car } from "./types";
 import { formatAED, formatNumber as n } from "@/lib/format";
-import { arabicCount, arabicUnits, tiersAr, type ArabicCountForms } from "./ar/data";
+import { arabicCount, arabicUnits, tiersAr } from "./ar/data";
 
 // Arabic marketing copy for cars and brands, the same shapes as copy.ts. Facts and numbers must
 // match cars.ts and rules.ts (interpolate them, as copy.ts does). Missing entries fall back to English.
@@ -26,9 +26,8 @@ const ps = (c: Car) => arabicCount(c.specs.ps, arabicUnits.ps);
 const years = (y: number) => arabicCount(y, arabicUnits.year);
 const hours = (h: number, nominative = false) => arabicCount(h, arabicUnits.hour, nominative);
 const days = (d: number, nominative = false) => arabicCount(d, arabicUnits.day, nominative);
-const AGE: ArabicCountForms = { one: "عام واحد", two: "عامين", few: "{n} أعوام", many: "{n} عاماً", other: "{n} عام" };
 /** "25 عاماً" */
-const age = (a: number) => arabicCount(a, AGE);
+const age = (a: number) => arabicCount(a, arabicUnits.age);
 /** "3.4 ثانية" (decimal seconds always take the singular). */
 const secs = (s: number) => `${s.toFixed(1)} ثانية`;
 const luxuryTier = tiersAr.L ?? "الفئة الفاخرة";

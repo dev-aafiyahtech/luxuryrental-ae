@@ -336,5 +336,12 @@
     "sprint": "0-100 km/h",
     "city": "Dubai",
     "onRequest": "Price on request; the daily rate shown is the starting price."
+  },
+  "og": {
+    "alt": "A car available to rent in Dubai from LuxuryRental.ae",
+    "price": "From {price} / day",
+    "priceOnRequest": "On request · from {price} / day",
+    "sub": "Incl. VAT · Delivered across Dubai",
+    "aiLabel": "Illustrative AI image"
   }
 }

@@ -7,6 +7,7 @@ import { copyFor } from "@/content/copy";
 import { brandCountry, localizeCars } from "@/content/localize";
 import { getHref, getLocale, getT } from "@/i18n/dictionaries";
 import { alternatesFor, ogLocaleFor } from "@/i18n/metadata";
+import { isolateFor } from "@/i18n/config";
 import { getToday } from "@/lib/server-time";
 import { fromPrice } from "@/lib/pricing";
 import { formatAED, formatNumber } from "@/lib/format";
@@ -60,7 +61,8 @@ async function BrandDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]
   const { brand, list } = data;
   const [a, b] = list;
   const copy = copyFor(locale).brandCopy[brand.slug];
-  const intro = copy?.intro ?? t("brand.intro", { brand: brand.name, a: a.model, b: b?.model ?? "" });
+  const iso = isolateFor(locale);
+  const intro = copy?.intro ?? t("brand.intro", { brand: brand.name, a: iso(a.model), b: iso(b?.model ?? "") });
   const faqs = copy?.faqs?.length ? copy.faqs.slice(0, 3) : brandFallbackFaqs(list, brand.name, t, locale);
 
   const crumbs = [
@@ -87,7 +89,7 @@ async function BrandDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]
         <h1 className="display-md max-w-4xl">{t("brand.title", { brand: brand.name })}</h1>
         <p className="lede max-w-[68ch]">{intro}</p>
         <p className="text-sm font-semibold text-champagne tabular">
-          {list.map((c) => `${c.model} ${c.rates.onRequest ? `${t("car.rate.onRequest").toLowerCase()} · ` : ""}${t("car.rate.fromDay", { price: formatAED(fromPrice(c, today), locale) })}`).join("  ·  ")}
+          {list.map((c) => `${iso(c.model)} ${c.rates.onRequest ? `${t("car.rate.onRequest").toLowerCase()} · ` : ""}${t("car.rate.fromDay", { price: formatAED(fromPrice(c, today), locale) })}`).join("  ·  ")}
         </p>
       </header>
 

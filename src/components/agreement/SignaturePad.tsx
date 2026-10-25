@@ -2,6 +2,7 @@
 
 import clsx from "clsx";
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { Aref_Ruqaa } from "next/font/google";
 import { Eraser } from "lucide-react";
 import { useT } from "@/i18n/client";
 import { Checkbox, FieldError } from "@/components/booking/Field";
@@ -18,9 +19,27 @@ const EXPORT_W = 600;
 const RATIO = 16 / 7; // pad width / height (matches aspect-[16/7])
 const EXPORT_H = Math.round(EXPORT_W / RATIO);
 const SCRIPT_FALLBACK = '"Segoe Script", "Snell Roundhand", "Apple Chancery", "Brush Script MT", "URW Chancery L", "Z003", cursive';
-/** The loaded signature face (Allura via next/font, `--font-signature`) first, then system script fonts. */
-const signatureFamily = () => getComputedStyle(document.documentElement).getPropertyValue("--font-signature").trim();
-const scriptFont = () => [signatureFamily(), SCRIPT_FALLBACK].filter(Boolean).join(", ");
+const ARABIC_FALLBACK = '"Diwan Thuluth", "DecoType Naskh", "Geeza Pro", "Noto Naskh Arabic", "Amiri", "Traditional Arabic", serif';
+
+// Arabic calligraphic (Ruqaa) face for names typed in Arabic script. Loaded only with the pad and
+// not preloaded: the browser fetches the Arabic subset when an Arabic name is drawn.
+const ruqaa = Aref_Ruqaa({ subsets: ["arabic"], weight: "400", variable: "--font-signature-ar", display: "swap", preload: false });
+
+const ARABIC = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
+
+/**
+ * Font stack for a typed name. Latin names: Allura (`--font-signature`, root layout) then system
+ * script faces. Arabic names: Aref Ruqaa (`--font-signature-ar`) then system Arabic faces (Allura has
+ * no Arabic glyphs, and its metric fallback would otherwise draw them in plain Arial).
+ */
+function scriptFont(el: Element, text: string): { stack: string; primary: string } {
+  const css = getComputedStyle(el);
+  const latin = css.getPropertyValue("--font-signature").trim();
+  const arabic = css.getPropertyValue("--font-signature-ar").trim();
+  const families = ARABIC.test(text) ? [arabic, ARABIC_FALLBACK] : [latin, SCRIPT_FALLBACK];
+  const stack = families.filter(Boolean).join(", ");
+  return { stack, primary: stack.split(",")[0]?.trim() ?? "" };
+}
 
 function inkColour(el: HTMLElement): string {
   return getComputedStyle(document.documentElement).getPropertyValue("--color-fg").trim() || getComputedStyle(el).color;
@@ -64,9 +83,10 @@ function drawTail(ctx: CanvasRenderingContext2D, s: Stroke, w: number, h: number
   ctx.stroke();
 }
 
-function drawTyped(ctx: CanvasRenderingContext2D, name: string, w: number, h: number) {
-  const font = scriptFont();
-  let size = h * 0.5;
+function drawTyped(ctx: CanvasRenderingContext2D, name: string, w: number, h: number, font: string) {
+  const arabic = ARABIC.test(name);
+  ctx.direction = arabic ? "rtl" : "ltr";
+  let size = h * (arabic ? 0.42 : 0.5);
   ctx.font = `400 ${size}px ${font}`;
   while (size > 12 && ctx.measureText(name).width > w * 0.86) {
     size -= 2;
@@ -74,18 +94,18 @@ function drawTyped(ctx: CanvasRenderingContext2D, name: string, w: number, h: nu
   }
   ctx.textAlign = "center";
   ctx.textBaseline = "alphabetic";
-  ctx.fillText(name, w / 2, h * 0.68);
+  ctx.fillText(name, w / 2, h * (arabic ? 0.64 : 0.68));
 }
 
 /** Clears and paints the whole pad (strokes, or the typed name when `typed` is a string). */
-function paint(ctx: CanvasRenderingContext2D, w: number, h: number, ink: string, strokes: Stroke[], typed: string | null) {
+function paint(ctx: CanvasRenderingContext2D, w: number, h: number, ink: string, strokes: Stroke[], typed: string | null, font = "cursive") {
   ctx.clearRect(0, 0, w, h);
   ctx.strokeStyle = ink;
   ctx.fillStyle = ink;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   if (typed !== null) {
-    if (typed) drawTyped(ctx, typed, w, h);
+    if (typed) drawTyped(ctx, typed, w, h, font);
     return;
   }
   for (const s of strokes) {
@@ -94,13 +114,13 @@ function paint(ctx: CanvasRenderingContext2D, w: number, h: number, ink: string,
   }
 }
 
-function exportPng(ink: string, strokes: Stroke[], typed: string | null): string {
+function exportPng(ink: string, strokes: Stroke[], typed: string | null, font?: string): string {
   const c = document.createElement("canvas");
   c.width = EXPORT_W;
   c.height = EXPORT_H;
   const ctx = c.getContext("2d");
   if (!ctx) return "";
-  paint(ctx, EXPORT_W, EXPORT_H, ink, strokes, typed);
+  paint(ctx, EXPORT_W, EXPORT_H, ink, strokes, typed, font);
   return c.toDataURL("image/png");
 }
 
@@ -140,7 +160,7 @@ export function SignaturePad({ id, label, name, onChange, error, className }: { 
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      paint(ctx, rect.width, rect.height, inkColour(canvas), strokes.current, typedRef.current);
+      paint(ctx, rect.width, rect.height, inkColour(canvas), strokes.current, typedRef.current, scriptFont(canvas, typedRef.current ?? "").stack);
     };
     resize();
     const ro = new ResizeObserver(resize);
@@ -155,16 +175,18 @@ export function SignaturePad({ id, label, name, onChange, error, className }: { 
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     const ink = inkColour(canvas);
+    const text = name.trim();
+    const { stack, primary } = scriptFont(canvas, text);
     const render = () => {
-      if (ctx) paint(ctx, size.current.w, size.current.h, ink, strokes.current, typedRef.current);
-      if (typed) onChangeRef.current(name.trim() ? exportPng(ink, [], name.trim()) : null);
+      if (ctx) paint(ctx, size.current.w, size.current.h, ink, strokes.current, typedRef.current, stack);
+      if (typed) onChangeRef.current(text ? exportPng(ink, [], text, stack) : null);
     };
     render();
     // The script face isn't preloaded: draw again once it has arrived.
     let cancelled = false;
-    // Load the script face alone: its size-adjusted local() fallback can fail where Arial isn't installed.
-    const family = signatureFamily().split(",")[0]?.trim();
-    if (typed && family && document.fonts) void document.fonts.load(`48px ${family}`).then(() => !cancelled && render(), () => undefined);
+    // Load the script face alone (with the name's characters, so the right subset comes): its
+    // size-adjusted local() fallback can fail where Arial isn't installed.
+    if (typed && text && primary && document.fonts) void document.fonts.load(`48px ${primary}`, text).then(() => !cancelled && render(), () => undefined);
     return () => {
       cancelled = true;
     };
@@ -244,7 +266,7 @@ export function SignaturePad({ id, label, name, onChange, error, className }: { 
   const hintId = `${id}-hint`;
 
   return (
-    <div className={clsx("field", className)}>
+    <div className={clsx("field", ruqaa.variable, className)}>
       <p id={`${id}-label`} className="field-label">{label}</p>
       <p id={hintId} className="field-hint">{typed ? t("signature.typedInstructions") : t("signature.instructions")}</p>
       <div

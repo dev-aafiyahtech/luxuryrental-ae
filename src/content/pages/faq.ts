@@ -5,6 +5,7 @@ import { getZone } from "@/content/zones";
 import type { Tier } from "@/content/types";
 import { formatAED, formatNumber as n, plural } from "@/lib/format";
 import { advanceRule, refundWindows } from "./cancellation";
+import * as faqAr from "./ar/faq";
 import {
   DEFAULT_MONTH_KM, carsInTier, chauffeurFromHourly, monthKmFor, chauffeurNames, depositRange, festiveDates, festiveMinDays,
   flagshipCars, hypercars, listJoin, noticeText, peakWeekendMinDays, tierName, salikTariff,
@@ -276,3 +277,34 @@ export function faqsById(...ids: string[]): FaqEntry[] {
 }
 
 export const faqCount = allFaqs.length;
+
+/** FAQ entries by id in the visitor's language (Arabic answers on /ar pages). Same ids in both languages. */
+export function faqsByIdFor(locale: string | undefined, ...ids: string[]): FaqEntry[] {
+  return locale === "ar" ? faqAr.faqsById(...ids) : faqsById(...ids);
+}
+
+/** Copy for the /faq page itself (headings, lede, calls to action). */
+export const faqPage = {
+  metaTitle: "Luxury Car Rental FAQ",
+  crumb: "FAQ",
+  eyebrow: (count: number) => `FAQ · ${count} answers`,
+  title: "How does renting with us work?",
+  lede: [
+    "Answers on booking, requirements, the deposit, insurance, delivery, chauffeur service and cancellation.",
+    "Every figure here matches our [pricing](/pricing) and [rental requirements](/requirements) pages.",
+  ],
+  whatsappText: `Hello ${site.businessName}, I have a question.`,
+  topicsLabel: "FAQ topics",
+  topics: "Topics",
+  groupCount: (count: number) => `${count} questions`,
+  ctaTitle: "Still have a question?",
+  ctaText: "Message us on WhatsApp with the car and the dates you have in mind, and we answer with the facts for your trip.",
+};
+
+export type FaqPageContent = typeof faqPage;
+
+/** Everything the FAQ page needs, in the visitor's language. */
+export function faqFor(locale?: string): { faqGroups: FaqGroup[]; allFaqs: FaqEntry[]; faqCount: number; faqPage: FaqPageContent } {
+  if (locale === "ar") return { faqGroups: faqAr.faqGroups, allFaqs: faqAr.allFaqs, faqCount: faqAr.faqCount, faqPage: faqAr.faqPage };
+  return { faqGroups, allFaqs, faqCount, faqPage };
+}

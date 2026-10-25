@@ -172,6 +172,7 @@ export function SignInForm({ notice, focusHeading, onSignedIn }: { notice?: stri
                   <input
                     id="signin-email"
                     type="email"
+                    dir="ltr"
                     inputMode="email"
                     autoComplete="email"
                     spellCheck={false}

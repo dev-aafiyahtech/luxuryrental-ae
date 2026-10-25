@@ -43,3 +43,9 @@ export function stripLocale(pathname: string): string {
  * Not for metadata or structured data, where the invisible marks would leak into search results.
  */
 export const ltr = (value: string | number) => `⁦${value}⁩`;
+
+/**
+ * `ltr()` for Arabic pages, a no-op for English: for Latin names inside Arabic text, so a model
+ * such as "296 GTS" or "750S Spider" isn't reordered to "GTS 296" by the bidi algorithm.
+ */
+export const isolateFor = (locale: string) => (value: string) => (dirOf(locale) === "rtl" ? ltr(value) : value);

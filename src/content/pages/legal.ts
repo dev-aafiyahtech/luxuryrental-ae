@@ -615,7 +615,7 @@ export const legalDocs: LegalDoc[] = [
         title: "Known limitations",
         blocks: [{
           list: [
-            "The site is in English only. An Arabic version is planned.",
+            "The site is in English and Arabic. The Arabic is a demo translation that will be reviewed before launch.",
             "Car images are illustrative AI images until photos of our own cars are available. Each car image has a text description (alt text).",
             "Some wide tables scroll sideways on small screens. The first column stays in view.",
           ],

@@ -64,7 +64,8 @@ const c = rules.chauffeur;
 const { from, to } = rules.handoverHours;
 const dubai = getZone("dubai")!;
 const dxb = getZone("dxb")!;
-const phone = ltr(site.whatsappDisplay);
+/** The phone number kept left to right and on one line. */
+const phone = ltr(site.whatsappDisplay.replace(/ /g, "\u00a0"));
 const who = `${ltr(site.legalName)}، التي تعمل تحت الاسم التجاري ${site.businessName}`;
 const address = `${s.address.line1}، ${s.address.area}، ${s.address.city}، ${s.address.country}`;
 const kmDefault = commonKmPerDay();
@@ -217,8 +218,8 @@ export const legalDocs: LegalDoc[] = [
         blocks: [
           { list: [
             `**الوقود:** أعد السيارة بمستوى الوقود نفسه. وإذا كان أقل، نحتسب الوقود بسعر المحطة مضافاً إليه ${aed(rules.refuelFee)}.`,
-            `**الكيلومترات:** تشمل كل سيارة عدداً يومياً من الكيلومترات (${kmDefault} كم لمعظم السيارات${kmOther.length ? `، و${and(kmOther)}` : ""}). وتُحتسب الكيلومترات الإضافية بالسعر المحدد للسيارة في [صفحة الأسعار](/pricing).`,
-            `**رسوم الطرق:** تُحتسب رسوم العبور من بوابات سالك ودرب وفق تعرفة الجهة المشغّلة (حالياً ${salikTariff(A)}) مضافاً إليها ${aed(rules.tollAdminFee)} عن كل عبور.`,
+            `**الكيلومترات:** تشمل كل سيارة عدداً يومياً من الكيلومترات (${[`${kmDefault} كم لمعظم السيارات`, ...kmOther].join("، و")}). وتُحتسب الكيلومترات الإضافية بالسعر المحدد للسيارة في [صفحة الأسعار](/pricing).`,
+            `**رسوم الطرق:** تُحتسب رسوم العبور من بوابات سالك ودرب وفق تعرفة الجهة المشغّلة، وهي حالياً ${salikTariff(A)}، مضافاً إليها ${aed(rules.tollAdminFee)} عن كل عبور.`,
             `**المخالفات:** تتحمل مسؤولية مخالفات السير والمواقف خلال فترة الإيجار. ونحتسب قيمة المخالفة مضافاً إليها رسم إداري قدره ${aed(rules.fineAdminFee)} عن كل مخالفة، ونحوّل المخالفة والنقاط السوداء إلى رخصة السائق حيثما تسمح الجهة المختصة بذلك.`,
             "**حجز السيارة لدى الجهات المختصة:** إذا حُجزت السيارة بسبب طريقة قيادتها، تتحمل تكاليف الحجز والإفراج عنها وبدل فوات المنفعة.",
           ] },
@@ -375,7 +376,7 @@ export const legalDocs: LegalDoc[] = [
       {
         id: "who-we-are",
         title: "من نحن وكيف تتواصل معنا",
-        blocks: [`${who} هي الجهة المسؤولة عن بياناتك الشخصية، وعنوانها: ${address}. للأسئلة أو الطلبات المتعلقة بالخصوصية، راسلنا على ${site.privacyEmail} أو تواصل معنا عبر واتساب على ${phone}.`],
+        blocks: [`${who}، هي الجهة المسؤولة عن بياناتك الشخصية، وعنوانها: ${address}. للأسئلة أو الطلبات المتعلقة بالخصوصية، راسلنا على ${site.privacyEmail} أو تواصل معنا عبر واتساب على ${phone}.`],
       },
       {
         id: "what-we-collect",
@@ -568,7 +569,7 @@ export const legalDocs: LegalDoc[] = [
       {
         id: "about",
         title: "عن هذا الموقع",
-        blocks: [`تدير ${who} موقع ${site.domain}، وعنوانها: ${address}. وباستخدامك الموقع فإنك توافق على هذه الشروط. أما استئجار السيارات فتحكمه [شروط الإيجار](/legal/terms-of-rental) لدينا.`],
+        blocks: [`تدير ${who}، موقع ${site.domain}، وعنوانها: ${address}. وباستخدامك الموقع فإنك توافق على هذه الشروط. أما استئجار السيارات فتحكمه [شروط الإيجار](/legal/terms-of-rental) لدينا.`],
       },
       {
         id: "demo",
@@ -649,7 +650,6 @@ export const legalDocs: LegalDoc[] = [
         title: "القيود المعروفة",
         blocks: [{
           list: [
-            // The English item ("English only, Arabic planned") predates /ar; this states what is true on the Arabic site.
             "النسخة العربية من هذا الموقع ترجمة تجريبية تخضع للمراجعة قبل الإطلاق، وقد تظهر فيها بعض العناصر بالإنجليزية إلى أن تكتمل الترجمة.",
             "صور السيارات صور توضيحية مُنشأة بالذكاء الاصطناعي إلى أن تتوفر صور لسياراتنا الفعلية. ولكل صورة سيارة وصف نصي (نص بديل).",
             "تُمرَّر بعض الجداول العريضة أفقياً على الشاشات الصغيرة، ويبقى العمود الأول ظاهراً.",

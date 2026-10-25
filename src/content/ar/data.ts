@@ -42,7 +42,7 @@ export function arabicCount(n: number, forms: ArabicCountForms, nominative = fal
   return form.replace("{n}", formatNumber(n));
 }
 
-export type CountUnit = "day" | "hour" | "minute" | "month" | "year" | "week" | "passenger" | "seat" | "hp" | "ps" | "second";
+export type CountUnit = "day" | "hour" | "minute" | "month" | "year" | "week" | "passenger" | "seat" | "hp" | "ps" | "second" | "car" | "brand" | "question" | "answer" | "age";
 
 export const arabicUnits: Record<CountUnit, ArabicCountForms> = {
   day: { one: "يوم واحد", two: "يومين", twoNominative: "يومان", few: "{n} أيام", many: "{n} يوماً", other: "{n} يوم" },
@@ -56,6 +56,12 @@ export const arabicUnits: Record<CountUnit, ArabicCountForms> = {
   hp: { one: "حصان واحد", two: "حصانين", twoNominative: "حصانان", few: "{n} أحصنة", many: "{n} حصاناً", other: "{n} حصان" },
   ps: { one: "حصان متري واحد", two: "حصانين متريين", twoNominative: "حصانان متريان", few: "{n} أحصنة مترية", many: "{n} حصاناً مترياً", other: "{n} حصان متري" },
   second: { one: "ثانية واحدة", two: "ثانيتين", twoNominative: "ثانيتان", few: "{n} ثوانٍ", many: "{n} ثانية", other: "{n} ثانية" },
+  car: { one: "سيارة واحدة", two: "سيارتين", twoNominative: "سيارتان", few: "{n} سيارات", many: "{n} سيارة", other: "{n} سيارة" },
+  brand: { one: "علامة تجارية واحدة", two: "علامتين تجاريتين", twoNominative: "علامتان تجاريتان", few: "{n} علامات تجارية", many: "{n} علامة تجارية", other: "{n} علامة تجارية" },
+  question: { one: "سؤال واحد", two: "سؤالين", twoNominative: "سؤالان", few: "{n} أسئلة", many: "{n} سؤالاً", other: "{n} سؤال" },
+  answer: { one: "إجابة واحدة", two: "إجابتين", twoNominative: "إجابتان", few: "{n} إجابات", many: "{n} إجابة", other: "{n} إجابة" },
+  /** Ages: "25 عاماً" */
+  age: { one: "عام واحد", two: "عامين", twoNominative: "عامان", few: "{n} أعوام", many: "{n} عاماً", other: "{n} عام" },
 };
 
 const count = (n: number, unit: CountUnit) => arabicCount(n, arabicUnits[unit]);

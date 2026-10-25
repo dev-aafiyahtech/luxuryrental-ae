@@ -11,6 +11,7 @@ import { getCar } from "@/content/cars";
 import { rules } from "@/content/rules";
 import { localizeCategory, localizeZones } from "@/content/localize";
 import { useHref, useLocale, useT } from "@/i18n/client";
+import { isolateFor } from "@/i18n/config";
 import { useTripDraft } from "@/lib/booking/draft";
 import { formatDay, formatRange, todayInDubai } from "@/lib/dates";
 import { BottomSheet } from "./BottomSheet";
@@ -123,7 +124,7 @@ export function Dock({ hidden, className }: DockProps) {
 
   const continueLink = pending && (
     <Link href={href(`/book/trip?car=${pending.slug}`)} className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-accent-hover no-underline hover:text-fg">
-      {t("dock.continue", { car: pending.model })}
+      {t("dock.continue", { car: isolateFor(locale)(pending.model) })}
       <ArrowRight className="h-4 w-4 rtl:-scale-x-100" aria-hidden="true" />
     </Link>
   );

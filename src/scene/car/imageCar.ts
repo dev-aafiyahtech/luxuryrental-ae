@@ -7,7 +7,9 @@ import { addPowertrain, palette, type RGB } from "./powertrain";
 
 // The light-sculpture car sampled from the car's own side image (plan 03 §3.1): the points,
 // their image colour, part and brightness come from tools/sample-car-particles.mjs; this adds
-// the explode offsets (cut for a side-on camera: parts separate up, out and towards the lens),
+// the explode offsets (cut for a side-on camera, as in §3.1: the body stays and fades to its
+// line-work to show the powertrain, the cabin rises, the wheels come out towards the lens and
+// the lamps slide outward),
 // the loose dust the car forms from, colour by part (D-13), and the powertrain schematic drawn
 // from the car's data. Same output contract as buildCar(), so the shaders don't change.
 
@@ -21,11 +23,12 @@ export interface ImageCarOptions {
 
 /** Explode offsets per part for the side-on Kinetic Sculpture: [x, y, z-per-side]. */
 const EXPLODE: Record<number, [number, number, number]> = {
-  [COMP.body]: [0, 0.95, 0.3],
-  [COMP.cabin]: [0, 1.95, 0.1],
-  [COMP.head]: [0.55, 0.95, 0.3],
-  [COMP.tail]: [-0.5, 0.95, 0.3],
+  [COMP.body]: [0, 0.3, 0.12],
+  [COMP.cabin]: [0, 1.05, 0.06],
+  [COMP.head]: [0.5, 0.36, 0.3],
+  [COMP.tail]: [-0.45, 0.36, 0.3],
 };
+const WHEEL_OUT: [number, number, number] = [0.32, -0.02, 0.95];
 
 const mix = (a: RGB, b: RGB, t: number): RGB => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
 const smooth = (a: number, b: number, v: number) => {
@@ -105,7 +108,7 @@ export function buildCarFromImage(set: ParticleSet, opts: ImageCarOptions, targe
     pos.push(x, y, z);
     if (comp === COMP.wheels) {
       const wx = Math.abs(x - rearW[0]) < Math.abs(x - frontW[0]) ? rearW[0] : frontW[0];
-      ex.push(Math.sign(wx) * 0.3 + j(0.03), -0.02 + j(0.03), side * 0.85 + j(0.03));
+      ex.push(Math.sign(wx) * WHEEL_OUT[0] + j(0.03), WHEEL_OUT[1] + j(0.03), side * WHEEL_OUT[2] + j(0.03));
     } else {
       const e = EXPLODE[comp] ?? EXPLODE[COMP.body];
       ex.push(e[0] + j(0.03), e[1] + j(0.03), side * e[2] + j(0.03));
@@ -137,7 +140,7 @@ export function buildCarFromImage(set: ParticleSet, opts: ImageCarOptions, targe
   const anchors: Record<AnchorPart, Anchor> = {
     cabin: { p: [cabinX, roof(cabinX) - 0.01, 0], e: [0, EXPLODE[COMP.cabin][1], 0] },
     body: { p: [bodyX, roof(bodyX) - 0.02, 0], e: [0, EXPLODE[COMP.body][1], 0] },
-    wheels: { p: [frontW[0], frontW[1], m.wheelZ], e: [0.3, -0.02, 0.85] },
+    wheels: { p: [frontW[0], frontW[1], m.wheelZ], e: WHEEL_OUT },
     powertrain: { p: powerAnchor, e: [0, -0.1, 0] },
   };
   const lamp: [number, number, number] = m.head ?? [m.nose - 0.16, m.sill + 0.55 * (m.height - m.sill), 0.62 * (m.width / 2)];

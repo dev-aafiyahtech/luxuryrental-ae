@@ -50,7 +50,7 @@ const AZ1 = SIDE - 0.24; // end of the descent: a touch in front of side-on
 const AZ2 = SIDE + 0.16; // tunnel: tracking alongside, a touch behind
 const AZ3 = SIDE - 0.1; // Kinetic Sculpture: a slow yaw across the side
 const AZ4 = SIDE - 0.62; // finale: front three-quarter for the headlights
-const R1 = 10.6, R2 = 8.6, R3 = 10.6, R4 = 7.8;
+const R1 = 9.0, R2 = 8.6, R3 = 9.0, R4 = 7.8;
 const SWAP_SECONDS = 1.3;
 const APPEAR_SECONDS = 0.8;
 /** How much of its own colour the formed car shows over the colour-by-part palette. */
@@ -155,7 +155,7 @@ export function createStage(opts: StageOptions): Stage {
   const orbit = (out: THREE.Vector3, az: number, r: number, h: number) => out.set(C.x + Math.cos(az) * r * rs, C.y + h * hs, C.z + Math.sin(az) * r * rs);
   const buildCurve = () => {
     curve = new THREE.CatmullRomCurve3(
-      [new THREE.Vector3(-70, 232, 365), new THREE.Vector3(-28, 168, 245), new THREE.Vector3(40, 118, 172), new THREE.Vector3(C.x + 16, C.y + 24, C.z + 50), orbit(new THREE.Vector3(), AZ1, R1, 2.0)],
+      [new THREE.Vector3(-70, 232, 365), new THREE.Vector3(-28, 168, 245), new THREE.Vector3(40, 118, 172), new THREE.Vector3(C.x + 16, C.y + 24, C.z + 50), orbit(new THREE.Vector3(), AZ1, R1, 1.6)],
       false,
       "centripetal",
     );
@@ -310,10 +310,12 @@ export function createStage(opts: StageOptions): Stage {
       rig.position.x = C.x + 0.45 * launch;
 
       // Framing scale: the hero car until the sculpture takes over, then the selected one.
-      const sizeOf = (c: CarPoints) => (c.build ? Math.min(1.16, Math.max(0.96, Math.max(c.build.length / 4.8, c.build.height / 1.32))) : 1);
+      const sizeOf = (c: CarPoints) => (c.build ? Math.min(1.3, Math.max(0.96, c.build.length / 4.8, c.build.height / 1.4)) : 1);
       const kTarget = lerp(sizeOf(hero), sizeOf(current), g);
       frameK = frameK < 0 || !ambient ? kTarget : frameK + (kTarget - frameK) * Math.min(1, dt * 2.5);
       const k = frameK;
+      // The image cars' cabin rises about a metre when exploded; the profile car lifts more.
+      const lift = current.build?.source === "image" ? 0.45 : 0.85;
 
       if (!curve) buildCurve();
       if (c2 <= 0.0001) {
@@ -324,7 +326,7 @@ export function createStage(opts: StageOptions): Stage {
         camTgt.lerpVectors(LOOK_TOWER, tmp.set(C.x, C.y + 0.6 * k, C.z), sm(0.3, 0.95, c1));
       } else if (c3 <= 0.0001) {
         const t = sm(0, 0.45, c2);
-        orbit(camPos, lerp(AZ1, AZ2, t), lerp(R1, R2, t) * k, lerp(2.0, 1.0, t));
+        orbit(camPos, lerp(AZ1, AZ2, t), lerp(R1, R2, t) * k, lerp(1.6, 1.0, t));
         camTgt.set(C.x + lerp(0, 0.5, t), C.y + lerp(0.6, 0.7, t) * k, C.z);
         if (ambient) {
           camPos.y += Math.sin(time * 31) * 0.012 * speed;
@@ -332,12 +334,12 @@ export function createStage(opts: StageOptions): Stage {
         }
       } else if (c4 <= 0.0001) {
         const t = sm(0, 0.8, c3);
-        orbit(camPos, lerp(AZ2, AZ3, t), lerp(R2, R3, t) * k, lerp(1.0, 2.3, t));
-        camTgt.set(C.x + lerp(0.5, 0, t), C.y + (lerp(0.7, 0.75, t) + 0.85 * explode) * k, C.z);
+        orbit(camPos, lerp(AZ2, AZ3, t), lerp(R2, R3, t) * k, lerp(1.0, 1.7, t));
+        camTgt.set(C.x + lerp(0.5, 0, t), C.y + (lerp(0.7, 0.75, t) + lift * explode) * k, C.z);
       } else {
         const t = sm(0, 0.5, c4);
-        orbit(camPos, lerp(AZ3, AZ4, t), lerp(R3, R4, t) * k + launch * 1.4, lerp(2.3, 1.1, t) - launch * 0.2);
-        camTgt.set(C.x + lerp(0, 0.9, t), C.y + (0.75 + 0.85 * explode - 0.2 * t) * k, C.z);
+        orbit(camPos, lerp(AZ3, AZ4, t), lerp(R3, R4, t) * k + launch * 1.4, lerp(1.7, 1.1, t) - launch * 0.2);
+        camTgt.set(C.x + lerp(0, 0.9, t), C.y + (0.75 + lift * explode - 0.2 * t) * k, C.z);
       }
       camera.position.copy(camPos);
       camera.lookAt(camTgt);
@@ -345,7 +347,7 @@ export function createStage(opts: StageOptions): Stage {
       // Frame the subject beside the copy: shift the view per chapter
       const w2 = sm(0, 0.4, c2), w3 = sm(0, 0.4, c3), w4 = sm(0, 0.4, c4);
       const W = [1 - w2, w2 * (1 - w3), w2 * w3 * (1 - w4), w2 * w3 * w4];
-      const O = width < 768 ? [[0, 0.1], [0, 0.25], [0, -0.12], [0, 0.2]] : [[-0.07, 0], [0, 0.27], [-0.15, 0.07], [0.13, 0.1]];
+      const O = width < 768 ? [[0, 0.1], [0, 0.25], [0, -0.12], [0, 0.2]] : [[0.1, 0.07], [0, 0.27], [-0.15, 0.07], [0.13, 0.1]];
       let ox = 0, oy = 0;
       W.forEach((w, i) => {
         ox += w * O[i][0];

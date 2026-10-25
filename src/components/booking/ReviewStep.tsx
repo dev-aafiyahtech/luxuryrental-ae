@@ -171,7 +171,7 @@ export function ReviewStep() {
             rows={[
               { label: t("review.name"), value: d.name },
               { label: t("review.phone"), value: d.phone ? <span dir="ltr" className="tabular">{formatPhone(d.phone)}</span> : "" },
-              { label: t("review.email"), value: d.email },
+              { label: t("review.email"), value: d.email ? <bdi dir="ltr">{d.email}</bdi> : "" },
               ...(selfDrive
                 ? [
                     { label: t("review.licence"), value: `${countryName(d.licenceCountry, locale, t("driver.otherCountry"))}${d.resident ? ` · ${t("driver.residentYes")}` : ""}` },

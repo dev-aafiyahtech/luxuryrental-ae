@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Receipt, Search } from "lucide-react";
 import { getCar } from "@/content/cars";
 import { useHref, useLocale, useT } from "@/i18n/client";
+import { isolateFor } from "@/i18n/config";
 import { useBooking } from "@/lib/booking/draft";
 import { updateBookingStatus } from "@/lib/booking/store";
 import type { BookingRecord } from "@/lib/booking/types";
@@ -33,6 +34,7 @@ const REF_RE = /^LR-[0-9A-HJKMNP-TV-Z]{6}$/;
 
 function Lookup({ initial, notFound }: { initial?: string; notFound?: boolean }) {
   const t = useT("booking");
+  const locale = useLocale();
   const href = useHref();
   const router = useRouter();
   const [value, setValue] = useState(initial ?? "");
@@ -54,7 +56,7 @@ function Lookup({ initial, notFound }: { initial?: string; notFound?: boolean })
         <h1 className="display-md">{t("status.lookupTitle")}</h1>
         <p className="lede">{t("status.lookupLede")}</p>
       </header>
-      {notFound && initial && <Notice tone="warning">{t("status.notFound", { ref: initial })}</Notice>}
+      {notFound && initial && <Notice tone="warning">{t("status.notFound", { ref: isolateFor(locale)(initial) })}</Notice>}
       <form noValidate onSubmit={onSubmit} className="card grid gap-4 p-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end sm:p-6">
         <Field id="lookup-ref" label={t("status.lookupLabel")} error={error}>
           <input id="lookup-ref" className="input uppercase tabular" dir="ltr" autoComplete="off" spellCheck={false} value={value} placeholder="LR-7K3QZM" onChange={(e) => setValue(e.target.value)} aria-invalid={error ? true : undefined} aria-describedby={describedBy("lookup-ref", undefined, error)} />
@@ -216,7 +218,7 @@ export function BookingStatusView() {
       <BottomSheet
         open={confirmCancel}
         onClose={() => setConfirmCancel(false)}
-        title={t("status.cancelTitle", { ref: b.ref })}
+        title={t("status.cancelTitle", { ref: isolateFor(locale)(b.ref) })}
         footer={
           <div className="flex flex-wrap justify-end gap-3">
             <button type="button" className="btn btn-secondary btn-sm" onClick={() => setConfirmCancel(false)}>{t("status.keep")}</button>

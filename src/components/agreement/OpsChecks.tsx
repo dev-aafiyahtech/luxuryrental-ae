@@ -5,6 +5,7 @@ import clsx from "clsx";
 import { useState, type FormEvent, type ReactNode } from "react";
 import { CircleCheck, ClipboardCheck, Clock, FileSignature } from "lucide-react";
 import { useHref, useLocale, useT } from "@/i18n/client";
+import { isolateFor } from "@/i18n/config";
 import { agreementFor, agreementOpen, recordConditionReport } from "@/lib/booking/store";
 import type { BookingRecord, ConditionReport, DamageMark } from "@/lib/booking/types";
 import { formatNumber } from "@/lib/format";
@@ -192,6 +193,7 @@ function CheckForm({ b, stage, formId, onBusy, onDone }: { b: BookingRecord; sta
 /** Ops: record the handover or return check in a sheet (staff, km, fuel, photos, damage marks, notes). */
 export function ConditionReportSheet({ b, stage, onClose, onSaved }: { b?: BookingRecord; stage: Stage; onClose: () => void; onSaved: (message: string) => void }) {
   const t = useT("agreement");
+  const locale = useLocale();
   const [busy, setBusy] = useState(false);
   const formId = "condition-report-form";
   const title = b ? t(stage === "handover" ? "ops.form.title" : "ops.form.titleReturn", { ref: b.ref }) : "";
@@ -200,7 +202,7 @@ export function ConditionReportSheet({ b, stage, onClose, onSaved }: { b?: Booki
       open={!!b}
       onClose={onClose}
       title={title}
-      description={b ? t("ops.form.description", { car: b.carName }) : undefined}
+      description={b ? t("ops.form.description", { car: isolateFor(locale)(b.carName) }) : undefined}
       size="lg"
       footer={
         <div className="flex flex-wrap justify-end gap-3">

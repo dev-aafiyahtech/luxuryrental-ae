@@ -6,6 +6,7 @@ import { carPath } from "@/content/cars";
 import { localizeCategory } from "@/content/localize";
 import { getLocale } from "@/i18n/dictionaries";
 import { commonT } from "@/i18n/static";
+import { isolateFor } from "@/i18n/config";
 import { CarArt } from "./CarArt";
 import { PriceFrom, headlineSpecs } from "./CarBits";
 
@@ -30,7 +31,7 @@ export async function CarCard({ car, today, href, className, headingLevel = "h3"
           <p className="label">{getBrand(car.brand)?.name} · {category}</p>
           <Heading className="display-sm">
             <Link href={href(carPath(car))} className="no-underline after:absolute after:inset-0 after:content-['']">
-              {car.model}
+              {isolateFor(lc)(car.model)}
             </Link>
           </Heading>
         </div>

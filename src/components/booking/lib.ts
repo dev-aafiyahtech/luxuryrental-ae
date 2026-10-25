@@ -6,7 +6,7 @@ import { site } from "@/content/site";
 import { localizeZone, siteFor } from "@/content/localize";
 import { localizeQuote, quote, type Quote, type QuoteInput, type ServiceMode } from "@/lib/pricing";
 import { addDays, dayOfWeek, daysBetween, formatDay, isWithin, nowInDubai, toMinutes } from "@/lib/dates";
-import { formatAED } from "@/lib/format";
+import { formatAED, formatNumber } from "@/lib/format";
 import { draftMessage, waWords } from "@/lib/whatsapp";
 import type { BookingEvent, BookingRecord, BookingStatus, TripDraft } from "@/lib/booking/types";
 
@@ -92,7 +92,8 @@ export const listSep = (locale?: string) => (locale === "ar" ? "، " : ", ");
 export function eventText(e: BookingEvent, t: T): string | undefined {
   if (e.code) {
     const key = e.code.startsWith("ops.") ? `ops.notes.${e.code.slice(4)}` : `status.events.${e.code}`;
-    const text = t(key, e.vars);
+    const vars = e.vars && Object.fromEntries(Object.entries(e.vars).map(([k, v]) => [k, typeof v === "number" ? formatNumber(v) : v]));
+    const text = t(key, vars);
     if (text !== key) return text;
   }
   return e.note;
@@ -249,6 +250,25 @@ function icsStamp(date: string, time: string): string {
   const d = new Date((toMinutes(date, time) - 240) * 60_000);
   return `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}00Z`;
 }
+/** RFC 5545 §3.1: lines over 75 octets are folded (CRLF + space), never inside a UTF-8 character (Arabic is 2 bytes a letter). */
+function foldIcs(line: string): string {
+  const enc = new TextEncoder();
+  const parts: string[] = [];
+  let cur = "";
+  let bytes = 0;
+  for (const ch of line) {
+    const n = enc.encode(ch).length;
+    if (bytes + n > (parts.length ? 74 : 75)) {
+      parts.push(cur);
+      cur = "";
+      bytes = 0;
+    }
+    cur += ch;
+    bytes += n;
+  }
+  parts.push(cur);
+  return parts.join("\r\n ");
+}
 const icsText = (s: string) => s.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\\;");
 
 /**
@@ -307,7 +327,7 @@ export function buildIcs(b: BookingRecord, now: Date, tr?: T, locale?: string): 
     "END:VEVENT",
     "END:VCALENDAR",
   ];
-  return lines.join("\r\n") + "\r\n";
+  return lines.map(foldIcs).join("\r\n") + "\r\n";
 }
 
 export function downloadFile(name: string, content: string, type: string) {

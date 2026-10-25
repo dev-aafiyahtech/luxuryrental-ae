@@ -423,6 +423,8 @@ async function processCar(slug, file) {
   mask = new Uint8Array(N);
   for (let p = 0; p < N; p++) mask[p] = score[p] > 0.5 ? 1 : 0;
   mask = morph(morph(mask, W, H, 1, false), W, H, 1, true); // drop specks
+  const rc = Math.max(2, Math.round(W / 320));
+  mask = morph(morph(mask, W, H, rc, true), W, H, rc, false); // seal grilles and vents open to the backdrop
   const open = largestComponent(mask, W, H); // before filling: the floor seen under the car is still open
   mask = fillHoles(open, W, H);
 
@@ -534,8 +536,9 @@ async function processCar(slug, file) {
   while (gx1 < X1 && tall(gx1 + 1)) gx1++;
 
   const PART = { body: 0, cabin: 1, wheels: 2, head: 4, tail: 5 };
-  const headZone = (x, y) => x > X1 - 0.095 * Lpx && x < X1 - 0.008 * Lpx && y > top[x] + 0.015 * Hc && y < top[x] + 0.13 * Hc;
-  const tailZone = (x, y) => x < X0 + 0.06 * Lpx && x > X0 + 0.004 * Lpx && y > top[x] + 0.02 * Hc && y < top[x] + 0.14 * Hc;
+  // Lamps: just under the bonnet / deck line at each end (where side views show them).
+  const headZone = (x, y) => x > X1 - 0.08 * Lpx && x < X1 - 0.01 * Lpx && y > top[x] + 0.02 * Hc && y < top[x] + 0.1 * Hc;
+  const tailZone = (x, y) => x < X0 + 0.05 * Lpx && x > X0 + 0.004 * Lpx && y > top[x] + 0.02 * Hc && y < top[x] + 0.11 * Hc;
   const partAt = (x, y) => {
     const xi = Math.round(x), yi = Math.round(y);
     if (inWheel(x, y)) return PART.wheels;
@@ -611,8 +614,9 @@ async function processCar(slug, file) {
   let wsum = 0;
   for (let p = 0; p < N; p++) {
     if (!mask[p]) continue;
-    const e = edgeN(p), hl = smooth(0.82, 1, lumRank(lum[p])), rim = dist[p] < 2.2 ? 1 : 0;
-    const w = 0.16 + Math.pow(e, 0.8) + 0.35 * hl + 1.2 * rim;
+    // Line-work first (the light sculpture is drawn by edges and the outline), panels as dust.
+    const e = smooth(0.12, 0.7, edgeN(p)), hl = smooth(0.82, 1, lumRank(lum[p])), rim = dist[p] < 2.2 ? 1 : 0;
+    const w = 0.08 + 1.4 * e + 0.3 * hl + 2 * rim;
     weights[p] = w;
     wsum += w;
   }
@@ -626,13 +630,14 @@ async function processCar(slug, file) {
     return lo;
   };
   const brightAt = (p) => {
-    const e = edgeN(p), l = lumRank(lum[p]);
-    return 0.12 + 0.8 * Math.pow(e, 0.7) + 0.35 * l * l + (dist[p] < 2.2 ? 0.35 : 0);
+    const e = smooth(0.1, 0.75, edgeN(p)), l = lumRank(lum[p]);
+    return 0.1 + 0.85 * e + 0.3 * l * l + (dist[p] < 2.2 ? 0.4 : 0);
   };
   const surfaceZ = (x, y) => (inWheel(x, y) ? wheelZ - 0.05 * (1 - Math.hypot(x - (x < xc ? rear.cx : front.cx), y - (x < xc ? rear.cy : front.cy)) / (x < xc ? rear.r : front.r)) : zSide(x, y));
 
-  const nNear = Math.round(COUNT * 0.53), nFar = Math.round(COUNT * 0.16), nShell = Math.round(COUNT * 0.17), nTread = Math.round(COUNT * 0.06);
-  const nHead = Math.round(COUNT * 0.055), nTail = COUNT - nNear - nFar - nShell - nTread - nHead;
+  const nFar = Math.round(COUNT * 0.08), nShell = Math.round(COUNT * 0.15), nTread = Math.round(COUNT * 0.05);
+  const nHead = Math.round(COUNT * 0.025), nTail = Math.round(COUNT * 0.015);
+  const nNear = COUNT - nFar - nShell - nTread - nHead - nTail;
 
   // Near side (towards the camera): the image itself.
   for (let i = 0; i < nNear; i++) {
@@ -642,7 +647,7 @@ async function processCar(slug, file) {
   // Far side: the same outline at −z, dimmer.
   for (let i = 0; i < nFar; i++) {
     const p = draw(), x = (p % W) + rnd() - 0.5, y = ((p / W) | 0) + rnd() - 0.5;
-    push(x, y, -surfaceZ(x, y), colourAt(x, y), partAt(x, y), brightAt(p) * 0.55);
+    push(x, y, -surfaceZ(x, y), colourAt(x, y), partAt(x, y), brightAt(p) * 0.42);
   }
   // Shell: the roof, bonnet and deck (outline pixels facing up) and the nose and tail faces,
   // spread across the width so the sculpture has volume when the camera moves.
@@ -674,7 +679,7 @@ async function processCar(slug, file) {
     const u = rnd() < 0.45 ? (rnd() < 0.5 ? -1 : 1) * (0.82 + 0.18 * rnd()) : rnd() * 2 - 1;
     const col = colourAt(x0 - nx * 3, y0 - ny * 3);
     const part = partAt(x0 - nx * 3, y0 - ny * 3);
-    const b = 0.38 + 0.42 * Math.abs(u) + 0.25 * edgeN(p);
+    const b = 0.22 + 0.33 * Math.abs(u) + 0.25 * edgeN(p);
     if (ny < -0.35) {
       // Top surface: across the width, crowned slightly.
       const zt = zSide(x0, y0 + 3);

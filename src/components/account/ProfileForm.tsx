@@ -125,6 +125,7 @@ export function ProfileForm({ profile }: { profile: CustomerProfile }) {
           <input
             id="profile-email"
             type="email"
+            dir="ltr"
             inputMode="email"
             autoComplete="email"
             spellCheck={false}

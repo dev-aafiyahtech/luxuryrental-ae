@@ -10,6 +10,8 @@ import { busyRange } from "./Availability";
 import { Field, describedBy } from "./Field";
 
 const REASONS: BlockReason[] = ["maintenance", "owner", "event", "other"];
+/** The demo's seeded blocks (lib/booking/availability.ts) carry English notes: shown through the messages. */
+const SEED_NOTES: Record<string, string> = { "Scheduled service": "service", "Wedding booked by phone": "wedding" };
 
 /**
  * Ops desk: take a car off the website for maintenance, owner use or an event. Blocked days
@@ -28,6 +30,11 @@ export function OpsAvailability({ onSaved }: { onSaved: (message: string) => voi
   const [error, setError] = useState("");
 
   const upcoming = blocks.filter((b) => b.to >= today);
+  const noteText = (note: string) => {
+    const key = SEED_NOTES[note] && `ops.blocks.seedNotes.${SEED_NOTES[note]}`;
+    const text = key ? t(key) : note;
+    return text === key ? note : text;
+  };
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!from || !to || to < from || from < today) {
@@ -58,7 +65,7 @@ export function OpsAvailability({ onSaved }: { onSaved: (message: string) => voi
                 <span className="grid">
                   <span className="font-semibold">{getCar(b.carSlug)?.name ?? b.carSlug}</span>
                   <span className="text-[13px] text-muted tabular">
-                    {busyRange({ ...b, kind: "block" }, locale)} · {t(`ops.blocks.reasons.${b.reason}`)}{b.note ? <> · <bdi>{b.note}</bdi></> : null}
+                    {busyRange({ ...b, kind: "block" }, locale)} · {t(`ops.blocks.reasons.${b.reason}`)}{b.note ? <> · <bdi>{noteText(b.note)}</bdi></> : null}
                   </span>
                 </span>
                 <button type="button" className="btn btn-ghost btn-sm gap-2" onClick={() => { removeBlock(b.id); onSaved(t("ops.blocks.removed")); }} aria-label={t("ops.blocks.removeLabel", { car: getCar(b.carSlug)?.name ?? b.carSlug })}>

@@ -532,7 +532,8 @@
       "saved": "{car} blocked {range}.",
       "removed": "Block removed.",
       "errorDates": "Choose a start today or later, and an end on or after the start.",
-      "reasons": { "maintenance": "Service or repair", "owner": "Owner use", "event": "Event or offline booking", "other": "Other" }
+      "reasons": { "maintenance": "Service or repair", "owner": "Owner use", "event": "Event or offline booking", "other": "Other" },
+      "seedNotes": { "service": "Scheduled service", "wedding": "Wedding booked by phone" }
     },
     "docs": { "title": "Driver's documents", "none": "None uploaded yet", "progress": "{uploaded} of {total} uploaded · {verified} verified" },
     "resetConfirm": "Delete all",

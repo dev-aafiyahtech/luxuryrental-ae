@@ -1,4 +1,5 @@
 import { rules } from "@/content/rules";
+import { site } from "@/content/site";
 import { getZone } from "@/content/zones";
 import { formatAED } from "@/lib/format";
 import { faqsById, type FaqEntry } from "./faq";
@@ -62,4 +63,59 @@ export const chauffeurPage = {
     },
     ...faqsById("chauffeur-emirates"),
   ],
+  /** Labels and short copy that used to sit in the page JSX. */
+  ui: {
+    crumb: "Chauffeur service",
+    serviceType: "Chauffeur-driven luxury car hire",
+    offerName: (car: string) => `${car} with chauffeur`,
+    city: "Dubai",
+    chooseCar: "Choose your car",
+    whatsappText: `Hello ${site.businessName}, I'd like to book a chauffeur.`,
+    factsLabel: "Chauffeur service at a glance",
+    facts: (fromHourly: number, fromAirport: number) => [
+      { label: "From", value: `${formatAED(fromHourly)} / hour`, note: `${c.minHours}-hour minimum` },
+      { label: "Airport transfer", value: `From ${formatAED(fromAirport)}`, note: "DXB or DWC, one way within Dubai" },
+      { label: "Notice", value: `${c.leadHours} hours`, note: "Sooner? Ask on WhatsApp" },
+      { label: "Passengers", value: `Up to ${c.maxPassengers}`, note: "Child seats free on request" },
+    ],
+    howEyebrow: "How it works",
+    howTitle: "Three steps to the back seat",
+    stepsLabel: "How chauffeur booking works",
+    ratesEyebrow: "Rates",
+    ratesTitle: "Chauffeur rates",
+    ratesIntro: () => `Fixed prices in AED, including ${site.vatRate}% VAT, for journeys within Dubai. Hourly bookings run from ${c.minHours} to ${c.maxHours} hours.`,
+    tableCaption: "Chauffeur rates by car",
+    col: {
+      car: "Car",
+      perHour: "Per hour",
+      perHourNote: `${c.minHours} h minimum`,
+      halfDay: "Half day",
+      halfDayNote: `${c.halfDayHours} hours`,
+      fullDay: "Full day",
+      fullDayNote: `${c.fullDayHours} hours`,
+      airport: "Airport transfer",
+      airportNote: "One way",
+      extra: "Extra hour",
+      extraNote: `Per started ${c.overtimeStepMinutes} min`,
+    },
+    seats: (seats: string) => `${seats} seats`,
+    tableFootnote: () => `Airport transfers run between DXB or DWC and anywhere in Dubai, with ${rules.airportWaitFreeMinutes} minutes' free waiting after landing. Surcharges for night starts, the festive peak and other emirates are listed below.`,
+    offerNote: "It applies to half-day and full-day bookings outside the festive peak, and the free hour is taken off at the car's hourly rate.",
+    includedEyebrow: "What you get",
+    includedTitle: "Included, and what costs extra",
+    inEvery: "In every booking",
+    surchargesTitle: "Surcharges",
+    surchargesNote: "Percentage surcharges apply to the booking price. Outside-Dubai surcharges apply to bookings that start in that area.",
+    carsEyebrow: "The cars",
+    carsTitle: "Choose your car",
+    carsIntro: "The Phantom is offered with a chauffeur first. The Cullinan and the Bentayga can also be rented self-drive from the fleet pages.",
+    imagesNote: "Car images are illustrations until photos of our own cars are ready.",
+    faqTitle: "Chauffeur questions",
+    ctaTitle: "Plan the day with us",
+    ctaText: "Send us the date, the pickup point and where you need to be. We suggest the car and the package, and confirm the price on WhatsApp.",
+    request: "Request a chauffeur",
+  },
 };
+
+/** The shape the Arabic module (./ar/chauffeur.ts) follows. */
+export type ChauffeurPageContent = typeof chauffeurPage;

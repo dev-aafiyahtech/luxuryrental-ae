@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, CircleCheck, FileSignature, Printer, Search } from "lucide-react";
 import { getCar } from "@/content/cars";
 import { useHref, useLocale, useT } from "@/i18n/client";
+import { isolateFor } from "@/i18n/config";
 import { useBooking } from "@/lib/booking/draft";
 import { agreementFor, agreementOpen } from "@/lib/booking/store";
 import type { BookingRecord } from "@/lib/booking/types";
@@ -16,12 +17,13 @@ import { Field, describedBy } from "@/components/booking/Field";
 import { useHydrated } from "@/components/booking/hooks";
 import { AgreementDocument } from "./AgreementDocument";
 import { ConditionReportView } from "./ConditionReportView";
-import { longStamp } from "./bits";
+import { longStamp, versionText } from "./bits";
 
 const REF_RE = /^LR-[0-9A-HJKMNP-TV-Z]{6}$/;
 
 function Lookup({ initial, notFound }: { initial?: string; notFound?: boolean }) {
   const t = useT("agreement");
+  const locale = useLocale();
   const href = useHref();
   const router = useRouter();
   const [value, setValue] = useState(initial ?? "");
@@ -43,7 +45,7 @@ function Lookup({ initial, notFound }: { initial?: string; notFound?: boolean })
         <h1 className="display-md">{t("lookup.title")}</h1>
         <p className="lede">{t("lookup.lede")}</p>
       </header>
-      {notFound && initial && <Notice tone="warning">{t("lookup.notFound", { ref: initial })}</Notice>}
+      {notFound && initial && <Notice tone="warning">{t("lookup.notFound", { ref: isolateFor(locale)(initial) })}</Notice>}
       <form noValidate onSubmit={onSubmit} className="card grid gap-4 p-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end sm:p-6">
         <Field id="agreement-ref" label={t("lookup.label")} error={error}>
           <input id="agreement-ref" className="input uppercase tabular" dir="ltr" autoComplete="off" spellCheck={false} value={value} placeholder="LR-7K3QZM" onChange={(e) => setValue(e.target.value)} aria-invalid={error ? true : undefined} aria-describedby={describedBy("agreement-ref", undefined, error)} />
@@ -75,7 +77,7 @@ function NotIssued({ b }: { b: BookingRecord }) {
         <h1 className="display-md">{t("doc.title")}</h1>
       </header>
       <Notice tone={waiting ? "info" : "warning"} title={waiting ? t("pending.title") : t("pending.closedTitle")}>
-        {waiting ? t("pending.text", { car: b.carName }) : t("pending.closedText", { status: tb(`status.labels.${b.status}`).toLocaleLowerCase(locale) })}
+        {waiting ? t("pending.text", { car: isolateFor(locale)(b.carName) }) : t("pending.closedText", { status: tb(`status.labels.${b.status}`).toLocaleLowerCase(locale) })}
       </Notice>
       <Link href={href(`/booking?ref=${b.ref}`)} className="btn btn-primary w-fit">{t("pending.status")}</Link>
     </div>
@@ -88,6 +90,7 @@ function NotIssued({ b }: { b: BookingRecord }) {
  */
 export function AgreementView() {
   const t = useT("agreement");
+  const tb = useT("booking");
   const locale = useLocale();
   const href = useHref();
   const params = useSearchParams();
@@ -162,7 +165,7 @@ export function AgreementView() {
       <p className="fine flex items-center gap-2 print:hidden">
         <FileSignature className="h-4 w-4 flex-none" aria-hidden="true" />
         <span>
-          <bdi dir="ltr">{agreement.number}</bdi> · {t("doc.version")} <bdi dir="ltr">{agreement.version}</bdi>
+          <bdi dir="ltr">{agreement.number}</bdi> · {t("doc.version")} {versionText(agreement.version, tb("badge.demo"))}
         </span>
       </p>
     </div>

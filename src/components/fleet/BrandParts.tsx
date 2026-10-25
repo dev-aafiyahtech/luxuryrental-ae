@@ -11,6 +11,7 @@ import { formatAED, formatNumber, formatSeconds, formatTopSpeed } from "@/lib/fo
 import { CarArt } from "@/components/car/CarArt";
 import { PriceFrom, driveText, headlineSpecs } from "@/components/car/CarBits";
 import { commonT } from "@/i18n/static";
+import { isolateFor } from "@/i18n/config";
 import { primaryCategory } from "./facts";
 
 type T = (key: string, vars?: Record<string, string | number>) => string;
@@ -31,7 +32,7 @@ export function BrandModelCard({ car, today, href, t, locale }: { car: Car; toda
         <div className="grid gap-2">
           <p className="label">{category} · {car.year}</p>
           <h3 className="display-sm">
-            <Link href={href(carPath(car))} className="no-underline after:absolute after:inset-0 after:content-['']">{car.model}</Link>
+            <Link href={href(carPath(car))} className="no-underline after:absolute after:inset-0 after:content-['']">{isolateFor(locale ?? "en")(car.model)}</Link>
           </h3>
           <p className="text-[15px] text-champagne">{car.tagline}</p>
         </div>
@@ -57,6 +58,7 @@ export function BrandModelCard({ car, today, href, t, locale }: { car: Car; toda
  */
 export function BrandCompare({ a, b, today, t, id, locale }: { a: Car; b: Car; today: string; t: T; id: string; locale?: string }) {
   const ct = commonT(locale);
+  const iso = isolateFor(locale ?? "en");
   const price = (c: Car) => `${c.rates.onRequest ? `${t("car.rate.onRequest")} · ` : ""}${formatAED(fromPrice(c, today), locale)}`;
   const rows: { label: string; values: [string, string] }[] = [
     { label: t("brand.row.from"), values: [price(a), price(b)] },
@@ -76,7 +78,7 @@ export function BrandCompare({ a, b, today, t, id, locale }: { a: Car; b: Car; t
     <section aria-labelledby={id} className="grid gap-6">
       <div className="grid gap-2">
         <h2 id={id} className="display-sm">{t("brand.compare")}</h2>
-        <p className="text-muted">{t("brand.compareLede", { a: a.model, b: b.model })}</p>
+        <p className="text-muted">{t("brand.compareLede", { a: iso(a.model), b: iso(b.model) })}</p>
       </div>
       <table role="table" className="block w-full border-collapse text-[14px] md:table">
         <caption className="sr-only">{t("brand.compareCaption", { a: a.name, b: b.name })}</caption>
@@ -85,7 +87,7 @@ export function BrandCompare({ a, b, today, t, id, locale }: { a: Car; b: Car; t
             <th role="columnheader" scope="col" className="hidden py-3 text-start md:table-cell md:w-[28%]"><span className="label">{t("brand.spec")}</span></th>
             {[a, b].map((c) => (
               <th key={c.slug} role="columnheader" scope="col" className="py-1 text-start align-bottom md:table-cell md:py-4">
-                <span className="font-display text-[13px] font-bold uppercase tracking-[0.06em] text-accent-hover md:text-[15px]">{c.model}</span>
+                <span className="font-display text-[13px] font-bold uppercase tracking-[0.06em] text-accent-hover md:text-[15px]">{iso(c.model)}</span>
               </th>
             ))}
           </tr>
@@ -109,6 +111,7 @@ export function BrandCompare({ a, b, today, t, id, locale }: { a: Car; b: Car; t
 
 /** Row of the other marques, each with its two models and today's lowest "from" price. */
 export function OtherBrands({ current, today, href, t, id, locale }: { current: string; today: string; href: Href; t: T; id: string; locale?: string }) {
+  const iso = isolateFor(locale ?? "en");
   const others = brands.filter((b) => b.slug !== current).sort((x, y) => x.order - y.order);
   return (
     <section aria-labelledby={id} className="grid gap-6">
@@ -124,7 +127,7 @@ export function OtherBrands({ current, today, href, t, id, locale }: { current: 
                   <span className="font-display text-[14px] font-bold uppercase tracking-[0.06em] text-fg">{getBrand(b.slug)?.name}</span>
                   <ArrowRight className="h-4 w-4 flex-none text-accent transition-transform duration-200 group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5 motion-reduce:transition-none" aria-hidden="true" />
                 </span>
-                <span className="text-[13px] text-muted">{t("brand.models2", { a: list[0]?.model ?? "", b: list[1]?.model ?? "" })}</span>
+                <span className="text-[13px] text-muted">{t("brand.models2", { a: iso(list[0]?.model ?? ""), b: iso(list[1]?.model ?? "") })}</span>
                 <span className="text-[13px] font-semibold text-champagne tabular">{t("brand.fromPrice", { price: formatAED(min, locale) })}</span>
               </Link>
             </li>
@@ -137,7 +140,7 @@ export function OtherBrands({ current, today, href, t, id, locale }: { current: 
 
 /** Data-driven FAQs for a brand when the CMS copy has none. */
 export function brandFallbackFaqs(cars: Car[], brand: string, t: T, locale?: string) {
-  const [a, b] = cars;
+  const [a, b] = cars.map((c) => ({ ...c, model: isolateFor(locale ?? "en")(c.model) }));
   if (!a || !b) return [];
   const minAge = Math.max(a.minAge, b.minAge);
   const years = Math.max(a.licenceYears, b.licenceYears);

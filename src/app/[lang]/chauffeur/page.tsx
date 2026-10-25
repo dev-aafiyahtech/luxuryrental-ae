@@ -1,27 +1,36 @@
 import Link from "next/link";
 import { Check } from "lucide-react";
 import { rules } from "@/content/rules";
-import { site } from "@/content/site";
 import { carPath } from "@/content/cars";
-import { getHref } from "@/i18n/dictionaries";
+import { chauffeurIncluded } from "@/content/localize";
+import { getHref, getLocale } from "@/i18n/dictionaries";
 import { getToday } from "@/lib/server-time";
 import { formatAED } from "@/lib/format";
-import { chauffeurPage as P } from "@/content/pages/chauffeur";
+import { chauffeurPage as chauffeurEn } from "@/content/pages/chauffeur";
+import { chauffeurPage as chauffeurAr } from "@/content/pages/ar/chauffeur";
+import { contentUiFor } from "@/content/pages/ui";
 import { chauffeurFleet, chauffeurFromAirport, chauffeurFromHourly } from "@/content/pages/shared";
 import { ContentHero, CtaBand, KeyFacts, OfferNotice, Section, Steps, WhatsAppButton, h3Class } from "@/components/content/blocks";
 import { FactTable, CellNote } from "@/components/content/FactTable";
 import { FaqList } from "@/components/content/Faq";
 import { ChauffeurCarCard } from "@/components/content/ChauffeurCarCard";
-import { JsonLd, absoluteUrl, breadcrumbLd, businessRef, faqLd, graph } from "@/components/content/JsonLd";
+import { JsonLd, absoluteUrl, breadcrumbLd, businessRef, faqLd, graph, langLd } from "@/components/content/JsonLd";
 import { pageMetadata } from "@/components/content/meta";
 import { ButtonLink } from "@/components/ui";
 
+const pageFor = (locale: string) => (locale === "ar" ? chauffeurAr : chauffeurEn);
+
 export async function generateMetadata() {
+  const P = pageFor(await getLocale());
   return pageMetadata({ title: P.meta.title, description: P.meta.description(), path: "/chauffeur" });
 }
 
 export default async function ChauffeurPage() {
-  const [href, today] = await Promise.all([getHref(), getToday()]);
+  const [href, today, locale] = await Promise.all([getHref(), getToday(), getLocale()]);
+  const P = pageFor(locale);
+  const U = contentUiFor(locale);
+  const ui = P.ui;
+  const aed = (amount: number) => formatAED(amount, locale);
   const fleet = chauffeurFleet();
   const c = rules.chauffeur;
   const faqs = P.faqs();
@@ -31,13 +40,14 @@ export default async function ChauffeurPage() {
     "@type": "Service",
     "@id": `${absoluteUrl(href("/chauffeur"))}#service`,
     name: P.hero.title,
-    serviceType: "Chauffeur-driven luxury car hire",
+    serviceType: ui.serviceType,
     provider: businessRef,
-    areaServed: { "@type": "City", name: "Dubai" },
+    areaServed: { "@type": "City", name: ui.city },
     url: absoluteUrl(href("/chauffeur")),
+    ...langLd(locale),
     offers: fleet.map((car) => ({
       "@type": "Offer",
-      name: `${car.name} with chauffeur`,
+      name: ui.offerName(car.name),
       price: car.chauffeur!.hourly,
       priceCurrency: "AED",
       priceSpecification: {
@@ -53,7 +63,7 @@ export default async function ChauffeurPage() {
 
   return (
     <>
-      <JsonLd data={graph(breadcrumbLd([{ name: "Home", path: href("/") }, { name: "Chauffeur service" }]), serviceLd, faqLd(faqs))} />
+      <JsonLd data={graph(breadcrumbLd([{ name: U.home, path: href("/") }, { name: ui.crumb }]), serviceLd, faqLd(faqs, langLd(locale).inLanguage))} />
 
       <ContentHero
         eyebrow={P.hero.eyebrow}
@@ -62,70 +72,52 @@ export default async function ChauffeurPage() {
         lede={<><p>{lede1}</p><p>{lede2}</p></>}
         actions={
           <>
-            <ButtonLink href="#cars">Choose your car</ButtonLink>
-            <WhatsAppButton text={`Hello ${site.businessName}, I'd like to book a chauffeur.`}>Ask on WhatsApp</WhatsAppButton>
+            <ButtonLink href="#cars">{ui.chooseCar}</ButtonLink>
+            <WhatsAppButton text={ui.whatsappText}>{U.askWhatsApp}</WhatsAppButton>
           </>
         }
-        aside={
-          <KeyFacts
-            label="Chauffeur service at a glance"
-            items={[
-              { label: "From", value: `${formatAED(chauffeurFromHourly())} / hour`, note: `${c.minHours}-hour minimum` },
-              { label: "Airport transfer", value: `From ${formatAED(chauffeurFromAirport())}`, note: "DXB or DWC, one way within Dubai" },
-              { label: "Notice", value: `${c.leadHours} hours`, note: "Sooner? Ask on WhatsApp" },
-              { label: "Passengers", value: `Up to ${rules.chauffeur.maxPassengers}`, note: "Child seats free on request" },
-            ]}
-          />
-        }
+        aside={<KeyFacts label={ui.factsLabel} items={ui.facts(chauffeurFromHourly(), chauffeurFromAirport())} />}
       />
 
-      <Section id="how" num="02" eyebrow="How it works" title="Three steps to the back seat">
-        <Steps label="How chauffeur booking works" steps={P.steps.map((s) => ({ title: s.title, text: s.text() }))} />
+      <Section id="how" num="02" eyebrow={ui.howEyebrow} title={ui.howTitle}>
+        <Steps label={ui.stepsLabel} steps={P.steps.map((s) => ({ title: s.title, text: s.text() }))} />
       </Section>
 
-      <Section
-        id="rates"
-        num="03"
-        eyebrow="Rates"
-        title="Chauffeur rates"
-        intro={<p>Fixed prices in AED, including {site.vatRate}% VAT, for journeys within Dubai. Hourly bookings run from {c.minHours} to {c.maxHours} hours.</p>}
-      >
+      <Section id="rates" num="03" eyebrow={ui.ratesEyebrow} title={ui.ratesTitle} intro={<p>{ui.ratesIntro()}</p>}>
         <FactTable
           id="chauffeur-rates"
-          caption="Chauffeur rates by car"
+          caption={ui.tableCaption}
           captionHidden
           minWidth={820}
           columns={[
-            { label: "Car" },
-            { label: <>Per hour<CellNote>{c.minHours} h minimum</CellNote></>, short: "Per hour", align: "end" },
-            { label: <>Half day<CellNote>{c.halfDayHours} hours</CellNote></>, short: "Half day", align: "end" },
-            { label: <>Full day<CellNote>{c.fullDayHours} hours</CellNote></>, short: "Full day", align: "end" },
-            { label: <>Airport transfer<CellNote>One way</CellNote></>, short: "Airport transfer", align: "end" },
-            { label: <>Extra hour<CellNote>Per started 30 min</CellNote></>, short: "Extra hour", align: "end" },
+            { label: ui.col.car },
+            { label: <>{ui.col.perHour}<CellNote>{ui.col.perHourNote}</CellNote></>, short: ui.col.perHour, align: "end" },
+            { label: <>{ui.col.halfDay}<CellNote>{ui.col.halfDayNote}</CellNote></>, short: ui.col.halfDay, align: "end" },
+            { label: <>{ui.col.fullDay}<CellNote>{ui.col.fullDayNote}</CellNote></>, short: ui.col.fullDay, align: "end" },
+            { label: <>{ui.col.airport}<CellNote>{ui.col.airportNote}</CellNote></>, short: ui.col.airport, align: "end" },
+            { label: <>{ui.col.extra}<CellNote>{ui.col.extraNote}</CellNote></>, short: ui.col.extra, align: "end" },
           ]}
           rows={fleet.map((car) => ({
             key: car.slug,
             cells: [
-              <Link key="n" href={href(carPath(car))} className="no-underline hover:text-accent-hover">{car.name}<CellNote>{car.specs.seats} seats</CellNote></Link>,
-              formatAED(car.chauffeur!.hourly),
-              formatAED(car.chauffeur!.halfDay),
-              formatAED(car.chauffeur!.fullDay),
-              formatAED(car.chauffeur!.airport),
-              formatAED(car.chauffeur!.overtime),
+              <Link key="n" href={href(carPath(car))} className="no-underline hover:text-accent-hover">{car.name}<CellNote>{ui.seats(car.specs.seats)}</CellNote></Link>,
+              aed(car.chauffeur!.hourly),
+              aed(car.chauffeur!.halfDay),
+              aed(car.chauffeur!.fullDay),
+              aed(car.chauffeur!.airport),
+              aed(car.chauffeur!.overtime),
             ],
           }))}
-          footnote={<>Airport transfers run between DXB or DWC and anywhere in Dubai, with {rules.airportWaitFreeMinutes} minutes&apos; free waiting after landing. Surcharges for night starts, the festive peak and other emirates are listed below.</>}
+          footnote={ui.tableFootnote()}
         />
-        <OfferNotice id="chauffeur-intro" today={today}>
-          It applies to half-day and full-day bookings outside the festive peak, and the free hour is taken off at the car&apos;s hourly rate.
-        </OfferNotice>
+        <OfferNotice id="chauffeur-intro" today={today}>{ui.offerNote}</OfferNotice>
       </Section>
 
-      <Section id="included" num="04" eyebrow="What you get" title="Included, and what costs extra">
+      <Section id="included" num="04" eyebrow={ui.includedEyebrow} title={ui.includedTitle}>
         <div className="grid gap-4 lg:grid-cols-2">
           <div className="card grid content-start gap-5 p-6 md:p-8">
-            <h3 className={h3Class}>In every booking</h3>
-            <p className="text-lg leading-relaxed text-fg">{c.included}</p>
+            <h3 className={h3Class}>{ui.inEvery}</h3>
+            <p className="text-lg leading-relaxed text-fg">{chauffeurIncluded(locale)}</p>
             <ul className="grid gap-3 border-t border-line p-0 pt-5 [list-style:none]">
               {P.goodToKnow().map((item) => (
                 <li key={item} className="flex gap-3 text-[15px] leading-relaxed text-champagne">
@@ -136,7 +128,7 @@ export default async function ChauffeurPage() {
             </ul>
           </div>
           <div className="card grid content-start gap-5 p-6 md:p-8">
-            <h3 className={h3Class}>Surcharges</h3>
+            <h3 className={h3Class}>{ui.surchargesTitle}</h3>
             <dl className="spec-list">
               {P.surcharges().map((s) => (
                 <div key={s.label}>
@@ -145,29 +137,29 @@ export default async function ChauffeurPage() {
                 </div>
               ))}
             </dl>
-            <p className="fine leading-relaxed">Percentage surcharges apply to the booking price. Outside-Dubai surcharges apply to bookings that start in that area.</p>
+            <p className="fine leading-relaxed">{ui.surchargesNote}</p>
           </div>
         </div>
       </Section>
 
-      <Section id="cars" num="05" eyebrow="The cars" title="Choose your car" intro={<p>The Phantom is offered with a chauffeur first. The Cullinan and the Bentayga can also be rented self-drive from the fleet pages.</p>}>
+      <Section id="cars" num="05" eyebrow={ui.carsEyebrow} title={ui.carsTitle} intro={<p>{ui.carsIntro}</p>}>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {fleet.map((car) => <ChauffeurCarCard key={car.slug} car={car} href={href} />)}
         </div>
-        <p className="fine">Car images are illustrations until photos of our own cars are ready.</p>
+        <p className="fine">{ui.imagesNote}</p>
       </Section>
 
-      <Section id="faq" num="06" eyebrow="Questions" title="Chauffeur questions">
+      <Section id="faq" num="06" eyebrow={U.questions} title={ui.faqTitle}>
         <FaqList items={faqs} href={href} />
       </Section>
 
       <CtaBand
-        title="Plan the day with us"
-        text={<p>Send us the date, the pickup point and where you need to be. We suggest the car and the package, and confirm the price on WhatsApp.</p>}
+        title={ui.ctaTitle}
+        text={<p>{ui.ctaText}</p>}
         actions={
           <>
-            <WhatsAppButton text={`Hello ${site.businessName}, I'd like to book a chauffeur.`}>Message us on WhatsApp</WhatsAppButton>
-            <ButtonLink href={href(`/book/trip?car=${fleet[0].slug}&service=chauffeur`)}>Request a chauffeur</ButtonLink>
+            <WhatsAppButton text={ui.whatsappText}>{U.messageWhatsApp}</WhatsAppButton>
+            <ButtonLink href={href(`/book/trip?car=${fleet[0].slug}&service=chauffeur`)}>{ui.request}</ButtonLink>
           </>
         }
       />

@@ -23,9 +23,11 @@ export function breadcrumbLd(items: { name: string; path?: string }[]) {
   };
 }
 
-export function faqLd(items: { q: string; a: string }[]) {
+/** FAQPage node. Pass `inLanguage` ("ar") on translated pages. */
+export function faqLd(items: { q: string; a: string }[], inLanguage?: string) {
   return {
     "@type": "FAQPage",
+    ...(inLanguage ? { inLanguage } : {}),
     mainEntity: items.map((item) => ({
       "@type": "Question",
       name: item.q,
@@ -35,6 +37,9 @@ export function faqLd(items: { q: string; a: string }[]) {
 }
 
 export const businessRef = { "@id": `${site.url}/#business` };
+
+/** `{ inLanguage: "ar" }` for Arabic pages, nothing for English (the site default). */
+export const langLd = (locale: string): { inLanguage?: string } => (locale === "en" ? {} : { inLanguage: locale });
 
 export function graph(...nodes: Record<string, unknown>[]) {
   return { "@context": "https://schema.org", "@graph": nodes };

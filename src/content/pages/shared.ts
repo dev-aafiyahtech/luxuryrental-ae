@@ -22,6 +22,7 @@ export { arabicCount, arabicUnits, type ArabicCountForms, type CountUnit } from 
 const UNITS_EN: Record<CountUnit, [string, string]> = {
   day: ["day", "days"], hour: ["hour", "hours"], minute: ["minute", "minutes"], month: ["month", "months"], year: ["year", "years"],
   week: ["week", "weeks"], passenger: ["passenger", "passengers"], seat: ["seat", "seats"], hp: ["hp", "hp"], ps: ["PS", "PS"], second: ["second", "seconds"],
+  car: ["car", "cars"], brand: ["brand", "brands"], question: ["question", "questions"], answer: ["answer", "answers"], age: ["year", "years"],
 };
 
 /**
@@ -33,6 +34,16 @@ export function countText(n: number, unit: CountUnit, locale?: string, nominativ
   const [one, many] = UNITS_EN[unit];
   return `${formatNumber(n)} ${n === 1 ? one : many}`;
 }
+
+/** "2 seats", "4–5 seats", "2+2 seats"; Arabic "مقعدان", "5 مقاعد", "4–5 مقاعد", "مقاعد 2+2". For a car's `specs.seats`. */
+export function seatsText(seats: string, locale?: string): string {
+  if (!isAr(locale)) return `${seats} seats`;
+  if (/^\d+$/.test(seats)) return countText(Number(seats), "seat", locale, true);
+  return seats.includes("+") ? `مقاعد ${seats}` : `${seats} مقاعد`;
+}
+
+/** Left-to-right isolate (LRI … PDI) for a Latin run inside Arabic text: phone numbers, time ranges, legal names. No-op in English. */
+export const ltr = (text: string, locale?: string) => (isAr(locale) ? `\u2066${text}\u2069` : text);
 
 /** Date the fact pages (pricing, requirements) were last changed. Bump only when content changes. */
 export const factsUpdated = "2026-10-24";

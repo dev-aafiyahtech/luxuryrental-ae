@@ -27,6 +27,7 @@ export interface CarPoints {
     uPR: { value: number };
     uFade: { value: number };
     uPaint: { value: number };
+    uXray: { value: number };
   };
   setBuild(build: CarBuild): void;
   dispose(): void;
@@ -59,6 +60,7 @@ export function createCarPoints(slug: string, shared: { uTime: { value: number }
     uPR: shared.uPR,
     uFade: { value: 1 },
     uPaint: { value: 0 },
+    uXray: { value: 0 },
   };
   const material = new THREE.ShaderMaterial({
     transparent: true,
@@ -87,6 +89,10 @@ export function createCarPoints(slug: string, shared: { uTime: { value: number }
       g.setAttribute("aRnd", new THREE.BufferAttribute(build.rnd, 1));
       g.setAttribute("aBright", new THREE.BufferAttribute(build.bright, 1));
       g.setDrawRange(0, build.count);
+      // Image cars keep their body in place when exploded and fade its panels to line-work;
+      // their points are spread over surfaces rather than lines, so they draw a touch larger.
+      uniforms.uXray.value = build.source === "image" ? 1 : 0;
+      uniforms.uSize.value = pointSize * (build.source === "image" ? 1.12 : 1);
       self.build = build;
       self.readyAt = -1;
     },

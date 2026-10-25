@@ -140,11 +140,12 @@ export const streaks = {
  * The light-sculpture car. Additions to the prototype: `uFade` dissolves a car away when
  * another one takes its place, loose dust drifts slowly with `uTime` (the ambient motion the
  * Pause control stops), and `uPaint` lets the formed car take on its own image colour
- * (`aPaint`) over the colour-by-part palette (`aColor`); loose dust always stays gold.
+ * (`aPaint`) over the colour-by-part palette (`aColor`); loose dust always stays gold. With
+ * `uXray` (image cars) the exploded body fades its panels to line-work around the powertrain.
  */
 export const car = {
   vertex: /* glsl */ `attribute vec3 aExplode, aScatter, aColor, aPaint; attribute float aComp, aRnd, aBright;
-    uniform float uExplode, uForm, uHead, uTime, uSize, uPR, uFade, uPaint;
+    uniform float uExplode, uForm, uHead, uTime, uSize, uPR, uFade, uPaint, uXray;
     varying vec3 vColor; varying float vAlpha;
     void main(){
       float e = clamp(uExplode * 1.3 - aRnd * 0.3, 0.0, 1.0); e = e * e * (3.0 - 2.0 * e);
@@ -162,6 +163,8 @@ export const car = {
       float a = mix(0.32, 0.8, aBright);
       a *= mix(1.0, e, isPower);
       a *= mix(1.0, 0.45 + 1.2 * uHead, isHead);
+      float isBody = 1.0 - step(0.5, aComp);
+      a *= mix(1.0, mix(0.45, 1.0, smoothstep(0.3, 0.75, aBright)), e * isBody * uXray);
       a *= mix(0.55, 1.0, f);
       a *= uFade;
       vColor = mix(aColor, aPaint, uPaint * f * (1.0 - isHead)); vAlpha = a;

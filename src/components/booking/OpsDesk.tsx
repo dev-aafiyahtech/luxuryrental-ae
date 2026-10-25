@@ -7,6 +7,7 @@ import { CalendarX2, Mail, Phone, Plus, RotateCcw } from "lucide-react";
 import { getCar } from "@/content/cars";
 import { site } from "@/content/site";
 import { useHref, useLocale, useT } from "@/i18n/client";
+import { isolateFor } from "@/i18n/config";
 import { defaultDraft, useBookings } from "@/lib/booking/draft";
 import { resetDemoBookings, submitBookingRequest, updateBookingStatus } from "@/lib/booking/store";
 import { transitions, type BookingRecord, type BookingStatus } from "@/lib/booking/types";
@@ -65,7 +66,7 @@ function EmailPreview({ b, onAction, pending }: { b: BookingRecord; onAction: (t
         rows={[
           { label: t("ops.emailFrom"), value: <bdi dir="ltr">{`Luxuryrental.ae website <no-reply@${site.domain}>`}</bdi> },
           { label: t("ops.emailTo"), value: <bdi dir="ltr">{site.email}</bdi> },
-          { label: t("ops.emailSubject"), value: t("ops.emailSubjectText", { ref: b.ref, car: b.carName, when: lines.when }) },
+          { label: t("ops.emailSubject"), value: t("ops.emailSubjectText", { ref: isolateFor(locale)(b.ref), car: isolateFor(locale)(b.carName), when: lines.when }) },
         ]}
       />
       <div className="grid gap-4 rounded-xl border border-line bg-bg p-4 text-sm">
@@ -292,7 +293,7 @@ export function OpsDesk() {
         </ul>
       )}
 
-      <BottomSheet open={!!previewing} onClose={() => setPreview(null)} title={previewing ? t("ops.emailTitle", { ref: previewing.ref }) : ""} size="lg">
+      <BottomSheet open={!!previewing} onClose={() => setPreview(null)} title={previewing ? t("ops.emailTitle", { ref: isolateFor(locale)(previewing.ref) }) : ""} size="lg">
         {previewing && <EmailPreview b={previewing} pending={pending} onAction={(to) => void act(previewing, to)} />}
       </BottomSheet>
 

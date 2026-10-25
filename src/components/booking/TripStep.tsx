@@ -10,6 +10,7 @@ import { rules } from "@/content/rules";
 import { getZone, zones } from "@/content/zones";
 import { chauffeurIncluded, localizeZone, localizeZones } from "@/content/localize";
 import { useHref, useLocale, useT } from "@/i18n/client";
+import { isolateFor } from "@/i18n/config";
 import type { DeliveryZone } from "@/content/types";
 import type { ChauffeurPackage, Quote, QuoteIssue, ServiceMode } from "@/lib/pricing";
 import { fromPrice } from "@/lib/pricing";
@@ -209,7 +210,7 @@ export function TripStep() {
     <>
       {showBanner && (
         <div className="card flex flex-wrap items-center justify-between gap-3 border-accent/40 p-4">
-          <p className="font-semibold">{range && !chauffeur ? t("flow.continueBannerDates", { car: car.model, range }) : t("flow.continueBanner", { car: car.model })}</p>
+          <p className="font-semibold">{range && !chauffeur ? t("flow.continueBannerDates", { car: isolateFor(locale)(car.model), range }) : t("flow.continueBanner", { car: isolateFor(locale)(car.model) })}</p>
           <button type="button" className="btn btn-ghost btn-sm -my-1 text-accent-hover" onClick={() => setPickingAt(carParam)}>{t("flow.chooseOther")}</button>
         </div>
       )}

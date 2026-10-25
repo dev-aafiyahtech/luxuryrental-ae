@@ -8,6 +8,7 @@ import type { Car } from "@/content/types";
 import { rules } from "@/content/rules";
 import { localizeZones } from "@/content/localize";
 import { useHref, useLocale, useT } from "@/i18n/client";
+import { isolateFor } from "@/i18n/config";
 import { useTripDraft, type DraftPatch } from "@/lib/booking/draft";
 import { useAvailability } from "@/lib/booking/availability";
 import { AvailabilityNotice } from "./Availability";
@@ -101,7 +102,7 @@ export function ReserveCard({ car, variant = "panel", className, eyebrow }: Rese
   const clash = trip.carSlug === car.slug || !trip.carSlug ? avail.clash(trip.pickupDate, trip.returnDate, service) : null;
   const range = trip.pickupDate && trip.returnDate ? formatRange(trip.pickupDate, trip.returnDate, locale) : "";
   const when = chauffeur ? (trip.pickupDate ? `${formatDay(trip.pickupDate, locale)}${listSep(locale)}${trip.pickupTime}` : "") : range;
-  const summary = q.total > 0 ? t("reserve.summaryLive", { car: car.model, range: when, total: `${onRequest ? `${t("reserve.from")} ` : ""}${formatAED(q.total, locale)}` }) : "";
+  const summary = q.total > 0 ? t("reserve.summaryLive", { car: isolateFor(locale)(car.model), range: when, total: `${onRequest ? `${t("reserve.from")} ` : ""}${formatAED(q.total, locale)}` }) : "";
   const pickupZoneValue = trip.handover === "collect" ? "dso" : trip.pickup.zone;
   const lengthText = chauffeur ? (q.hours ? hoursText(t, locale, q.hours) : t("packages.airport")) : q.days ? daysText(t, locale, q.days) : "";
   const zoneOptions = localizeZones(deliveryZones, locale);

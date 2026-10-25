@@ -65,7 +65,50 @@ export const deliveryPage = {
     },
     ...faqsById("collect", "hours"),
   ],
+  zoneFee,
+  /** Labels and short copy that used to sit in the page JSX (delivery page and both area pages). */
+  ui: {
+    crumb: "Delivery",
+    airportHandover: "Airport handover",
+    factsLabel: "Delivery at a glance",
+    zonesEyebrow: "Zones and fees",
+    zonesTitle: "Where we deliver, and what it costs",
+    zonesIntro: () => `Fees are per handover, so a delivery and a collection count as two. All amounts in AED, including ${site.vatRate}% VAT.`,
+    zonesCaption: "Delivery and collection fees by zone",
+    col: { zone: "Zone", areas: "Areas", fee: "Fee each way", note: "Good to know" },
+    freeFrom: (days: number) => `Free from ${days} days`,
+    chauffeurAdds: (fee: number) => `Chauffeur bookings here add ${formatAED(fee)}.`,
+    anyLength: "Each way, any rental length.",
+    zonesFootnote: () => `Handovers outside ${from}–${to} add ${formatAED(rules.outOfHoursFee)} each. Abu Dhabi (AUH) and Sharjah (SHJ) airports cost the same as their emirate.`,
+    offerNote: "Bugattis are excluded.",
+    baseEyebrow: "Our base",
+    baseTitle: "Everything starts in Dubai Silicon Oasis",
+    collectLink: "Collect from our office",
+    airportsEyebrow: "Airports",
+    airportsTitle: "Meet-and-greet at DXB and DWC",
+    airportsIntro: () => `We track your flight and meet you in the arrivals hall. Airport parking is included, and the first ${rules.airportWaitFreeMinutes} minutes after landing are free.`,
+    airportHandoverLabel: "Handover",
+    freeWaiting: "Free waiting",
+    freeWaitingValue: () => `${rules.airportWaitFreeMinutes} min`,
+    then: "Then",
+    perStartedHour: () => `${formatAED(rules.airportWaitPerHour)} / started hour`,
+    dxbLink: "How a DXB handover works",
+    handoverEyebrow: "Hours and handover",
+    handoverTitle: () => `Handovers ${from}–${to}, every day`,
+    faqTitle: "Delivery questions",
+    more: (airport: string, office: string) => `More on [airport handovers at DXB](/delivery/${airport}) and [collection in Dubai Silicon Oasis](/delivery/${office}).`,
+    ctaTitle: "Choose the car, we bring it",
+    ctaText: "Pick a car and your dates, add the delivery address or flight number, and send the request. The delivery fee is in the quote before you send it.",
+    whatsappText: `Hello ${site.businessName}, I have a question about delivery.`,
+    // Area pages
+    glance: (name: string) => `${name} at a glance`,
+    allZones: "All delivery zones",
+    seeAlso: (name: string, slug: string) => `All zones and fees are on our [delivery page](/delivery). See also [${name}](/delivery/${slug}).`,
+  },
 };
+
+/** The shape the Arabic module (./ar/delivery.ts) follows. */
+export type DeliveryPageContent = typeof deliveryPage;
 
 export interface AreaPage {
   slug: string;
@@ -78,6 +121,22 @@ export interface AreaPage {
   facts: () => { label: string; value: string; note?: string }[];
   steps: { title: string; text: () => string }[];
   faqs: () => FaqEntry[];
+  whatsappText: string;
+  howEyebrow: string;
+  howTitle: string;
+  faqTitle: string;
+  cta: { title: string; text: string };
+  /** Airport pages: the terminal list. */
+  terminals?: { eyebrow: string; title: string; intro: string; rows: { t: string; a: string }[] };
+  /** Office pages: the address card. */
+  location?: {
+    eyebrow: string;
+    title: string;
+    address: () => string[];
+    rows: () => { label: string; value: string }[];
+    directions: () => string;
+    openMaps: string;
+  };
 }
 
 export const areaPages: AreaPage[] = [
@@ -130,6 +189,21 @@ export const areaPages: AreaPage[] = [
         a: `Yes. Chauffeur airport transfers from DXB or DWC to anywhere in Dubai start at ${formatAED(chauffeurFromAirport())} one way, with ${rules.airportWaitFreeMinutes} minutes' free waiting. See our [chauffeur service](/chauffeur).`,
       },
     ],
+    whatsappText: `Hello ${site.businessName}, I have a question about an airport handover at DXB.`,
+    howEyebrow: "The handover",
+    howTitle: "From the plane to the driver's seat",
+    faqTitle: "DXB questions",
+    cta: { title: "Land and drive", text: "Choose a car, pick DXB as the handover place and add your flight number. The airport fee is in the quote before you send the request." },
+    terminals: {
+      eyebrow: "Terminals",
+      title: "Which terminal, and where we meet",
+      intro: "Your ticket or the airline's app shows the terminal. Add it to your request and we meet you in that terminal's arrivals hall.",
+      rows: [
+        { t: "Terminal 1", a: "Most international airlines" },
+        { t: "Terminal 2", a: "flydubai and some regional airlines" },
+        { t: "Terminal 3", a: "Emirates, and some flydubai flights" },
+      ],
+    },
   },
   {
     slug: "dubai-silicon-oasis",
@@ -174,6 +248,23 @@ export const areaPages: AreaPage[] = [
         a: `Yes. Delivery to your home follows our Dubai rate: free for rentals of ${dubai.freeFromDays} days or more, and ${formatAED(dubai.fee ?? 0)} each way for shorter rentals.`,
       },
     ],
+    whatsappText: `Hello ${site.businessName}, I have a question about collecting a car in Dubai Silicon Oasis.`,
+    howEyebrow: "Collection",
+    howTitle: "How office collection works",
+    faqTitle: "Collection questions",
+    cta: { title: "Collect when it suits you", text: "Choose a car, pick collection at Dubai Silicon Oasis and set a time. We confirm the slot on WhatsApp." },
+    location: {
+      eyebrow: "Location",
+      title: "Find the office",
+      address: () => [site.address.line1, site.address.area, `${site.address.city}, ${site.address.country}`],
+      rows: () => [
+        { label: "Open", value: site.hours },
+        { label: "Roads", value: "E66 Dubai–Al Ain Rd, E311" },
+        { label: "Parking", value: "Free visitor parking in front of the building" },
+      ],
+      directions: () => site.address.directions,
+      openMaps: "Open in Google Maps",
+    },
   },
 ];
 

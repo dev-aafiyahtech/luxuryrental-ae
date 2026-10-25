@@ -156,6 +156,7 @@ export const requirementsPage = {
       columns: ["Tier", "Minimum age", "Licence held", "Notice", "Deposit", "Excess"],
       minAge: (age: number) => `${age}+`,
       years: (years: number) => `${years} years`,
+      carList: (names: string[]) => names.join(", "),
     },
     licences: { eyebrow: "Licences", title: "Which licence you can drive on" },
     documents: { eyebrow: "Documents", title: "What to bring to the handover", visitors: "Visitors", residents: "UAE residents" },

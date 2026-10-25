@@ -50,4 +50,23 @@ export const aboutPage = {
     { label: "Address", value: `${site.address.line1}, ${site.address.area}, ${site.address.city}` },
     { label: "Hours", value: site.hours },
   ],
+  /** Labels and short copy that used to sit in the page JSX. */
+  ui: {
+    crumb: "About",
+    messageUs: "Message us",
+    whatsappText: `Hello ${site.businessName}.`,
+    storyEyebrow: "Our story",
+    fleetByBrand: "The fleet by brand",
+    howEyebrow: "How we work",
+    howTitle: "Three things we hold ourselves to",
+    trust: [`Prices include ${site.vatRate}% VAT`, "Based in Dubai Silicon Oasis", "Comprehensive insurance included", "Requests confirmed on WhatsApp"],
+    companyEyebrow: "Company details",
+    companyTitle: "Who you are renting from",
+    sampleNote: "Demo: the legal entity, licence, permit and TRN are sample values until the licence documents are confirmed.",
+    ctaTitle: "Find your car",
+    contactUs: "Contact us",
+  },
 };
+
+/** The shape the Arabic module (./ar/about.ts) follows. */
+export type AboutPageContent = typeof aboutPage;

@@ -3,13 +3,17 @@ import type { ReactNode } from "react";
 import { Gift } from "lucide-react";
 import type { Offer } from "@/content/types";
 import { offers } from "@/content/rules";
-import { site } from "@/content/site";
+import { localizeOffer, siteFor } from "@/content/localize";
+import { getLocale } from "@/i18n/dictionaries";
 import { whatsappHref } from "@/lib/whatsapp";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { Eyebrow } from "@/components/ui";
 import { shortDate } from "@/content/pages/shared";
+import { contentUiFor } from "@/content/pages/ui";
 
 // Building blocks shared by the content pages. Server Components, no client JS.
+// The blocks with built-in text (CtaBand, OfferNotice, LastUpdated) read the locale from the
+// root `[lang]` param themselves, so every page that uses them gets the right language.
 
 /** Section heading size, between .display-md (H1) and .display-sm (cards). */
 export const h2Class = "font-display text-[clamp(1.25rem,0.95rem+1.3vw,2.1rem)] font-bold uppercase leading-[1.08] tracking-[0.02em] [text-wrap:balance]";
@@ -134,7 +138,8 @@ export function WhatsAppButton({ text, children, className, size }: { text?: str
 }
 
 /** Closing call to action. */
-export function CtaBand({ title, text, actions, id = "next" }: { title: string; text: ReactNode; actions: ReactNode; id?: string }) {
+export async function CtaBand({ title, text, actions, id = "next" }: { title: string; text: ReactNode; actions: ReactNode; id?: string }) {
+  const site = siteFor(await getLocale());
   return (
     <section aria-labelledby={`${id}-title`} className="container-site pb-20 pt-4 md:pb-28">
       <div className="relative isolate overflow-hidden rounded-[var(--radius-panel)] border border-accent/30 bg-card p-7 [box-shadow:var(--shadow-edge)] md:p-14">
@@ -153,30 +158,34 @@ export function CtaBand({ title, text, actions, id = "next" }: { title: string; 
 }
 
 /** A launch offer, shown only while it is valid on `today`. */
-export function OfferNotice({ id, today, className, children }: { id: Offer["id"]; today: string; className?: string; children?: ReactNode }) {
-  const offer = offers.find((o) => o.id === id);
-  if (!offer || today > offer.validUntil) return null;
+export async function OfferNotice({ id, today, className, children }: { id: Offer["id"]; today: string; className?: string; children?: ReactNode }) {
+  const found = offers.find((o) => o.id === id);
+  if (!found || today > found.validUntil) return null;
+  const locale = await getLocale();
+  const offer = localizeOffer(found, locale);
+  const ui = contentUiFor(locale).offer;
   return (
-    <aside aria-label={`${offer.name} offer`} className={clsx("relative isolate flex flex-wrap items-start gap-4 overflow-hidden rounded-[var(--radius-card)] border border-accent/40 bg-card p-5 md:flex-nowrap md:items-center md:p-6", className)}>
+    <aside aria-label={ui.label(offer.name)} className={clsx("relative isolate flex flex-wrap items-start gap-4 overflow-hidden rounded-[var(--radius-card)] border border-accent/40 bg-card p-5 md:flex-nowrap md:items-center md:p-6", className)}>
       <div aria-hidden="true" className="absolute inset-y-0 start-0 -z-10 w-1/2 bg-gradient-to-r from-accent/10 to-transparent rtl:bg-gradient-to-l" />
       <span className="grid h-11 w-11 flex-none place-items-center rounded-full border border-accent/50 text-accent-hover"><Gift className="h-5 w-5" aria-hidden="true" /></span>
       <div className="grid min-w-0 flex-1 gap-1">
         <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <span className="badge">Launch offer</span>
+          <span className="badge">{ui.badge}</span>
           <strong className="font-semibold">{offer.name}</strong>
         </p>
         <p className="text-sm leading-relaxed text-champagne">{offer.summary} {children}</p>
       </div>
-      <p className="fine w-full whitespace-nowrap ps-[60px] md:w-auto md:ps-0 md:text-end">Until {shortDate(offer.validUntil)}</p>
+      <p className="fine w-full whitespace-nowrap ps-[60px] md:w-auto md:ps-0 md:text-end">{ui.until(shortDate(offer.validUntil, locale))}</p>
     </aside>
   );
 }
 
 /** "Last updated 23 Oct 2026" line for fact pages. */
-export function LastUpdated({ iso, extra }: { iso: string; extra?: ReactNode }) {
+export async function LastUpdated({ iso, extra }: { iso: string; extra?: ReactNode }) {
+  const locale = await getLocale();
   return (
     <p className="fine flex flex-wrap gap-x-3 gap-y-1">
-      <span>Last updated <time dateTime={iso}>{shortDate(iso)}</time></span>
+      <span>{contentUiFor(locale).lastUpdated} <time dateTime={iso}>{shortDate(iso, locale)}</time></span>
       {extra}
     </p>
   );

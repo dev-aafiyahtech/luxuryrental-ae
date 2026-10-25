@@ -7,6 +7,7 @@ import { rules } from "@/content/rules";
 import { site } from "@/content/site";
 import { chauffeurIncluded, localizeCar, siteFor, tierName } from "@/content/localize";
 import { useHref, useLocale, useT } from "@/i18n/client";
+import { isolateFor } from "@/i18n/config";
 import type { AgreementRecord, BookingRecord } from "@/lib/booking/types";
 import { formatDayLong } from "@/lib/dates";
 import { formatAED as aed, formatNumber } from "@/lib/format";
@@ -16,7 +17,7 @@ import { tripLines } from "@/components/booking/FlowShell";
 import { countText, countryName, formatPhone, listSep, packageText, recordQuote } from "@/components/booking/lib";
 import { SignAgreementForm, excessFor } from "./SignAgreementForm";
 import { SignatureImage } from "./SignaturePad";
-import { DocSection, longDate, longStamp } from "./bits";
+import { DocSection, longDate, longStamp, versionText } from "./bits";
 
 const linkClass = "font-semibold text-fg underline decoration-accent/60 underline-offset-4 hover:decoration-accent";
 
@@ -37,6 +38,9 @@ export function AgreementDocument({ b, agreement, car: baseCar, canSign, onSigne
   const d = trip.driver;
   const lines = tripLines(trip, trip.service, tb, locale);
   const sep = listSep(locale);
+  // Latin names and codes interpolated into Arabic sentences keep their own order ("L.L.C.", "01:00–06:00").
+  const iso = isolateFor(locale);
+  const bankDays = locale === "ar" ? rules.bankReleaseWorkingDays.replace(/^(\d+) to (\d+)$/, "$1 إلى $2") : rules.bankReleaseWorkingDays;
   const tier = car ? rules.tiers[car.tier] : undefined;
   const excess = tier ? excessFor(b, tier) : 0;
   const signed = !!agreement.signedAt;
@@ -66,7 +70,7 @@ export function AgreementDocument({ b, agreement, car: baseCar, canSign, onSigne
         t("terms.exclusions"),
         t("terms.damage", { pct: rules.lossOfUsePct, days: rules.lossOfUseMaxDays }),
         t("terms.care", { fee: formatAED(rules.cleaningFee) }),
-        t("terms.deposit", { days: tier?.releaseDays ?? 21, bank: rules.bankReleaseWorkingDays }),
+        t("terms.deposit", { days: tier?.releaseDays ?? 21, bank: bankDays }),
         rich(t("terms.cancel"), { cancellation: cancelLink }),
       ];
 
@@ -81,7 +85,7 @@ export function AgreementDocument({ b, agreement, car: baseCar, canSign, onSigne
           {[
             { label: t("doc.number"), value: <span className="font-semibold tabular tracking-[0.04em]" dir="ltr">{agreement.number}</span> },
             { label: t("doc.reference"), value: <span className="tabular tracking-[0.04em]" dir="ltr">{b.ref}</span> },
-            { label: t("doc.version"), value: agreement.version },
+            { label: t("doc.version"), value: versionText(agreement.version, tb("badge.demo")) },
             { label: t("doc.issued"), value: longDate(agreement.issuedAt, locale) },
           ].map((r) => (
             <div key={r.label} className="grid content-start gap-1">
@@ -99,9 +103,9 @@ export function AgreementDocument({ b, agreement, car: baseCar, canSign, onSigne
             <h3 className="text-[15px] font-semibold text-fg">{t("parties.owner")}</h3>
             <Rows
               rows={[
-                { label: t("parties.name"), value: t("parties.ownerName", { legal: site.legalName, trade: site.businessName }) },
+                { label: t("parties.name"), value: t("parties.ownerName", { legal: iso(site.legalName), trade: iso(site.businessName) }) },
                 { label: t("parties.address"), value: [local.address.line1, local.address.area, local.address.city, local.address.country].join(sep) },
-                { label: t("parties.licence"), value: <span className="tabular">{t("parties.licenceValue", { number: site.tradeLicence, authority: site.licenceAuthority })}</span> },
+                { label: t("parties.licence"), value: <span className="tabular">{t("parties.licenceValue", { number: iso(site.tradeLicence), authority: iso(site.licenceAuthority) })}</span> },
                 { label: t("parties.rta"), value: <span className="tabular" dir="ltr">{site.rtaPermit}</span> },
                 { label: t("parties.trn"), value: <span className="tabular" dir="ltr">{site.vatTrn}</span> },
               ]}
@@ -192,7 +196,7 @@ export function AgreementDocument({ b, agreement, car: baseCar, canSign, onSigne
                   { label: t("fees.overtime"), value: car?.chauffeur ? t("fees.overtimeValue", { rate: formatAED(car.chauffeur.overtime), step: rules.chauffeur.overtimeStepMinutes }) : "" },
                 ]
               : [
-                  { label: t("fees.salik"), value: t("fees.salikValue", { peak: tolls.salikPeak, offPeak: tolls.salikOffPeak, free: tolls.salikFreeHours, admin: rules.tollAdminFee }) },
+                  { label: t("fees.salik"), value: t("fees.salikValue", { peak: tolls.salikPeak, offPeak: tolls.salikOffPeak, free: iso(tolls.salikFreeHours), admin: rules.tollAdminFee }) },
                   { label: t("fees.darb"), value: t("fees.darbValue", { peak: tolls.darbPeak, admin: rules.tollAdminFee }) },
                   { label: t("fees.fuel"), value: t("fees.fuelValue", { fee: formatAED(rules.refuelFee) }) },
                   { label: t("fees.fines"), value: t("fees.finesValue", { fee: formatAED(rules.fineAdminFee) }) },
@@ -215,7 +219,7 @@ export function AgreementDocument({ b, agreement, car: baseCar, canSign, onSigne
         <div className="grid gap-8 print:break-inside-avoid print:grid-cols-2">
           <div className="grid content-start gap-2">
             <h3 className="text-[15px] font-semibold text-fg">{t("signed.owner")}</h3>
-            <p className="text-sm text-champagne">{t("signed.ownerValue", { name: site.legalName, date: longDate(agreement.issuedAt, locale) })}</p>
+            <p className="text-sm text-champagne">{t("signed.ownerValue", { name: iso(site.legalName), date: longDate(agreement.issuedAt, locale) })}</p>
           </div>
           <div className="grid content-start gap-3">
             <h3 className="text-[15px] font-semibold text-fg">{chauffeur ? t("parties.customer") : t("parties.hirer")}</h3>
