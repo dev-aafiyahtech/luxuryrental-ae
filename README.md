@@ -118,13 +118,14 @@ tools/
 | 24 Oct 2026 | Customer documents, e-signed rental agreement, vehicle checks and customer accounts simulated in the browser |
 | 24 Oct 2026 | AI images for all 16 cars received (Google Drive) and imported: hero, side, card, interior and extra views, labelled "Illustrative AI image" |
 | 25 Oct 2026 | Demo completed in Arabic (`/ar`, right to left, demo translation to be reviewed), with simulated car availability (no double bookings), per-car share images and particle cars sampled from the AI images on the homepage |
+| 25 Oct 2026 | Logo accent (".ae" and the monogram square) deepened to Burnished Gold `#D6AE4F` so it stands apart from the Alabaster letters; buttons stay Antique Gold. Demo branch merged into `main` |
 
 ## Open items
 
 - **Arabic review:** the Arabic is a demo translation; a translator should review it, and a UAE lawyer the legal pages. Terms and rules: [docs/dev/ARABIC-GUIDE.md](docs/dev/ARABIC-GUIDE.md).
 - **Real car photos:** the AI images stand in until photos of the actual cars arrive (`node tools/ingest-car-images.mjs <folder>` imports a new set).
 - **Assumed content to confirm:** company details (shown as samples), booking rules and fees, Salik and Darb, delivery zones, chauffeur rules, and each car's model year, colours, wheels and equipment. All are listed in [docs/brief/assumptions.md](docs/brief/assumptions.md), with the file each one lives in. The real legal documents and the UAE lawyer review are still needed before launch.
-- **Logo questions:** minimum size (180 px recommended), lowercase gold ".ae", the OG tagline "Delivered across Dubai", who designs the Arabic lockup. See [docs/brand/logo.md](docs/brand/logo.md).
+- **Logo questions:** minimum size (180 px recommended), the OG tagline "Delivered across Dubai", who designs the Arabic lockup. See [docs/brand/logo.md](docs/brand/logo.md).
 
 ## Owner
 

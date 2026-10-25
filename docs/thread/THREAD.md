@@ -485,3 +485,16 @@ Got it. I've saved your answers to the project, and I'll wait for your next inst
 > I hit my usage limit while you were working, but it has reset now. Please continue from where you left off.
 
 *Claude resumed the agents from checkpoint commits, then ran the full checks (types, lint, build, i18n keys, every English and Arabic route at phone and desktop widths) and pushed.*
+
+---
+
+## 18. Deeper gold logo accent, merge to main
+
+*Claude asked three open questions: merge the demo into `main`, use a deeper gold for the logo's ".ae", and set up Vercel.*
+
+**Zubair:**
+> 1. ok
+> 2. ok
+> 3. i will provide later
+
+*Claude changed the logo accent (the ".ae" and the monogram's gold square) from Antique Gold `#EBDAB0` to Burnished Gold `#D6AE4F`, which stands apart from the Alabaster letters (1.8:1 against them, up from 1.2:1) and keeps 4.1:1 on Sea Moss. Buttons and the single-colour gold files stay Antique Gold. The whole logo pack (SVGs, favicon, app icons, avatar, share template, the inline React logo and the master artboard) was regenerated from the brand-kit source, after checking that the unchanged source reproduced every existing file exactly. Then it merged the demo branch into `main`. Vercel waits for Zubair.*

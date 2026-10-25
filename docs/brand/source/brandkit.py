@@ -18,7 +18,8 @@ from fontTools.pens.svgPathPen import SVGPathPen
 from fontTools.pens.transformPen import TransformPen
 from fontTools.ttLib import TTFont
 
-GOLD = "#EBDAB0"      # Antique Gold: accent (MASTER.md §3)
+GOLD = "#EBDAB0"      # Antique Gold: the site's call-to-action colour (MASTER.md §3); single-colour gold files
+LOGO_GOLD = "#D6AE4F" # Burnished Gold: the logo accent only (".ae" and the monogram square), 25 Oct 2026
 GOLD_HI = "#F6EBCF"   # accent hover, metallic highlight only
 IVORY = "#F4EADE"     # Alabaster: foreground
 INK = "#2C5252"       # Sea Moss: background
@@ -225,7 +226,7 @@ def art_single(mark, scale=1.0):
 # Hand-fitted to a 16 x 16 pixel grid: whole-pixel stems and gaps, R bowl drawn with
 # 45-degree chamfers so it stays crisp in a browser tab. Used for favicon.svg and the
 # 16 px layer of favicon.ico (the 32 px layer uses the full monogram).
-def favicon16(tile=True, fg=IVORY, ac=GOLD, bg=INK):
+def favicon16(tile=True, fg=IVORY, ac=LOGO_GOLD, bg=INK):
     fgd = (
         "M2 2h2v10h7v2H2z"                                   # L: stem + foot
         "M5 2h7l2 2v2l-1.4 1.4L14 11h-2.5l-2-3H7v3H5z"       # R outline
@@ -239,7 +240,7 @@ def favicon16(tile=True, fg=IVORY, ac=GOLD, bg=INK):
     return "".join(parts)
 
 
-def favicon32(fg=IVORY, ac=GOLD, bg=INK):
+def favicon32(fg=IVORY, ac=LOGO_GOLD, bg=INK):
     """32 px layer of favicon.ico: the real monogram, pixel-fitted (stem 4, gaps 2, foot 4)."""
     stem, gap, foot, rh = 4, 2, 4, 16
 
@@ -277,7 +278,7 @@ def metallic(art, pad=50):
 
 # --------------------------------------------------------------------------- export
 SCHEMES = {
-    "primary": (IVORY, GOLD, INK),
+    "primary": (IVORY, LOGO_GOLD, INK),
     "white": (IVORY, IVORY, None),
     "moss": (INK, INK, None),
     "gold": (GOLD, GOLD, None),
@@ -312,7 +313,7 @@ def build(font_path, out_dir):
     W = art_single(wm)
     M = art_single(mono)
     files = {
-        # primary: Alabaster letters, Antique Gold accent, on Sea Moss with the clear space built in
+        # primary: Alabaster letters, Burnished Gold accent, on Sea Moss with the clear space built in
         "logo-horizontal.svg": svg(H, "primary", pad=100),
         "logo-stacked.svg": svg(S, "primary", pad=150),
         "wordmark.svg": svg(W, "primary", pad=100),

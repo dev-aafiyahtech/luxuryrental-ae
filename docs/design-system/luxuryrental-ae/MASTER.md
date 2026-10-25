@@ -80,6 +80,7 @@ The site stays dark: Sea Moss is the page background, and cards, panels and the 
 | Accent / CTA (Antique Gold) | `#EBDAB0` | `accent` | 6.2:1 on bg · 7.4:1 on card (as text) |
 | On Accent | `#1B3434` | `on-accent` | 9.6:1 on gold |
 | Accent hover | `#F6EBCF` | `accent-hover` | 11.2:1 with dark text |
+| Logo gold (Burnished Gold) | `#D6AE4F` | `logo-gold` | Logo accent only (".ae", monogram square); 4.1:1 on bg. Never for buttons or text |
 | Focus ring | `#EBDAB0` | `ring` | 6.2:1 on bg (needs 3:1) |
 | Border (decorative) | `#4A7372` | `line` | — |
 | Input border | `#8DAEA8` | `input` | 4.2:1 on card (needs 3:1) |

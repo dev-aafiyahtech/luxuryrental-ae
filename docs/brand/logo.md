@@ -1,8 +1,8 @@
 # LuxuryRental.ae logo: usage sheet
 
-Version 1.1, 23 Oct 2026 (recoloured to the Sea Moss palette). Direction "Corner". The wordmark text "LuxuryRental.ae" was approved by the client (plan-answers Q1). The trade name "Luxuryrentals" stays in legal text only.
+Version 1.2, 25 Oct 2026 (deeper Burnished Gold accent, approved by Zubair; 1.1 recoloured the logo to the Sea Moss palette). Direction "Corner". The wordmark text "LuxuryRental.ae" was approved by the client (plan-answers Q1). The trade name "Luxuryrentals" stays in legal text only.
 
-<img src="../../public/brand/logo-horizontal.svg" alt="LuxuryRental.ae horizontal logo, Alabaster and Antique Gold on Sea Moss" width="560">
+<img src="../../public/brand/logo-horizontal.svg" alt="LuxuryRental.ae horizontal logo, Alabaster and Burnished Gold on Sea Moss" width="560">
 
 **The idea.** The domain is the brand, so the gold accent is the domain ending: **.ae**. The monogram repeats that full stop. An **L** holds a smaller **R** in its corner, and a gold square closes the corner where the L's foot stops: "LR.". All letters are Syncopate Bold outlines (SIL OFL 1.1, modified), so the logo matches the site's headline face. It uses no wings, shields, animals, tridents, crowns, laurels or car shapes.
 
@@ -16,7 +16,7 @@ Version 1.1, 23 Oct 2026 (recoloured to the Sea Moss palette). Direction "Corner
 | <img src="../../public/brand/monogram.svg" width="72" alt=""> | `monogram.svg` | Favicon, app icon, WhatsApp and Instagram avatars, watermark |
 | <img src="../../public/brand/monogram-metallic.svg" width="72" alt=""> | `monogram-metallic.svg` | Extra only: print foil mock-ups, launch visuals. Never the primary mark |
 
-The primary files are Alabaster letters with Antique Gold accents on Sea Moss `#2C5252`. The Sea Moss panel already includes the clear space. The single-colour files have a transparent background and no padding:
+The primary files are Alabaster letters with Burnished Gold accents on Sea Moss `#2C5252`. The Sea Moss panel already includes the clear space. The single-colour files have a transparent background and no padding:
 
 | Alabaster `#F4EADE` | Sea Moss `#2C5252` | Antique Gold `#EBDAB0` |
 |---|---|---|
@@ -30,10 +30,10 @@ The primary files are Alabaster letters with Antique Gold accents on Sea Moss `#
 | Role | Hex | Notes |
 |---|---|---|
 | Letters | `#F4EADE` Alabaster | `currentColor` in the inline React component |
-| Accent: ".ae" and the monogram square | `#EBDAB0` Antique Gold | Always flat. `#F6EBCF` is only a hover colour and a metallic highlight |
+| Accent: ".ae" and the monogram square | `#D6AE4F` Burnished Gold | Always flat. Deeper than the site's Antique Gold `#EBDAB0` so ".ae" stands apart from the Alabaster letters (1.8:1 against them, 4.1:1 on Sea Moss). Token `--color-logo-gold`; buttons stay Antique Gold |
 | Ground | `#2C5252` Sea Moss | The logo is designed dark-first |
 
-Only the full-colour version uses two colours. On light backgrounds, use the Sea Moss version (7.3:1 on Alabaster): Antique Gold on Alabaster is only 1.2:1, so the ".ae" would disappear. The old black files (`*-black.svg`) were retired with the palette change.
+Only the full-colour version uses two colours. The single-colour gold files stay Antique Gold, the foil colour. On light backgrounds, use the Sea Moss version (7.3:1 on Alabaster): gold on Alabaster is too faint (1.2 to 1.8:1), so the ".ae" would disappear. The old black files (`*-black.svg`) were retired with the palette change.
 
 ## Clear space and minimum size
 

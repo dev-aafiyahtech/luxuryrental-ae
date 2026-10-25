@@ -20,10 +20,10 @@ def grp(gid, art, x, y, fg, ac, bg=None, pad=0):
 fav = re.sub(r"^<svg[^>]*>|<title>.*?</title>|</svg>$", "", bk.favicon16())
 fav32 = re.sub(r"^<svg[^>]*>|<title>.*?</title>|</svg>$", "", bk.favicon32())
 body = [
-    grp("logo-horizontal_primary", H, 200, 200, bk.IVORY, bk.GOLD, bk.INK, 100),
-    grp("logo-stacked_primary", S, 3100, 200, bk.IVORY, bk.GOLD, bk.INK, 150),
-    grp("wordmark_primary", W, 200, 650, bk.IVORY, bk.GOLD, bk.INK, 100),
-    grp("monogram_primary", M, 200, 1000, bk.IVORY, bk.GOLD, bk.INK, 50),
+    grp("logo-horizontal_primary", H, 200, 200, bk.IVORY, bk.LOGO_GOLD, bk.INK, 100),
+    grp("logo-stacked_primary", S, 3100, 200, bk.IVORY, bk.LOGO_GOLD, bk.INK, 150),
+    grp("wordmark_primary", W, 200, 650, bk.IVORY, bk.LOGO_GOLD, bk.INK, 100),
+    grp("monogram_primary", M, 200, 1000, bk.IVORY, bk.LOGO_GOLD, bk.INK, 50),
     grp("logo-horizontal_white", H, 200, 1300, bk.IVORY, bk.IVORY),
     grp("logo-horizontal_gold", H, 200, 1650, bk.GOLD, bk.GOLD),
     f'<rect x="100" y="1900" width="2600" height="400" fill="{bk.IVORY}"/>',
