@@ -196,7 +196,7 @@
       "item": "Item",
       "amount": "Amount",
       "today": "Daily rate today",
-      "todaySeason": "{season} season",
+      "todaySeason": "{season} rate",
       "standard": "Daily, standard season",
       "peak": "Daily, peak season",
       "peakDates": "1 Nov – 31 Mar",

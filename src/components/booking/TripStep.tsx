@@ -83,7 +83,7 @@ function CarPicker({ today, onCancel }: { today: string; onCancel?: () => void }
         {list.map((car) => (
           <li key={car.slug}>
             <Link href={href(`/book/trip?car=${car.slug}`)} className="card card-hover grid h-full overflow-hidden no-underline">
-              <CarArt car={car} view="hero" className="aspect-[16/9] w-full" />
+              <CarArt car={car} view="hero" className="aspect-[16/9] w-full" locale={locale} />
               <span className="grid gap-1 p-5">
                 <span className="font-semibold text-fg">{car.name}</span>
                 <span className="text-sm tabular text-muted">
@@ -215,7 +215,7 @@ export function TripStep() {
         </div>
       )}
       <div id="trip-car" tabIndex={-1} className="flex items-center gap-4 outline-none">
-        <CarArt car={car} view="card" className="aspect-[4/3] w-24 flex-none rounded-xl border border-line bg-bg" sizes="96px" />
+        <CarArt car={car} view="card" className="aspect-[4/3] w-24 flex-none rounded-xl border border-line bg-bg" sizes="96px" locale={locale} />
         <div className="grid min-w-0 flex-1 gap-0.5">
           <p className="font-semibold leading-snug">{car.name}</p>
           <p className="text-[12px] text-muted">{t("flow.illustration")}</p>

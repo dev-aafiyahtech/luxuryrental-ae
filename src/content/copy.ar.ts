@@ -4,6 +4,7 @@ import { rules } from "./rules";
 import type { Car } from "./types";
 import { formatAED, formatNumber as n } from "@/lib/format";
 import { arabicCount, arabicUnits, tiersAr } from "./ar/data";
+import { seatsText } from "./pages/shared";
 
 // Arabic marketing copy for cars and brands, the same shapes as copy.ts. Facts and numbers must
 // match cars.ts and rules.ts (interpolate them, as copy.ts does). Missing entries fall back to English.
@@ -81,7 +82,7 @@ export const carCopyAr: Record<string, CarCopy | undefined> = {
       `تغطي أنواعاً من الرحلات أكثر من أي سيارة أخرى لدينا: أسبوع عائلي بين نوادي الشاطئ ومراكز التسوق مع أمتعة حقيقية في الخلف، أو أمسية واحدة يهمّ فيها الوصول، أو يوم عمل مع سائق بينما تعمل أنت في المقعد الخلفي.`,
       `يمكنك قيادتها بنفسك إذا كان عمرك ${age(CU.minAge)} أو أكثر وتحمل رخصة قيادة منذ ${years(CU.licenceYears)}. أو اطلبها مع سائق خاص بالساعة أو لنصف يوم أو ليوم كامل؛ تجد الأسعار في صفحة السائق الخاص. تشمل الإيجارات بالقيادة الذاتية ${CU.rates.kmPerDay} كم يومياً. ${deliver}`,
     ].join("\n\n"),
-    highlights: ["محرك V12 ثنائي التوربو ودفع رباعي", "قيادة ذاتية أو مع سائق خاص", `${CU.specs.seats} مقاعد وصندوق أمتعة بالحجم الكامل`],
+    highlights: ["محرك V12 ثنائي التوربو ودفع رباعي", "قيادة ذاتية أو مع سائق خاص", `${seatsText(CU.specs.seats, "ar")} وصندوق أمتعة بالحجم الكامل`],
   },
 
   "bugatti-chiron-super-sport": {

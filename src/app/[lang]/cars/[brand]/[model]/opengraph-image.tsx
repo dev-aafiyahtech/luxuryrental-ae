@@ -70,6 +70,8 @@ export default async function Image({ params }: { params: Promise<{ lang: string
     ? await Promise.all([price ? arabicLine(price, 24, "#ebdab0") : null, arabicLine(t("og.sub"), 17, "#c3cec6"), arabicLine(t("og.aiLabel"), 15, "#c3cec6")])
     : [null, null, null];
 
+  // The text column has a definite width: with only a max-width, the renderer measures a long
+  // name ("Chiron Super Sport") as one line, then wraps it over the price below.
   const side = ar ? "left" : "right";
   const edge = ar ? "right" : "left";
 
@@ -81,7 +83,7 @@ export default async function Image({ params }: { params: Promise<{ lang: string
         <div style={{ position: "absolute", top: 52, [edge]: 60, display: "flex" }}>
           <img src={logoSrc} width={330} height={28} alt="" />
         </div>
-        <div style={{ position: "absolute", [edge]: 60, bottom: 64, display: "flex", flexDirection: "column", alignItems: ar ? "flex-end" : "flex-start", maxWidth: 420 }}>
+        <div style={{ position: "absolute", [edge]: 60, bottom: 64, display: "flex", flexDirection: "column", alignItems: ar ? "flex-end" : "flex-start", width: 420 }}>
           <div style={{ fontSize: 22, letterSpacing: 6, color: "#ebdab0", fontWeight: 400 }}>{make.toUpperCase()}</div>
           <div style={{ fontSize: name.length > 12 ? 40 : 54, fontWeight: 700, lineHeight: 1.1, marginTop: 12, textTransform: "uppercase", textAlign: ar ? "right" : "left" }}>{name}</div>
           {priceArt && <img src={priceArt.src} width={priceArt.width} height={priceArt.height} alt="" style={{ marginTop: 22 }} />}

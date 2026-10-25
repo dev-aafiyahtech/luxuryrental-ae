@@ -43,7 +43,7 @@ export function QuoteSummary({ car, trip, quote, service, className }: { car: Ca
   return (
     <section aria-label={t("quote.summary")} className={clsx("glass grid gap-5 p-6", className)}>
       <div className="flex items-center gap-4">
-        <CarArt car={car} view="card" className="aspect-[4/3] w-28 flex-none rounded-xl border border-line bg-bg" sizes="112px" />
+        <CarArt car={car} view="card" className="aspect-[4/3] w-28 flex-none rounded-xl border border-line bg-bg" sizes="112px" locale={locale} />
         <div className="grid min-w-0 gap-1">
           <p className="label">{t("quote.summary")}</p>
           <p className="font-semibold leading-snug text-fg">{car.name}</p>

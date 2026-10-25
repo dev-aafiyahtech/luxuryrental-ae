@@ -9,15 +9,18 @@
 // regenerates src/scene/car/particleSets.ts from every particle file in public/cars/.
 // --debug <dir> also writes PNGs of the mask, wheels, parts and the sampled points.
 //
-// Pipeline: fit the studio background (a smooth membrane through the teal border and wall,
-// refitted with the car masked out) → score each pixel by chroma and luminance difference →
-// threshold, largest component, holes filled → find the two wheels (circles tangent to the
-// floor, from the image gradient) → drop the floor reflection below the tyre line and the
-// contact shadow under the sills → label parts (wheels, cabin above the belt line, head and
-// tail lamps, body) → sample points weighted to edges, highlights and the silhouette, with the
-// image colour, and give them depth from a car-like cross-section (rounded plan view, tumblehome
-// above the belt, rounded roof and nose edges, wheels inset). The far side reuses the near
-// side's outline (the sculpture is symmetric; no image is ever shown mirrored).
+// Pipeline: fit the studio background (a smooth membrane through the teal cells, refitted with
+// the car masked out) → score each pixel by chroma and luminance difference (darkness counts
+// only where the pixel doesn't still read as teal, so black paint and tyres are car but contact
+// shadows aren't) → threshold, small closing (grilles open to the backdrop), largest component,
+// holes filled → find the floor line (the tyres are the car's lowest rows) and the two wheels
+// (circles standing on it: dark tyre band, textured rim, brighter floor outside) → drop the
+// floor reflection below the tyre line and the contact shadow under the sills (cut at a sill
+// line found where lit floor shows under the car) → label parts (wheels, cabin above the belt
+// line, head and tail lamps, body) → sample points weighted to edges, the outline and
+// highlights, with the image colour, and give them depth from a car-like cross-section (rounded
+// plan view, tumblehome above the belt, rounded roof and nose edges, wheels inset). The far
+// side reuses the near side's outline (the sculpture is symmetric; no image is shown mirrored).
 //
 // File format (little-endian): "LRPS" | u32 version | u32 count | u32 metaBytes | meta JSON
 // (space-padded to 4 bytes) | i16 position[count*3] in millimetres (x tail→nose, y up from the
@@ -428,8 +431,8 @@ async function processCar(slug, file) {
   const open = largestComponent(mask, W, H); // before filling: the floor seen under the car is still open
   mask = fillHoles(open, W, H);
 
-  let X0 = W, X1 = 0, Y0 = H, Y1 = 0;
-  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (mask[y * W + x]) { if (x < X0) X0 = x; if (x > X1) X1 = x; if (y < Y0) Y0 = y; if (y > Y1) Y1 = y; }
+  let X0 = W, X1 = 0, Y0 = H;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (mask[y * W + x]) { if (x < X0) X0 = x; if (x > X1) X1 = x; if (y < Y0) Y0 = y; }
   const Lpx = X1 - X0;
   if (Lpx < W * 0.4) throw new Error(`segmentation failed (car only ${Lpx}px wide)`);
 
@@ -499,8 +502,8 @@ async function processCar(slug, file) {
     }
   }
   mask = fillHoles(largestComponent(mask, W, H), W, H);
-  X0 = W; X1 = 0; Y0 = H; Y1 = 0;
-  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (mask[y * W + x]) { if (x < X0) X0 = x; if (x > X1) X1 = x; if (y < Y0) Y0 = y; if (y > Y1) Y1 = y; }
+  X0 = W; X1 = 0; Y0 = H;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (mask[y * W + x]) { if (x < X0) X0 = x; if (x > X1) X1 = x; if (y < Y0) Y0 = y; }
 
   // Scale: px → metres from the car's length; model x from the bbox centre, y up from the floor.
   const s = lengthM / (X1 - X0);
@@ -611,14 +614,12 @@ async function processCar(slug, file) {
 
   // Importance map over the car: edges, highlights and the outline.
   const weights = new Float32Array(N);
-  let wsum = 0;
   for (let p = 0; p < N; p++) {
     if (!mask[p]) continue;
     // Line-work first (the light sculpture is drawn by edges and the outline), panels as dust.
     const e = smooth(0.12, 0.7, edgeN(p)), hl = smooth(0.82, 1, lumRank(lum[p])), rim = dist[p] < 2.2 ? 1 : 0;
     const w = 0.08 + 1.4 * e + 0.3 * hl + 2 * rim;
     weights[p] = w;
-    wsum += w;
   }
   const cdf = new Float64Array(N);
   let acc = 0;

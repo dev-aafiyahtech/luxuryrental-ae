@@ -35,11 +35,13 @@ export function countText(n: number, unit: CountUnit, locale?: string, nominativ
   return `${formatNumber(n)} ${n === 1 ? one : many}`;
 }
 
-/** "2 seats", "4–5 seats", "2+2 seats"; Arabic "مقعدان", "5 مقاعد", "4–5 مقاعد", "مقاعد 2+2". For a car's `specs.seats`. */
+/** "2 seats", "4–5 seats", "2+2 seats"; Arabic "مقعدان", "5 مقاعد", "4 أو 5 مقاعد", "مقاعد 2+2". For a car's `specs.seats`. */
 export function seatsText(seats: string, locale?: string): string {
   if (!isAr(locale)) return `${seats} seats`;
   if (/^\d+$/.test(seats)) return countText(Number(seats), "seat", locale, true);
-  return seats.includes("+") ? `مقاعد ${seats}` : `${seats} مقاعد`;
+  const range = /^(\d+)–(\d+)$/.exec(seats);
+  if (range) return `${range[1]} أو ${countText(Number(range[2]), "seat", locale, true)}`;
+  return `مقاعد ${seats}`;
 }
 
 /** Left-to-right isolate (LRI … PDI) for a Latin run inside Arabic text: phone numbers, time ranges, legal names. No-op in English. */

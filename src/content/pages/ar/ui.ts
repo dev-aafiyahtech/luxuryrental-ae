@@ -40,7 +40,8 @@ export const contentUi: ContentUi = {
     palm: "نخلة جميرا",
     downtown: "وسط المدينة، DIFC",
     dxb: "مطار DXB",
-    terminals: "T1، T2، T3",
+    // Isolated so the fee that follows stays next to "درهم" (bidi rule W7).
+    terminals: "\u2066T1، T2، T3\u2069",
     dwc: "مطار DWC",
     sharjah: "الشارقة، عجمان",
     hatta: "حتا",
