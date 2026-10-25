@@ -38,11 +38,10 @@ type T = ReturnType<typeof useT>;
 
 function zoneHint(z: DeliveryZone | undefined, t: T, locale: string) {
   if (!z) return undefined;
-  const stop = locale === "ar" ? "." : ".";
-  if (z.fee === null) return `${t("trip.zoneOnRequest")}${stop} ${z.note ?? ""}`.trim();
+  if (z.fee === null) return `${t("trip.zoneOnRequest")}. ${z.note ?? ""}`.trim();
   if (z.fee === 0) return t("trip.zoneFree");
   if (z.freeFromDays) return t("trip.zoneFreeFrom", { fee: formatNumber(z.fee), days: z.freeFromDays });
-  return `${t("trip.zoneFee", { fee: formatAED(z.fee, locale) })}${z.note ? `${stop} ${z.note}` : ""}`;
+  return `${t("trip.zoneFee", { fee: formatAED(z.fee, locale) })}${z.note ? `. ${z.note}` : ""}`;
 }
 
 /** Inline issue from quote(): text plus a WhatsApp way out when the request can't be made online. */
