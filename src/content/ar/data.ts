@@ -320,6 +320,7 @@ export const siteAr: {
   replyPromise?: string;
   address?: { line1?: string; area?: string; city?: string; country?: string; directions?: string };
   consumerProtectionName?: string;
+  licenceAuthority?: string;
 } = {
   hours: "يومياً من 09:00 إلى 22:00",
   replyPromise: "نردّ عبر واتساب، عادةً خلال ساعة واحدة، من 09:00 إلى 22:00.",
@@ -331,4 +332,5 @@ export const siteAr: {
     directions: "يقع مبنى مقر واحة دبي للسيليكون بجوار طريق دبي–العين (E66). تتوفر مواقف للزوار أمام المبنى، ونُحضر السيارة إلى المدخل الرئيسي للتسليم.",
   },
   consumerProtectionName: "إدارة حماية المستهلك في دائرة الاقتصاد والسياحة بدبي",
+  licenceAuthority: "دائرة الاقتصاد والسياحة في دبي (DET)",
 };

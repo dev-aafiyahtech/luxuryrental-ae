@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { heroCars } from "@/content/cars";
 import { site } from "@/content/site";
-import { getT } from "@/i18n/dictionaries";
+import { getLocale, getT } from "@/i18n/dictionaries";
+import { alternatesFor } from "@/i18n/metadata";
+import { localizeCars } from "@/content/localize";
 import { getToday } from "@/lib/server-time";
 import { toMinutes } from "@/lib/dates";
 import { CarArt } from "@/components/car/CarArt";
@@ -13,9 +15,9 @@ import { AfterChapters } from "@/components/home/AfterChapters";
 import { HomeDock } from "@/components/home/Islands";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getT("home");
+  const [t, locale] = await Promise.all([getT("home"), getLocale()]);
   // The layout's "%s | LuxuryRental.ae" template doesn't reach a page in its own segment.
-  return { title: { absolute: `${t("meta.title")} | ${site.brandName}` }, description: t("meta.description") };
+  return { title: { absolute: `${t("meta.title")} | ${site.brandName}` }, description: t("meta.description"), alternates: alternatesFor(locale, "/") };
 }
 
 /**
@@ -24,14 +26,14 @@ export async function generateMetadata(): Promise<Metadata> {
  * delivery, trust and FAQs. All copy is server-rendered; the stage is decoration.
  */
 export default async function Home() {
-  const today = await getToday();
-  const top = heroCars();
+  const [today, locale] = await Promise.all([getToday(), getLocale()]);
+  const top = localizeCars(heroCars(), locale);
   const hero = top.find((c) => c.heroRank === 1) ?? top[0];
   // The Kinetic Sculpture's default car changes once a day, chosen here on the server from
   // the Dubai date (never at random in the browser, so there's no layout shift or mismatch).
   const day = Math.floor(toMinutes(today) / 1440);
   const defaultIndex = ((day % top.length) + top.length) % top.length;
-  const arts = top.map((car) => <CarArt key={car.slug} car={car} view="side" className="aspect-[2.25/1] w-full" alt="" />);
+  const arts = top.map((car) => <CarArt key={car.slug} car={car} view="side" className="aspect-[2.25/1] w-full" alt="" locale={locale} />);
 
   return (
     <>
@@ -42,7 +44,7 @@ export default async function Home() {
         defaultIndex={defaultIndex}
         chrome={
           <>
-            <StageLayer arts={arts} callouts={stageCallouts(top)} />
+            <StageLayer arts={arts} callouts={stageCallouts(top, locale)} />
             <ChapterRail />
           </>
         }

@@ -3,8 +3,8 @@ import type { Car } from "@/content/types";
 import { carPath, carsInCategory, chauffeurCars } from "@/content/cars";
 import { getBrand } from "@/content/brands";
 import { rules } from "@/content/rules";
-import { site } from "@/content/site";
-import { getHref, getT } from "@/i18n/dictionaries";
+import { siteFor } from "@/content/localize";
+import { getHref, getLocale, getT } from "@/i18n/dictionaries";
 import { lowestFrom } from "@/lib/pricing";
 import { formatAED } from "@/lib/format";
 import { callouts } from "@/components/car/CarBits";
@@ -22,7 +22,8 @@ import { CheckAvailability, ReserveSlot } from "./Islands";
 const padX = "ps-4 pe-4 sm:ps-6 sm:pe-6 lg:ps-[max(24px,4vw)] lg:pe-[150px]";
 
 export async function HomeChapters({ top, today }: { top: Car[]; today: string }) {
-  const [t, href] = await Promise.all([getT("home"), getHref()]);
+  const [t, href, locale] = await Promise.all([getT("home"), getHref(), getLocale()]);
+  const site = siteFor(locale);
   const [first, ...rest] = t("sky.title").split(" ");
 
   const cards = [
@@ -33,7 +34,7 @@ export async function HomeChapters({ top, today }: { top: Car[]; today: string }
 
   const tabs = top.map((car) => ({ brand: getBrand(car.brand)?.name ?? "", model: car.model }));
   const panels = top.map((car) => {
-    const [power, perf, cabin, wheels] = callouts(car);
+    const [power, perf, cabin, wheels] = callouts(car, locale);
     const rows = [
       { label: t("sculpture.powertrain"), value: `${power.title} · ${power.detail}` },
       { label: t("sculpture.performance"), value: `${perf.title} · ${perf.detail}` },
@@ -126,7 +127,7 @@ export async function HomeChapters({ top, today }: { top: Car[]; today: string }
                 <p className="text-[15px] text-muted">{t(`tunnel.${card.key}.body`)}</p>
                 <p className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1 border-t border-line pt-4 text-[22px] font-semibold leading-none tabular">
                   <span className="text-xs font-medium tracking-[0.06em] text-muted">{t("tunnel.from")}</span>
-                  {formatAED(card.price)}
+                  {formatAED(card.price, locale)}
                   <small className="text-xs font-medium tracking-[0.06em] text-muted">{card.unit}</small>
                   {card.note && <small className="basis-full pt-1 text-xs font-medium tracking-[0.02em] text-muted">{card.note}</small>}
                 </p>
@@ -183,8 +184,8 @@ export async function HomeChapters({ top, today }: { top: Car[]; today: string }
 }
 
 /** Callout text for the desktop stage overlay, per top-5 car (serialisable for the client). */
-export function stageCallouts(top: Car[]) {
-  return top.map((car) => callouts(car).map((c) => ({ part: c.part, title: c.title, detail: c.detail })));
+export function stageCallouts(top: Car[], locale?: string) {
+  return top.map((car) => callouts(car, locale).map((c) => ({ part: c.part, title: c.title, detail: c.detail })));
 }
 
 /** Plain CSS for visitors without JavaScript: the sticky story becomes a normal page. */

@@ -3,9 +3,9 @@ import { Building2, ChevronDown, MapPinned, PlaneLanding, CarFront, Send } from 
 import { cars } from "@/content/cars";
 import { brands } from "@/content/brands";
 import { rules } from "@/content/rules";
-import { site } from "@/content/site";
+import { siteFor } from "@/content/localize";
 import { getZone } from "@/content/zones";
-import { getHref, getT } from "@/i18n/dictionaries";
+import { getHref, getLocale, getT } from "@/i18n/dictionaries";
 import { formatAED } from "@/lib/format";
 import { CarCard } from "@/components/car/CarCard";
 import { ButtonLink, Eyebrow } from "@/components/ui";
@@ -17,7 +17,9 @@ import { FleetStrip } from "./Islands";
 // read from the shared data modules, never typed in.
 
 export async function AfterChapters({ today }: { today: string }) {
-  const [t, href] = await Promise.all([getT("home"), getHref()]);
+  const [t, href, locale] = await Promise.all([getT("home"), getHref(), getLocale()]);
+  const site = siteFor(locale);
+  const aed = (n: number) => formatAED(n, locale);
   const groups = [...brands].sort((a, b) => a.order - b.order).map((brand) => ({ brand, list: cars.filter((c) => c.brand === brand.slug) })).filter((g) => g.list.length);
 
   const city = getZone("dubai")!;
@@ -30,8 +32,8 @@ export async function AfterChapters({ today }: { today: string }) {
 
   const faqs = [
     { id: "age", q: t("faq.age.q"), a: t("faq.age.a", { age: Math.min(L.minAge, S.minAge), years: L.licenceYears, supercarYears: S.licenceYears, hyperAge: H.minAge, hyperYears: H.licenceYears }) },
-    { id: "deposit", q: t("faq.deposit.q"), a: t("faq.deposit.a", { from: formatAED(Math.min(...deposits)), to: formatAED(Math.max(...deposits)), days: L.releaseDays }) + (hyper.length ? ` ${t("faq.deposit.hyper", { amount: formatAED(Math.min(...hyper.map((c) => c.rates.deposit))), days: H.releaseDays })}` : "") },
-    { id: "airport", q: t("faq.airport.q"), a: t("faq.airport.a", { fee: formatAED(dxb.fee ?? 0) }) },
+    { id: "deposit", q: t("faq.deposit.q"), a: t("faq.deposit.a", { from: aed(Math.min(...deposits)), to: aed(Math.max(...deposits)), days: L.releaseDays }) + (hyper.length ? ` ${t("faq.deposit.hyper", { amount: aed(Math.min(...hyper.map((c) => c.rates.deposit))), days: H.releaseDays })}` : "") },
+    { id: "airport", q: t("faq.airport.q"), a: t("faq.airport.a", { fee: aed(dxb.fee ?? 0) }) },
     { id: "included", q: t("faq.included.q"), a: t("faq.included.a", { kmFrom: Math.min(...km), kmTo: Math.max(...km), salik: rules.tollAdminFee }) },
   ];
 
@@ -44,8 +46,8 @@ export async function AfterChapters({ today }: { today: string }) {
 
   const delivery = [
     { icon: Building2, title: t("delivery.base.title"), body: t("delivery.base.body") },
-    { icon: MapPinned, title: t("delivery.city.title"), body: t("delivery.city.body", { days: city.freeFromDays ?? 2, fee: formatAED(city.fee ?? 0) }) },
-    { icon: PlaneLanding, title: t("delivery.airport.title"), body: t("delivery.airport.body", { fee: formatAED(dxb.fee ?? 0) }) },
+    { icon: MapPinned, title: t("delivery.city.title"), body: t("delivery.city.body", { days: city.freeFromDays ?? 2, fee: aed(city.fee ?? 0) }) },
+    { icon: PlaneLanding, title: t("delivery.airport.title"), body: t("delivery.airport.body", { fee: aed(dxb.fee ?? 0) }) },
   ];
 
   return (

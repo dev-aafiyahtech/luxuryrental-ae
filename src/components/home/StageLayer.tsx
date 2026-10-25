@@ -49,14 +49,15 @@ export function StageLayer({ arts, callouts }: { arts: ReactNode[]; callouts: Ca
       <div className="absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_45%,transparent_55%,rgba(24,51,51,.7)_100%),linear-gradient(to_bottom,rgba(24,51,51,.55),transparent_20%,transparent_72%,rgba(24,51,51,.6))]" />
 
       {/* Spec callouts, positioned by the stage on projected 3D anchors. The scene is never
-          mirrored, so this layer is laid out physically (dir="ltr") in every locale. */}
+          mirrored, so this layer is laid out physically (dir="ltr") in every locale; the text
+          inside each label takes its own direction (dir="auto"). */}
       <div ref={overlayRef} dir="ltr" className="absolute inset-0 max-lg:hidden">
         {items.map((c) => (
           <div key={c.part} data-anchor={c.part} className="group/co absolute start-0 top-0 opacity-0 will-change-[transform,opacity]">
             <i className="absolute -start-1.5 -top-1.5 size-3 rounded-full border-[1.5px] border-accent-hover bg-[rgba(246,235,207,.25)] shadow-[0_0_16px_rgba(246,235,207,.6)]" />
             <div className="absolute start-[34px] -top-5 grid gap-0.5 whitespace-nowrap rounded-[10px] border border-[var(--glass-line)] bg-[rgba(24,51,51,.62)] px-3 py-2 backdrop-blur-[10px] before:absolute before:-start-7 before:top-1/2 before:h-px before:w-[22px] before:bg-accent group-data-flip/co:start-auto group-data-flip/co:end-[34px] group-data-flip/co:before:start-auto group-data-flip/co:before:-end-7">
-              <b className="text-[13px] font-semibold leading-snug">{c.title}</b>
-              <span className="text-[12px] text-muted tabular">{c.detail}</span>
+              <b dir="auto" className="text-[13px] font-semibold leading-snug">{c.title}</b>
+              <span dir="auto" className="text-[12px] text-muted tabular">{c.detail}</span>
             </div>
           </div>
         ))}

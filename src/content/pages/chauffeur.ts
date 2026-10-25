@@ -109,7 +109,7 @@ export const chauffeurPage = {
     carsEyebrow: "The cars",
     carsTitle: "Choose your car",
     carsIntro: "The Phantom is offered with a chauffeur first. The Cullinan and the Bentayga can also be rented self-drive from the fleet pages.",
-    imagesNote: "Car images are illustrations until photos of our own cars are ready.",
+    imagesNote: "Car images are illustrative AI images until photos of our own cars are ready.",
     faqTitle: "Chauffeur questions",
     ctaTitle: "Plan the day with us",
     ctaText: "Send us the date, the pickup point and where you need to be. We suggest the car and the package, and confirm the price on WhatsApp.",

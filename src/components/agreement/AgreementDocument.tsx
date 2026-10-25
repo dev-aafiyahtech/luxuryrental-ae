@@ -105,7 +105,7 @@ export function AgreementDocument({ b, agreement, car: baseCar, canSign, onSigne
               rows={[
                 { label: t("parties.name"), value: t("parties.ownerName", { legal: iso(site.legalName), trade: iso(site.businessName) }) },
                 { label: t("parties.address"), value: [local.address.line1, local.address.area, local.address.city, local.address.country].join(sep) },
-                { label: t("parties.licence"), value: <span className="tabular">{t("parties.licenceValue", { number: iso(site.tradeLicence), authority: iso(site.licenceAuthority) })}</span> },
+                { label: t("parties.licence"), value: <span className="tabular">{t("parties.licenceValue", { number: iso(site.tradeLicence), authority: iso(local.licenceAuthority) })}</span> },
                 { label: t("parties.rta"), value: <span className="tabular" dir="ltr">{site.rtaPermit}</span> },
                 { label: t("parties.trn"), value: <span className="tabular" dir="ltr">{site.vatTrn}</span> },
               ]}

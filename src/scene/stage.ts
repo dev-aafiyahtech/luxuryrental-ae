@@ -59,6 +59,9 @@ const PAINT = { formed: 0.5, tunnel: 0.22, kinetic: 0.18 };
 export function createStage(opts: StageOptions): Stage {
   const { container, overlay, tier } = opts;
   const budget = budgets[tier];
+  // Right-to-left pages put the copy on the other side, so the subject's framing mirrors too
+  // (the scene itself is never mirrored). The language switch reloads the page, so this is fixed.
+  const side = getComputedStyle(container).direction === "rtl" ? -1 : 1;
   const canvas = document.createElement("canvas");
   canvas.setAttribute("aria-hidden", "true");
   canvas.style.cssText = "position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;transition:opacity 1.4s ease";
@@ -353,7 +356,7 @@ export function createStage(opts: StageOptions): Stage {
         ox += w * O[i][0];
         oy += w * O[i][1];
       });
-      camera.setViewOffset(width, height, ox * width, oy * height, width, height);
+      camera.setViewOffset(width, height, side * ox * width, oy * height, width, height);
 
       world.sky.position.copy(camera.position);
       world.stars.position.copy(camera.position);

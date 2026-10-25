@@ -135,7 +135,7 @@ export const faqGroups: FaqGroup[] = [
       {
         id: "deposit-release",
         q: "متى أستعيد مبلغ التأمين؟",
-        a: `نُفرج عن مبلغ التأمين المحجوز بعد ${sameRelease ? countText(L.releaseDays, "day", A) : `${countText(L.releaseDays, "day", A)} (${tierName("L", A)}) أو ${countText(S.releaseDays, "day", A)} (${tierName("S", A)})`} من إعادة السيارة، أو بعد ${countText(H.releaseDays, "day", A)} لسيارات Bugatti، بعد خصم أي مخالفات أو رسوم طرق أو رسوم أخرى. وقد يحتاج البنك بعد ذلك إلى ${span(rules.bankReleaseWorkingDays)} يوم عمل حتى يظهر المبلغ في حسابك. وإذا وصلت مخالفة بعد الإفراج عن المبلغ، نخصمها من البطاقة المسجلة ونرسل إليك إشعار المخالفة.`,
+        a: `نُفرج عن مبلغ التأمين المحجوز بعد ${sameRelease ? countText(L.releaseDays, "day", A) : `${countText(L.releaseDays, "day", A)} (${tierName("L", A)}) أو ${countText(S.releaseDays, "day", A)} (${tierName("S", A)})`} من إعادة السيارة، أو بعد ${countText(H.releaseDays, "day", A)} لسيارات Bugatti، بعد خصم أي مخالفات أو رسوم طرق أو رسوم أخرى. وقد يحتاج البنك بعد ذلك إلى مدة تتراوح ${rules.bankReleaseWorkingDays.replace(/^(\d+) to (\d+)$/, "بين $1 و$2")} يوم عمل حتى يظهر المبلغ في حسابك. وإذا وصلت مخالفة بعد الإفراج عن المبلغ، نخصمها من البطاقة المسجلة ونرسل إليك إشعار المخالفة.`,
       },
       {
         id: "payment",

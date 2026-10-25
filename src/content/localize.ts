@@ -59,6 +59,7 @@ export function siteFor(locale?: string): Widen<typeof site> {
     ...site,
     hours: siteAr.hours ?? site.hours,
     replyPromise: siteAr.replyPromise ?? site.replyPromise,
+    licenceAuthority: siteAr.licenceAuthority ?? site.licenceAuthority,
     address: { ...site.address, ...Object.fromEntries(Object.entries(siteAr.address ?? {}).filter(([, v]) => !!v)) },
     consumerProtection: { ...site.consumerProtection, name: siteAr.consumerProtectionName ?? site.consumerProtection.name },
   };
