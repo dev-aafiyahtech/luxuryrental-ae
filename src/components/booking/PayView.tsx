@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CircleAlert, FlaskConical } from "lucide-react";
-import { useHref, useT } from "@/i18n/client";
+import { useHref, useLocale, useT } from "@/i18n/client";
 import { useBooking } from "@/lib/booking/draft";
 import { recordDemoPayment } from "@/lib/booking/store";
 import { formatAED } from "@/lib/format";
@@ -20,6 +20,7 @@ import { canPay, paymentFor } from "./lib";
  */
 export function PayView() {
   const t = useT("booking");
+  const locale = useLocale();
   const href = useHref();
   const router = useRouter();
   const params = useSearchParams();
@@ -54,7 +55,7 @@ export function PayView() {
   }
 
   const pay = paymentFor(b);
-  const lines = tripLines(b.trip, b.trip.service, t);
+  const lines = tripLines(b.trip, b.trip.service, t, locale);
   const back = href(`/booking?ref=${b.ref}`);
 
   const simulate = async (ok: boolean) => {
@@ -98,16 +99,16 @@ export function PayView() {
         <section aria-labelledby="due-h" className="card grid gap-6 p-5 sm:p-8">
           <div className="grid gap-1">
             <p id="due-h" className="label">{t("pay.amountDue")}</p>
-            <p className="font-display text-4xl font-bold text-accent-hover tabular">{formatAED(pay.amount)}</p>
+            <p className="font-display text-4xl font-bold text-accent-hover tabular">{formatAED(pay.amount, locale)}</p>
             <p className="text-sm text-muted">{pay.kind === "full" ? t("pay.fullNote") : t("pay.advanceNote")}</p>
           </div>
           <Rows
             rows={[
               { label: t("review.car"), value: b.carName },
               { label: t("review.when"), value: <span className="tabular">{lines.when}</span> },
-              { label: t("quote.total"), value: <span className="tabular">{b.quote.onRequest ? `${t("quote.totalFrom")} ` : ""}{formatAED(b.quote.total)} <span className="text-muted">{t("quote.inclVat")}</span></span> },
-              { label: t("pay.balance"), value: <span className="tabular">{formatAED(Math.max(0, b.quote.total - pay.amount))}</span> },
-              { label: t("quote.depositShort"), value: b.quote.deposit ? <span className="tabular">{formatAED(b.quote.deposit)}</span> : "" },
+              { label: t("quote.total"), value: <span className="tabular">{b.quote.onRequest ? `${t("quote.totalFrom")} ` : ""}{formatAED(b.quote.total, locale)} <span className="text-muted">{t("quote.inclVat")}</span></span> },
+              { label: t("pay.balance"), value: <span className="tabular">{formatAED(Math.max(0, b.quote.total - pay.amount), locale)}</span> },
+              { label: t("quote.depositShort"), value: b.quote.deposit ? <span className="tabular">{formatAED(b.quote.deposit, locale)}</span> : "" },
             ]}
           />
           {failed && (

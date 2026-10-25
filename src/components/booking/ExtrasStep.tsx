@@ -3,8 +3,8 @@
 import Link from "next/link";
 import type { FormEvent } from "react";
 import { rules } from "@/content/rules";
-import { useT } from "@/i18n/client";
-import { formatAED } from "@/lib/format";
+import { useLocale, useT } from "@/i18n/client";
+import { formatAED, formatNumber } from "@/lib/format";
 import { Notice } from "@/components/ui";
 import { Section } from "./Field";
 import { RadioCard } from "./RadioCard";
@@ -17,6 +17,7 @@ import { useAvailability } from "@/lib/booking/availability";
 
 export function ExtrasStep() {
   const t = useT("booking");
+  const locale = useLocale();
   const { car, trip, update, hydrated, quote, service, outOfHours, go, href } = useFlow();
   const { check, submitted, summaryRef } = useErrors();
   const avail = useAvailability(car?.slug);
@@ -26,7 +27,7 @@ export function ExtrasStep() {
 
   const tier = rules.tiers[car.tier];
   const chauffeur = service === "chauffeur";
-  const tripProblems = tripErrors(trip, quote, service, t, avail.clash(trip.pickupDate, trip.returnDate, service), car.name);
+  const tripProblems = tripErrors(trip, quote, service, t, avail.clash(trip.pickupDate, trip.returnDate, service), car.name, locale);
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (check([])) go("driver");
@@ -82,7 +83,7 @@ export function ExtrasStep() {
                   checked={!trip.extras.fullCover}
                   onChange={() => update({ extras: { fullCover: false } })}
                   title={t("extras.standard")}
-                  description={t("extras.standardDetail", { excess: formatAED(tier.excess) })}
+                  description={t("extras.standardDetail", { excess: formatAED(tier.excess, locale) })}
                   aside={t("extras.includedAside")}
                 />
                 <RadioCard
@@ -91,14 +92,14 @@ export function ExtrasStep() {
                   checked={trip.extras.fullCover}
                   onChange={() => update({ extras: { fullCover: true } })}
                   title={t("extras.fullCover")}
-                  description={tier.fullCoverExcess === 0 ? t("extras.fullCoverDetailZero") : t("extras.fullCoverDetail", { excess: formatAED(tier.fullCoverExcess) })}
-                  aside={t("extras.perDay", { amount: formatAED(tier.fullCoverPerDay) })}
+                  description={tier.fullCoverExcess === 0 ? t("extras.fullCoverDetailZero") : t("extras.fullCoverDetail", { excess: formatAED(tier.fullCoverExcess, locale) })}
+                  aside={t("extras.perDay", { amount: formatAED(tier.fullCoverPerDay, locale) })}
                 />
               </div>
             </Section>
             <Section legend={t("extras.otherExtras")}>
               <div className="card grid gap-5 p-4 sm:p-5">
-                <Stepper label={t("extras.drivers")} hint={t("extras.driversHint", { fee: rules.additionalDriverPerDay })} value={trip.extras.additionalDrivers} min={0} max={3} onChange={(n) => update({ extras: { additionalDrivers: n } })} />
+                <Stepper label={t("extras.drivers")} hint={t("extras.driversHint", { fee: formatNumber(rules.additionalDriverPerDay) })} value={trip.extras.additionalDrivers} min={0} max={3} onChange={(n) => update({ extras: { additionalDrivers: n } })} />
                 <div className="border-t border-line" />
                 <Stepper label={t("extras.seats")} hint={t("extras.seatsHint")} value={trip.extras.childSeats} min={0} max={3} onChange={(n) => update({ extras: { childSeats: n } })} />
               </div>

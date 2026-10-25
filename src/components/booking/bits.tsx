@@ -115,6 +115,9 @@ export function FlowSkeleton({ label }: { label?: string }) {
   );
 }
 
+/** A flight number ("EK 202"), kept left to right inside Arabic text. */
+export const flightText = (flight?: string) => (flight ? <span dir="ltr" className="tabular">{flight.toUpperCase()}</span> : undefined);
+
 /** Fill {placeholders} in a translated template with React nodes (e.g. links inside a label). */
 export function rich(template: string, nodes: Record<string, ReactNode>): ReactNode[] {
   return template.split(/\{(\w+)\}/g).map((part, i) => (i % 2 ? <span key={i}>{nodes[part] ?? `{${part}}`}</span> : part));

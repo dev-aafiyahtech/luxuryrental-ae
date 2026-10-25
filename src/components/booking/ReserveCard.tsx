@@ -6,7 +6,8 @@ import { useId, useState } from "react";
 import { CalendarDays, CircleAlert } from "lucide-react";
 import type { Car } from "@/content/types";
 import { rules } from "@/content/rules";
-import { useHref, useT } from "@/i18n/client";
+import { localizeZones } from "@/content/localize";
+import { useHref, useLocale, useT } from "@/i18n/client";
 import { useTripDraft, type DraftPatch } from "@/lib/booking/draft";
 import { useAvailability } from "@/lib/booking/availability";
 import { AvailabilityNotice } from "./Availability";
@@ -24,7 +25,7 @@ import { Stepper } from "./Stepper";
 import { TimeSelect } from "./TimeSelect";
 import { TotalText } from "./QuoteTable";
 import { useMediaQuery, useNow } from "./hooks";
-import { bumpTime, defaultServiceFor, deliveryZones, earliestStart, maxDate, quoteFor, stepPath } from "./lib";
+import { bumpTime, daysText, defaultServiceFor, deliveryZones, earliestStart, hoursText, listSep, maxDate, quoteFor, stepPath } from "./lib";
 
 export interface ReserveCardProps {
   car: Car;
@@ -44,6 +45,7 @@ const PACKAGES: ChauffeurPackage[] = ["hourly", "half-day", "full-day", "airport
  */
 export function ReserveCard({ car, variant = "panel", className, eyebrow }: ReserveCardProps) {
   const t = useT("booking");
+  const locale = useLocale();
   const href = useHref();
   const uid = useId();
   const [trip, update, hydrated] = useTripDraft();
@@ -57,7 +59,7 @@ export function ReserveCard({ car, variant = "panel", className, eyebrow }: Rese
   const service: ServiceMode = car.chauffeur ? (trip.carSlug === car.slug ? trip.service : defaultServiceFor(car)) : "self-drive";
   const draft = { ...trip, service };
   const nowDate = new Date(now);
-  const q = ready ? quoteFor(car, draft, nowDate) : null;
+  const q = ready ? quoteFor(car, draft, nowDate, { locale }) : null;
   const earliest = ready ? earliestStart(car, service, nowDate) : null;
   const today = ready ? todayInDubai(nowDate) : "";
   const chauffeur = service === "chauffeur";
@@ -97,11 +99,12 @@ export function ReserveCard({ car, variant = "panel", className, eyebrow }: Rese
 
   const issues = q.issues.filter((i, n, all) => all.findIndex((x) => x.message === i.message) === n);
   const clash = trip.carSlug === car.slug || !trip.carSlug ? avail.clash(trip.pickupDate, trip.returnDate, service) : null;
-  const range = trip.pickupDate && trip.returnDate ? formatRange(trip.pickupDate, trip.returnDate) : "";
-  const when = chauffeur ? (trip.pickupDate ? `${formatDay(trip.pickupDate)}, ${trip.pickupTime}` : "") : range;
-  const summary = q.total > 0 ? t("reserve.summaryLive", { car: car.model, range: when, total: `${onRequest ? `${t("reserve.from")} ` : ""}${formatAED(q.total)}` }) : "";
+  const range = trip.pickupDate && trip.returnDate ? formatRange(trip.pickupDate, trip.returnDate, locale) : "";
+  const when = chauffeur ? (trip.pickupDate ? `${formatDay(trip.pickupDate, locale)}${listSep(locale)}${trip.pickupTime}` : "") : range;
+  const summary = q.total > 0 ? t("reserve.summaryLive", { car: car.model, range: when, total: `${onRequest ? `${t("reserve.from")} ` : ""}${formatAED(q.total, locale)}` }) : "";
   const pickupZoneValue = trip.handover === "collect" ? "dso" : trip.pickup.zone;
-  const lengthText = chauffeur ? (q.hours ? t("quote.hours", { n: q.hours }) : t("packages.airport")) : q.days === 1 ? t("quote.day") : q.days ? t("quote.days", { n: q.days }) : "";
+  const lengthText = chauffeur ? (q.hours ? hoursText(t, locale, q.hours) : t("packages.airport")) : q.days ? daysText(t, locale, q.days) : "";
+  const zoneOptions = localizeZones(deliveryZones, locale);
 
   return (
     <section className={shell} aria-labelledby={`${uid}-title`}>
@@ -160,7 +163,7 @@ export function ReserveCard({ car, variant = "panel", className, eyebrow }: Rese
               {PACKAGES.map((p) => (
                 <option key={p} value={p}>
                   {t(`packages.${p}`)}
-                  {p === "half-day" ? ` (${rules.chauffeur.halfDayHours} h)` : p === "full-day" ? ` (${rules.chauffeur.fullDayHours} h)` : ""}
+                  {p === "half-day" ? ` (${t("packages.hoursUnit", { n: rules.chauffeur.halfDayHours })})` : p === "full-day" ? ` (${t("packages.hoursUnit", { n: rules.chauffeur.fullDayHours })})` : ""}
                 </option>
               ))}
             </select>
@@ -181,7 +184,7 @@ export function ReserveCard({ car, variant = "panel", className, eyebrow }: Rese
         <div className="field">
           <label htmlFor={`${uid}-zone`}>{t("trip.pickupZone")}</label>
           <select id={`${uid}-zone`} className="input" value={trip.pickup.zone === "dso" ? "dubai" : trip.pickup.zone} onChange={(e) => set({ pickup: { zone: e.target.value } })}>
-            {deliveryZones.map((z) => <option key={z.slug} value={z.slug}>{z.name}</option>)}
+            {zoneOptions.map((z) => <option key={z.slug} value={z.slug}>{z.name}</option>)}
           </select>
         </div>
       ) : (
@@ -200,7 +203,7 @@ export function ReserveCard({ car, variant = "panel", className, eyebrow }: Rese
             <div className="field">
               <label htmlFor={`${uid}-zone`}>{t("reserve.where")}</label>
               <select id={`${uid}-zone`} className="input" value={pickupZoneValue === "dso" ? "dubai" : pickupZoneValue} onChange={(e) => set({ pickup: { zone: e.target.value } })}>
-                {deliveryZones.map((z) => <option key={z.slug} value={z.slug}>{z.name}</option>)}
+                {zoneOptions.map((z) => <option key={z.slug} value={z.slug}>{z.name}</option>)}
               </select>
             </div>
           ) : (
@@ -220,7 +223,7 @@ export function ReserveCard({ car, variant = "panel", className, eyebrow }: Rese
               <span className="grid gap-1">
                 <span>{i.message}</span>
                 {(i.resolution === "whatsapp" || i.field === "pickupDate") && (
-                  <a href={whatsappHref(draftMessage(draft, car.name))} target="_blank" rel="noopener" className="inline-flex min-h-11 w-fit items-center gap-1.5 font-semibold text-fg underline decoration-accent/60 underline-offset-4">
+                  <a href={whatsappHref(draftMessage(draft, car.name, locale))} target="_blank" rel="noopener" className="inline-flex min-h-11 w-fit items-center gap-1.5 font-semibold text-fg underline decoration-accent/60 underline-offset-4">
                     <WhatsAppIcon className="h-4 w-4" />
                     {t("reserve.askWhatsApp")}
                   </a>
@@ -245,7 +248,7 @@ export function ReserveCard({ car, variant = "panel", className, eyebrow }: Rese
         </p>
         {q.deposit > 0 && (
           <p className="text-[12px] leading-snug text-muted">
-            {t("quote.deposit")}: <span className="font-semibold tabular text-champagne">{formatAED(q.deposit)}</span>
+            {t("quote.deposit")}: <span className="font-semibold tabular text-champagne">{formatAED(q.deposit, locale)}</span>
           </p>
         )}
         {onRequest && <p className="text-[12px] leading-snug text-champagne">{t("reserve.requestNote")}</p>}

@@ -6,7 +6,7 @@ import { useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Receipt, Search } from "lucide-react";
 import { getCar } from "@/content/cars";
-import { useHref, useT } from "@/i18n/client";
+import { useHref, useLocale, useT } from "@/i18n/client";
 import { useBooking } from "@/lib/booking/draft";
 import { updateBookingStatus } from "@/lib/booking/store";
 import type { BookingRecord } from "@/lib/booking/types";
@@ -21,12 +21,12 @@ import { FlowSkeleton, Rows, StatusBadge, WhatsAppButton } from "./bits";
 import { tripLines } from "./FlowShell";
 import { useHydrated } from "./hooks";
 import { NextSteps } from "./NextSteps";
-import { canCustomerCancel, canPay, formatPhone, paymentFor } from "./lib";
+import { canCustomerCancel, canPay, eventText, formatPhone, listSep, paymentFor, recordQuote } from "./lib";
 
-/** "Fri 24 Oct, 14:05" in Dubai time for an ISO timestamp. */
-export function stamp(iso: string): string {
+/** "Fri 24 Oct, 14:05" (Arabic "الجمعة 24 أكتوبر، 14:05") in Dubai time for an ISO timestamp. */
+export function stamp(iso: string, locale?: string): string {
   const n = nowInDubai(new Date(iso));
-  return `${formatDay(n.date)}, ${n.time}`;
+  return `${formatDay(n.date, locale)}${listSep(locale)}${n.time}`;
 }
 
 const REF_RE = /^LR-[0-9A-HJKMNP-TV-Z]{6}$/;
@@ -73,6 +73,7 @@ function Lookup({ initial, notFound }: { initial?: string; notFound?: boolean })
 
 function ReceiptCard({ b }: { b: BookingRecord }) {
   const t = useT("booking");
+  const locale = useLocale();
   const p = b.payment;
   const due = p ? Math.max(0, b.quote.total - p.amount) : 0;
   return (
@@ -86,11 +87,11 @@ function ReceiptCard({ b }: { b: BookingRecord }) {
           rows={[
             { label: t("status.receiptRef"), value: <span className="font-semibold tabular" dir="ltr">{p.reference}</span> },
             { label: t("status.kind"), value: t(`status.kinds.${p.kind}`) },
-            { label: t("status.amount"), value: <span className="font-semibold tabular">{formatAED(p.amount)}</span> },
-            { label: t("status.paidAt"), value: stamp(p.paidAt) },
+            { label: t("status.amount"), value: <span className="font-semibold tabular">{formatAED(p.amount, locale)}</span> },
+            { label: t("status.paidAt"), value: stamp(p.paidAt, locale) },
             { label: t("status.method"), value: t(`status.methods.${p.method}`) },
-            { label: t("status.balance"), value: <span className="tabular">{formatAED(due)}</span> },
-            { label: t("quote.depositShort"), value: b.quote.deposit ? <span className="tabular">{formatAED(b.quote.deposit)}</span> : "" },
+            { label: t("status.balance"), value: <span className="tabular">{formatAED(due, locale)}</span> },
+            { label: t("quote.depositShort"), value: b.quote.deposit ? <span className="tabular">{formatAED(b.quote.deposit, locale)}</span> : "" },
           ]}
         />
       ) : (
@@ -102,6 +103,7 @@ function ReceiptCard({ b }: { b: BookingRecord }) {
 
 export function BookingStatusView() {
   const t = useT("booking");
+  const locale = useLocale();
   const href = useHref();
   const params = useSearchParams();
   const ref = (params.get("ref") ?? "").trim().toUpperCase();
@@ -114,14 +116,14 @@ export function BookingStatusView() {
   if (!hydrated) return <FlowSkeleton />;
   if (!ref || !b) return <Lookup initial={ref} notFound={!!ref} />;
 
-  const lines = tripLines(b.trip, b.trip.service, t);
+  const lines = tripLines(b.trip, b.trip.service, t, locale);
   const car = getCar(b.carSlug);
   const pay = paymentFor(b);
   const cancel = async () => {
     setBusy(true);
     setError("");
     try {
-      await updateBookingStatus(b.ref, "cancelled", "customer", t("status.cancelNote"));
+      await updateBookingStatus(b.ref, "cancelled", "customer", "Cancelled by the customer on the website", "customerCancelled");
       setConfirmCancel(false);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -143,11 +145,11 @@ export function BookingStatusView() {
         <div className="flex flex-wrap gap-3">
           {canPay(b.status) && (
             <Link href={href(`/pay?ref=${b.ref}`)} className="btn btn-primary">
-              {pay.kind === "full" ? t("status.payFull") : t("status.pay")} · {formatAED(pay.amount)}
+              {pay.kind === "full" ? t("status.payFull") : t("status.pay")} · {formatAED(pay.amount, locale)}
             </Link>
           )}
           {(b.status === "requested" || canPay(b.status)) && (
-            <WhatsAppButton text={bookingMessage(b)} variant={b.status === "requested" ? "primary" : "secondary"}>{t("confirmed.whatsapp")}</WhatsAppButton>
+            <WhatsAppButton text={bookingMessage(b, locale)} variant={b.status === "requested" ? "primary" : "secondary"}>{t("confirmed.whatsapp")}</WhatsAppButton>
           )}
           {canCustomerCancel(b.status) && (
             <button type="button" className="btn btn-ghost" aria-haspopup="dialog" onClick={() => setConfirmCancel(true)}>
@@ -184,14 +186,16 @@ export function BookingStatusView() {
           {car && (
             <section aria-labelledby="price-h" className="grid gap-3">
               <h2 id="price-h" className="display-sm">{t("quote.breakdown")}</h2>
-              <QuoteTable quote={b.quote} car={car} />
+              <QuoteTable quote={recordQuote(b, locale)} car={car} />
             </section>
           )}
         </div>
         <section aria-labelledby="history-h" className="card grid content-start gap-4 self-start p-5 sm:p-6">
           <h2 id="history-h" className="text-[15px] font-semibold">{t("status.timeline")}</h2>
           <ol className="m-0 grid list-none gap-0 p-0">
-            {[...b.events].reverse().map((e, i) => (
+            {[...b.events].reverse().map((e, i) => {
+              const note = eventText(e, t);
+              return (
               <li key={`${e.at}-${i}`} className="relative grid grid-cols-[14px_minmax(0,1fr)] gap-3 pb-5 last:pb-0">
                 <span aria-hidden="true" className={clsx("mt-1.5 h-2.5 w-2.5 rounded-full", i === 0 ? "bg-accent" : "bg-line")} />
                 <div className="grid gap-0.5">
@@ -199,11 +203,12 @@ export function BookingStatusView() {
                     {t(`status.labels.${e.status}`)}
                     <span className="font-normal text-muted">· {t(`status.by.${e.by}`)}</span>
                   </p>
-                  {e.note && <p className="text-sm text-champagne">{e.note}</p>}
-                  <p className="text-[12px] tabular text-muted">{stamp(e.at)}</p>
+                  {note && <p className="text-sm text-champagne">{note}</p>}
+                  <p className="text-[12px] tabular text-muted">{stamp(e.at, locale)}</p>
                 </div>
               </li>
-            ))}
+              );
+            })}
           </ol>
         </section>
       </div>

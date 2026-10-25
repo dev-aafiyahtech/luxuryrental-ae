@@ -1,11 +1,12 @@
 import { cars, getCar } from "@/content/cars";
 import { rules } from "@/content/rules";
+import { site } from "@/content/site";
 import type { Tier } from "@/content/types";
 import { formatAED } from "@/lib/format";
 import { faqsById, type FaqEntry } from "./faq";
 import {
   carsInTier, commonKmPerDay, depositRange, festiveDates, festiveMinDays, flagshipCars, hypercars,
-  kmExceptions, listJoin, noticeText, peakWeekendMinDays, tierName, tierOrder, salikTariff,
+  kmExceptions, listJoin, monthStamp, noticeText, peakWeekendMinDays, tierName, tierOrder, salikTariff,
 } from "./shared";
 
 // Copy for /requirements (workstream 05 §4 outline, 07 §7.4 fact page). Rules come from
@@ -131,5 +132,57 @@ export const requirementsPage = {
     },
     ...faqsById("idp", "documents", "deposit-release", "insurance"),
   ],
+  /** Headings, labels and notes for the page template. Paragraphs use the copy mini-markup. */
+  ui: {
+    crumbs: { home: "Home", page: "Rental requirements" },
+    jumpLabel: "On this page",
+    jump: [
+      { id: "age", label: "Age and licence" },
+      { id: "licences", label: "Licences and IDP" },
+      { id: "documents", label: "Documents" },
+      { id: "deposit", label: "Deposit" },
+      { id: "notice", label: "Notice" },
+      { id: "insurance", label: "Insurance" },
+      { id: "on-the-road", label: "Fuel, tolls, fines" },
+      { id: "chauffeur", label: "Chauffeur" },
+    ],
+    updated: (iso: string) => `Updated ${monthStamp(iso)}`,
+    factsLabel: "Requirements at a glance",
+    age: {
+      eyebrow: "Age and licence",
+      title: "Age and licence rules by car",
+      caption: "Driver rules by car tier",
+      /** Every column after the first is right-aligned (end). */
+      columns: ["Tier", "Minimum age", "Licence held", "Notice", "Deposit", "Excess"],
+      minAge: (age: number) => `${age}+`,
+      years: (years: number) => `${years} years`,
+    },
+    licences: { eyebrow: "Licences", title: "Which licence you can drive on" },
+    documents: { eyebrow: "Documents", title: "What to bring to the handover", visitors: "Visitors", residents: "UAE residents" },
+    deposit: { eyebrow: "Credit card and deposit", title: "The security deposit", drivers: "Additional drivers" },
+    notice: { eyebrow: "Notice and minimum rental", title: "How far ahead to book", caption: "Notice and minimum rental", columns: ["Booking", "Notice", "Minimum"] },
+    insurance: {
+      eyebrow: "Insurance and excess",
+      title: "Insurance, excess and Full Cover",
+      intro: "Comprehensive insurance is included in every rental. For each damage claim you pay up to the excess. Full Cover lowers it and also covers tyres, rims and glass.",
+      caption: "Excess and Full Cover by tier",
+      columns: ["Tier", "Excess", "Full Cover", "Excess with Full Cover"],
+      withCoverShort: "With Full Cover",
+      exclusions: "The insurance does not cover",
+      accident: "If there is an accident",
+    },
+    road: { eyebrow: "During the rental", title: "Fuel, kilometres, tolls and fines", note: "Every fee is listed on our [pricing page](/pricing#fees)." },
+    chauffeur: { eyebrow: "Chauffeur service", title: "Chauffeur bookings", note: "Rates and cars are on the [chauffeur page](/chauffeur)." },
+    faq: { eyebrow: "Questions", title: "Requirements questions", summaryNote: "These rules are a summary. The rental agreement you sign at handover has the full terms." },
+    cta: {
+      title: "Not sure about your licence?",
+      text: "Tell us where your licence was issued and which car you want. We check it on WhatsApp before you send a request.",
+      whatsappText: `Hello ${site.businessName}, can I rent with my licence? It was issued in: `,
+      whatsapp: "Check on WhatsApp",
+      fleet: "Browse the fleet",
+    },
+    /** BCP 47 tag for JSON-LD `inLanguage`; left out on English pages. */
+    inLanguage: undefined as string | undefined,
+  },
 };
 

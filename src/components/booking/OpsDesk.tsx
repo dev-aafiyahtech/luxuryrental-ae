@@ -6,7 +6,7 @@ import { useState } from "react";
 import { CalendarX2, Mail, Phone, Plus, RotateCcw } from "lucide-react";
 import { getCar } from "@/content/cars";
 import { site } from "@/content/site";
-import { useHref, useT } from "@/i18n/client";
+import { useHref, useLocale, useT } from "@/i18n/client";
 import { defaultDraft, useBookings } from "@/lib/booking/draft";
 import { resetDemoBookings, submitBookingRequest, updateBookingStatus } from "@/lib/booking/store";
 import { transitions, type BookingRecord, type BookingStatus } from "@/lib/booking/types";
@@ -25,7 +25,8 @@ import { FlowSkeleton, Rows, StatusBadge } from "./bits";
 import { stamp } from "./BookingStatusView";
 import { tripLines } from "./FlowShell";
 import { useHydrated } from "./hooks";
-import { STATUS_ORDER, countryName, formatPhone, needsIdp } from "./lib";
+import { STATUS_ORDER, countText, countryName, formatPhone, listSep, needsIdp } from "./lib";
+import { flightText } from "./bits";
 
 type Action = { to: BookingStatus; key: "confirm" | "decline" | "payLink" | "paidHandover" | "cancel"; primary?: boolean };
 const ACTIONS: Action[] = [
@@ -37,19 +38,33 @@ const ACTIONS: Action[] = [
 ];
 const actionsFor = (s: BookingStatus) => ACTIONS.filter((a) => transitions[s].includes(a.to));
 
+/** Event notes stored with ops actions (English, as the ops log); the history shows them by code in each viewer's language. */
+const OPS_NOTES: Record<BookingStatus, string> = {
+  requested: "Requested",
+  confirmed: "Confirmed by ops (demo desk)",
+  declined: "Declined by ops: not available on these dates",
+  awaiting_payment: "Payment link sent to the customer (simulated)",
+  paid: "Marked paid at handover",
+  cancelled: "Cancelled by ops",
+  expired: "Expired",
+};
+
 /** The ops email a new request would trigger (production: one-click signed links). */
 function EmailPreview({ b, onAction, pending }: { b: BookingRecord; onAction: (to: BookingStatus) => void; pending: string }) {
   const t = useT("booking");
-  const lines = tripLines(b.trip, b.trip.service, t);
+  const locale = useLocale();
+  const lines = tripLines(b.trip, b.trip.service, t, locale);
   const d = b.trip.driver;
-  const extras = [b.trip.extras.fullCover && t("extras.fullCover"), b.trip.extras.additionalDrivers && `${b.trip.extras.additionalDrivers} × ${t("extras.drivers").toLowerCase()}`, b.trip.extras.childSeats && `${b.trip.extras.childSeats} × ${t("extras.seats").toLowerCase()}`].filter(Boolean).join(", ");
+  const lower = (s: string) => s.toLocaleLowerCase(locale);
+  const extras = [b.trip.extras.fullCover && t("extras.fullCover"), b.trip.extras.additionalDrivers && `${b.trip.extras.additionalDrivers} × ${lower(t("extras.drivers"))}`, b.trip.extras.childSeats && `${b.trip.extras.childSeats} × ${lower(t("extras.seats"))}`].filter(Boolean).join(listSep(locale));
+  const age = d.ageBand === "under-25" ? t("driver.ageUnder25") : d.ageBand === "25-29" ? t("driver.age25") : t("driver.age30");
   const digits = d.phone?.replace(/\D/g, "");
   return (
     <div className="grid gap-5">
       <Rows
         rows={[
-          { label: t("ops.emailFrom"), value: `Luxuryrental.ae website <no-reply@${site.domain}>` },
-          { label: t("ops.emailTo"), value: site.email },
+          { label: t("ops.emailFrom"), value: <bdi dir="ltr">{`Luxuryrental.ae website <no-reply@${site.domain}>`}</bdi> },
+          { label: t("ops.emailTo"), value: <bdi dir="ltr">{site.email}</bdi> },
           { label: t("ops.emailSubject"), value: t("ops.emailSubjectText", { ref: b.ref, car: b.carName, when: lines.when }) },
         ]}
       />
@@ -59,18 +74,18 @@ function EmailPreview({ b, onAction, pending }: { b: BookingRecord; onAction: (t
           rows={[
             { label: t("review.name"), value: d.name },
             { label: t("review.phone"), value: d.phone ? <span className="flex flex-wrap gap-3" dir="ltr"><a href={`tel:${d.phone}`} className="underline">{formatPhone(d.phone)}</a>{digits && <a href={`https://wa.me/${digits}`} target="_blank" rel="noopener" className="underline">wa.me</a>}</span> : "" },
-            { label: t("review.email"), value: d.email },
+            { label: t("review.email"), value: d.email ? <bdi dir="ltr">{d.email}</bdi> : "" },
             { label: t("review.channel"), value: d.channel === "phone" ? t("driver.channelPhone") : d.channel === "email" ? t("driver.channelEmail") : t("driver.channelWhatsapp") },
             { label: t("review.car"), value: `${b.carName}${b.trip.service === "chauffeur" ? ` · ${t("reserve.chauffeur")}` : ""}` },
             { label: t("review.when"), value: lines.when },
-            { label: t("review.handover"), value: `${lines.where}${b.trip.pickup.flight ? ` · ${b.trip.pickup.flight.toUpperCase()}` : ""}` },
+            { label: t("review.handover"), value: <>{lines.where}{b.trip.pickup.flight ? <> · {flightText(b.trip.pickup.flight)}</> : null}</> },
             { label: t("review.return"), value: lines.back },
             { label: t("review.extras"), value: extras || t("review.none") },
-            { label: t("review.licence"), value: b.trip.service === "self-drive" ? `${countryName(d.licenceCountry)} · ${d.resident ? t("driver.residentYes") : t("driver.residentNo")} · ${d.ageBand}` : "" },
-            { label: t("quote.total"), value: `${b.quote.onRequest ? `${t("quote.totalFrom")} ` : ""}${formatAED(b.quote.total)} ${t("quote.inclVat")}` },
-            { label: t("quote.depositShort"), value: b.quote.deposit ? formatAED(b.quote.deposit) : "" },
+            { label: t("review.licence"), value: b.trip.service === "self-drive" ? `${countryName(d.licenceCountry, locale, t("driver.otherCountry"))} · ${d.resident ? t("driver.residentYes") : t("driver.residentNo")} · ${age}` : "" },
+            { label: t("quote.total"), value: `${b.quote.onRequest ? `${t("quote.totalFrom")} ` : ""}${formatAED(b.quote.total, locale)} ${t("quote.inclVat")}` },
+            { label: t("quote.depositShort"), value: b.quote.deposit ? formatAED(b.quote.deposit, locale) : "" },
             { label: t("review.notes"), value: d.notes },
-            { label: t("review.consents"), value: `${t("ops.consentAck")}: ${d.ackTerms ? t("form.yes") : t("form.no")} · WhatsApp: ${d.whatsappConsent ? t("form.yes") : t("form.no")} · ${t("ops.consentMarketing")}: ${d.marketing ? t("form.yes") : t("form.no")}` },
+            { label: t("review.consents"), value: `${t("ops.consentAck")}: ${d.ackTerms ? t("form.yes") : t("form.no")} · ${t("driver.channelWhatsapp")}: ${d.whatsappConsent ? t("form.yes") : t("form.no")} · ${t("ops.consentMarketing")}: ${d.marketing ? t("form.yes") : t("form.no")}` },
           ]}
         />
         <div className="grid gap-2 border-t border-line pt-4">
@@ -91,6 +106,7 @@ function EmailPreview({ b, onAction, pending }: { b: BookingRecord; onAction: (t
 
 export function OpsDesk() {
   const t = useT("booking");
+  const locale = useLocale();
   const href = useHref();
   const hydrated = useHydrated();
   const list = useBookings();
@@ -118,12 +134,12 @@ export function OpsDesk() {
     if (pending) return;
     const clash = to === "confirmed" ? clashOf(b) : null;
     if (clash) {
-      setLive(clashMessage(clash, t, b.carName));
+      setLive(clashMessage(clash, t, b.carName, locale));
       return;
     }
     setPending(`${b.ref}:${to}`);
     try {
-      await updateBookingStatus(b.ref, to, "ops", t(`ops.notes.${to}`));
+      await updateBookingStatus(b.ref, to, "ops", OPS_NOTES[to], `ops.${to}`);
       setLive(t("ops.done", { ref: b.ref, status: t(`status.labels.${to}`) }));
     } catch (e) {
       setLive(t("ops.failed", { ref: b.ref, error: e instanceof Error ? e.message : String(e) }));
@@ -196,7 +212,7 @@ export function OpsDesk() {
 
       <OpsAvailability onSaved={setLive} />
 
-      <p className="label">{shown.length === 1 ? t("ops.countOne") : t("ops.count", { n: shown.length })}</p>
+      <p className="label">{countText(t, locale, "count.requests", shown.length, () => (shown.length === 1 ? t("ops.countOne") : t("ops.count", { n: shown.length })))}</p>
 
       {shown.length === 0 ? (
         <div className="card grid justify-items-start gap-3 p-6">
@@ -207,7 +223,7 @@ export function OpsDesk() {
       ) : (
         <ul className="m-0 grid list-none gap-4 p-0">
           {shown.map((b) => {
-            const lines = tripLines(b.trip, b.trip.service, t);
+            const lines = tripLines(b.trip, b.trip.service, t, locale);
             const d = b.trip.driver;
             const clash = clashOf(b);
             return (
@@ -216,7 +232,7 @@ export function OpsDesk() {
                   <div className="flex flex-wrap items-center gap-3">
                     <h2 id={`ops-${b.ref}`} className="font-semibold tabular tracking-[0.06em]" dir="ltr">{b.ref}</h2>
                     <StatusBadge status={b.status} />
-                    <span className="text-[12px] text-muted">{t("ops.created")} {stamp(b.createdAt)}</span>
+                    <span className="text-[12px] text-muted">{t("ops.created")} {stamp(b.createdAt, locale)}</span>
                   </div>
                   <dl className="m-0 grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2 lg:grid-cols-[1.3fr_1.6fr_1.1fr_0.9fr]">
                     <div className="grid gap-0.5">
@@ -241,14 +257,14 @@ export function OpsDesk() {
                     </div>
                     <div className="grid gap-0.5">
                       <dt className="label">{t("ops.total")}</dt>
-                      <dd className="m-0 font-semibold tabular">{b.quote.onRequest ? `${t("quote.totalFrom")} ` : ""}{formatAED(b.quote.total)}</dd>
+                      <dd className="m-0 font-semibold tabular">{b.quote.onRequest ? `${t("quote.totalFrom")} ` : ""}{formatAED(b.quote.total, locale)}</dd>
                     </div>
                   </dl>
                   <div className="flex flex-wrap items-center gap-2 border-t border-line pt-4">
                     {clash && (
                       <p className="flex w-full items-start gap-2 text-[13px] text-warning">
                         <CalendarX2 className="mt-px h-4 w-4 flex-none" aria-hidden="true" />
-                        <span>{clashMessage(clash, t, b.carName)} {t("ops.clashHint")}</span>
+                        <span>{clashMessage(clash, t, b.carName, locale)} {t("ops.clashHint")}</span>
                       </p>
                     )}
                     {actionsFor(b.status).map((a) => {

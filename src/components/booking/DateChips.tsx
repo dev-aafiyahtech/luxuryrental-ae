@@ -2,7 +2,7 @@
 
 import clsx from "clsx";
 import type { Car } from "@/content/types";
-import { useT } from "@/i18n/client";
+import { useLocale, useT } from "@/i18n/client";
 import { addDays, formatRange } from "@/lib/dates";
 import { minDaysFor } from "@/lib/pricing";
 import { PRESETS, presetRange, type PresetId } from "./lib";
@@ -29,6 +29,7 @@ export function DateChips({ today, earliest, start, end, car, onPick, className,
   size?: "sm" | "md";
 }) {
   const t = useT("booking");
+  const locale = useLocale();
   return (
     <div role="group" aria-label={t("chips.label")} className={clsx("flex flex-wrap gap-2", className)}>
       {PRESETS.map((id) => {
@@ -41,7 +42,7 @@ export function DateChips({ today, earliest, start, end, car, onPick, className,
             type="button"
             disabled={!r}
             aria-pressed={on}
-            aria-label={r ? t("chips.rangeLabel", { label, range: formatRange(r.start, r.end) }) : t("chips.unavailable", { label })}
+            aria-label={r ? t("chips.rangeLabel", { label, range: formatRange(r.start, r.end, locale) }) : t("chips.unavailable", { label })}
             onClick={() => r && onPick(r, id)}
             className={clsx(
               "inline-flex items-center justify-center rounded-full border px-4 font-semibold transition-colors duration-200",

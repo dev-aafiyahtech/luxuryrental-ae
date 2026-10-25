@@ -459,3 +459,29 @@ Got it. I've saved your answers to the project, and I'll wait for your next inst
 > Please output below which car model images do you want
 
 *Claude wrote the image brief ([docs/brief/car-image-brief.md](../brief/car-image-brief.md): 58 images, three per car plus two extra for the top 5, with colours, a reusable prompt and file names) and a tool that imports them (`tools/ingest-car-images.mjs`). It built the simulated stores for accounts, documents, agreements and vehicle checks, then ran two agents in parallel: the account and document upload (Frontend Developer), and the e-signed rental agreement with handover and return vehicle checks and their ops side (Frontend Developer). Claude added an explicit consent tick before uploads, a "Before your rental" checklist on the request status page (documents, agreement, payment, vehicle check), the documents review in the ops desk, and the copy in the requirements, FAQ, privacy and cookie pages, then tested the whole flow end to end.*
+
+---
+
+## 17. AI images, availability, share images and Arabic
+
+**Zubair:**
+> I have uploaded the car images as per your brief in the repo. can you check and confirm
+
+*The upload had not reached GitHub (no commit on any branch). After two more tries, Zubair shared the set from Google Drive instead.*
+
+**Zubair:**
+> ok I have added the images to the drive [folder link]
+>
+> If you need any info, please estimate and go ahead. This is the demo so details can be estimates at this point. Later in the phase we will audit the information. Please complete the entire demo
+
+*Claude downloaded all 58 images, checked each against the brief, and imported them with `tools/ingest-car-images.mjs` (WebP in several sizes, content-hashed file names, 4:3 cards that keep the whole car). Every car page now shows its hero, gallery and interior, labelled "Illustrative AI image". Then it completed the rest of the demo:*
+
+- *Availability (no double bookings): ops can block a car for service, owner use or an event; calendars cross out busy days, a clashing request is stopped with the next free dates offered, and the ops desk can't confirm a clash. Two sample blocks show it working.*
+- *Share images: each car page has its own 1200×630 preview (car image, name, launch price, "Illustrative AI image").*
+- *Homepage particle cars: the gold-dust cars on the homepage are now sampled from each car's AI image instead of a generic shape (3D & Scene Developer agent).*
+- *Arabic: the whole site at `/ar`, right to left, with Arabic dates, money and plurals, translated data, copy, info and legal pages (marked for a lawyer's review), and a language switch in the header. Five agents worked in parallel (Internationalization Engineer); rules in [docs/dev/ARABIC-GUIDE.md](../dev/ARABIC-GUIDE.md).*
+
+**Zubair:**
+> I hit my usage limit while you were working, but it has reset now. Please continue from where you left off.
+
+*Claude resumed the agents from checkpoint commits, then ran the full checks (types, lint, build, i18n keys, every English and Arabic route at phone and desktop widths) and pushed.*

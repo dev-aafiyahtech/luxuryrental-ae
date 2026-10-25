@@ -2,7 +2,7 @@
 
 The world's most beautiful, futuristic luxury car rental website for **Luxuryrentals**, Dubai Silicon Oasis, Dubai.
 
-**Status (23 Oct 2026):** plan approved ([docs/plan/PROJECT-PLAN.md](docs/plan/PROJECT-PLAN.md)). The **front-end demo** is built: every page and the full booking flow run in the browser, with bookings, the ops team and payments simulated. Backend and production (Vercel, CMS, database, payment gateway) come next.
+**Status (25 Oct 2026):** plan approved ([docs/plan/PROJECT-PLAN.md](docs/plan/PROJECT-PLAN.md)). The **front-end demo** is complete in English and Arabic (`/ar`, right to left): every page and the full booking flow run in the browser, with bookings, availability, the ops team, payments, accounts, documents and e-signatures simulated, and the AI car images in place. Backend and production (Vercel, CMS, database, payment gateway) come next.
 
 ## Direction
 
@@ -26,9 +26,9 @@ npm install
 npm run dev        # then open http://localhost:3000
 ```
 
-Checks: `npx tsc --noEmit`, `npx eslint src`, `npx next build`, and with the dev server running `node qa/scripts/audit.mjs` (every route at 390 and 1440 px). How the code is organised and the rules for changing it: [docs/dev/FRONTEND-GUIDE.md](docs/dev/FRONTEND-GUIDE.md).
+Checks: `npx tsc --noEmit`, `npx eslint src`, `npx next build`, `node qa/scripts/i18n-keys.mjs` (Arabic strings match the English keys), and with the dev server running `node qa/scripts/audit.mjs` (every English and Arabic route at 390 and 1440 px). How the code is organised and the rules for changing it: [docs/dev/FRONTEND-GUIDE.md](docs/dev/FRONTEND-GUIDE.md).
 
-**What's simulated.** Booking requests, ops actions, payments, accounts, document uploads and e-signatures are stored in the browser (`src/lib/booking/store.ts`, `src/lib/customer/store.ts`), so everything works without a server, but each browser has its own data. Uploaded files are never stored or sent: only their name and size are kept. Every page shows a demo bar. The WhatsApp buttons open a real chat with +971 52 965 2722. Car pictures are antique-gold line-art illustrations in the slots the AI images will fill.
+**What's simulated.** Booking requests, ops actions, payments, accounts, document uploads and e-signatures are stored in the browser (`src/lib/booking/store.ts`, `src/lib/customer/store.ts`), so everything works without a server, but each browser has its own data. Uploaded files are never stored or sent: only their name and size are kept. Every page shows a demo bar. The WhatsApp buttons open a real chat with +971 52 965 2722. Car pictures are AI-generated illustrations, labelled as such, until photos of the real cars arrive.
 
 **Demo walk-through**
 1. Home: scroll the four chapters (night skyline, Velocity Tunnel, Kinetic Sculpture with the top-5 tabs, Reserve). "Pause motion" sits in the chapter rail.
@@ -40,7 +40,9 @@ Checks: `npx tsc --noEmit`, `npx eslint src`, `npx next build`, and with the dev
 7. Before the rental: on the status page, upload the driver's documents, then open the **rental agreement** and sign it with a finger, mouse or typed name.
 8. In the ops view, verify or reject the documents and **record the handover check** (km, fuel, damage marks on the car diagram). Back on the agreement page, the customer signs the vehicle check.
 9. **Your account** (person icon in the header): sign in with the one-time code shown on screen to see every request, document and agreement in one place, and edit the driver profile.
-10. Also try: the Phantom (chauffeur first), a Bugatti (price on request), `/book/review?fail=1` (send error and retry), and the dock's "Edit trip" on a phone.
+10. Availability: the Revuelto is in for service and the Phantom is out for an event on sample dates; their calendars cross those days out, and a clashing request offers the next free dates. In the ops view, **Car availability** blocks or frees any car.
+11. Arabic: the **العربية** switch in the header (or `/ar`) shows the same site right to left, with Arabic dates, prices and plurals.
+12. Also try: the Phantom (chauffeur first), a Bugatti (price on request), `/book/review?fail=1` (send error and retry), the dock's "Edit trip" on a phone, and sharing a car page link (each car has its own preview image).
 
 ## View the prototype
 
@@ -70,7 +72,7 @@ docs/
   plan/workstreams/                    The 7 specialist sections behind the plan (architecture, Vercel,
                                        car visuals, fleet and pricing, booking rules, UX, SEO)
 src/
-  app/[lang]/                          All pages (English at /, Arabic planned at /ar)
+  app/[lang]/                          All pages (English at /, Arabic at /ar)
   components/                          UI, layout, car, booking, fleet, home, content, brand
   content/                             Fleet, brands, zones, rules, site settings, copy (future CMS data)
   lib/                                 Pricing engine, dates, simulated booking store, WhatsApp links
@@ -113,10 +115,14 @@ tools/
 | 23 Oct 2026 | Front-end demo built: Next.js 16.4, cinematic homepage ported from the prototype, 16 car pages, booking flow with simulated ops desk and payment, content and draft legal pages, logo "Corner" (LR. monogram, gold .ae) |
 | 23 Oct 2026 | Palette changed from black and gold to Sea Moss `#2C5252` (background and brand), Antique Gold `#EBDAB0` (calls to action) and Alabaster `#F4EADE` (type). Tokens, components, the WebGL night scene and the whole logo pack recoloured; every text pair re-checked for contrast |
 | 24 Oct 2026 | Demo completed with assumed content (Zubair: don't wait for approvals): sample company details, estimated rules, Salik and Darb tariffs, zone and chauffeur fees, and each car's year, colours, wheels and equipment. Listed in docs/brief/assumptions.md |
+| 24 Oct 2026 | Customer documents, e-signed rental agreement, vehicle checks and customer accounts simulated in the browser |
+| 24 Oct 2026 | AI images for all 16 cars received (Google Drive) and imported: hero, side, card, interior and extra views, labelled "Illustrative AI image" |
+| 25 Oct 2026 | Demo completed in Arabic (`/ar`, right to left, demo translation to be reviewed), with simulated car availability (no double bookings), per-car share images and particle cars sampled from the AI images on the homepage |
 
 ## Open items
 
-- **AI car images:** need an image-generation account (e.g. Gemini or Flux) to produce the 16 sets; until then the line-art placeholders stand in.
+- **Arabic review:** the Arabic is a demo translation; a translator should review it, and a UAE lawyer the legal pages. Terms and rules: [docs/dev/ARABIC-GUIDE.md](docs/dev/ARABIC-GUIDE.md).
+- **Real car photos:** the AI images stand in until photos of the actual cars arrive (`node tools/ingest-car-images.mjs <folder>` imports a new set).
 - **Assumed content to confirm:** company details (shown as samples), booking rules and fees, Salik and Darb, delivery zones, chauffeur rules, and each car's model year, colours, wheels and equipment. All are listed in [docs/brief/assumptions.md](docs/brief/assumptions.md), with the file each one lives in. The real legal documents and the UAE lawyer review are still needed before launch.
 - **Logo questions:** minimum size (180 px recommended), lowercase gold ".ae", the OG tagline "Delivered across Dubai", who designs the Arabic lockup. See [docs/brand/logo.md](docs/brand/logo.md).
 

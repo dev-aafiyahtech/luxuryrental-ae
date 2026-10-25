@@ -10,7 +10,8 @@ import { useLocale } from "@/i18n/client";
 type Variant = "header" | "menu" | "footer";
 
 const styles: Record<Variant, string> = {
-  header: "inline-flex h-11 items-center gap-2 rounded-full border border-line px-4 text-[13px] font-semibold text-fg no-underline transition-colors hover:border-accent",
+  // Desktop header only: on smaller screens the switch sits in the mobile menu.
+  header: "hidden h-11 items-center gap-2 rounded-full border border-line px-4 text-[13px] font-semibold text-fg no-underline transition-colors hover:border-accent lg:inline-flex",
   menu: "inline-flex min-h-11 items-center gap-2 rounded-full border border-line px-4 text-sm font-semibold no-underline hover:border-accent",
   footer: "inline-flex min-h-11 items-center gap-2 text-sm text-muted no-underline hover:text-fg",
 };

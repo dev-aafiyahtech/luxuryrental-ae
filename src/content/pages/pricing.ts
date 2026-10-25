@@ -2,10 +2,13 @@ import { cars, getCar } from "@/content/cars";
 import { brands } from "@/content/brands";
 import { offers, rules, seasonFor, seasons } from "@/content/rules";
 import { getZone, zones } from "@/content/zones";
+import { site } from "@/content/site";
 import type { Car, Season } from "@/content/types";
-import { addDays } from "@/lib/dates";
+import { addDays, formatDayLong } from "@/lib/dates";
 import { formatAED, formatNumber as n } from "@/lib/format";
-import { dayMonth, festiveMinDays, flagshipCars, listJoin, peakWeekendMinDays, seasonPct, seasonTable, tierName } from "./shared";
+import {
+  DEFAULT_MONTH_KM, dayMonth, festiveMinDays, flagshipCars, listJoin, monthKmFor, monthStamp, peakWeekendMinDays, seasonLabel, seasonPct, seasonTable, tierName,
+} from "./shared";
 
 // Data and copy for /pricing (workstream 07 §7.4 fact page: numbers in tables, one place per
 // fact, "Last updated"). Every figure is read from cars.ts, rules.ts and zones.ts.
@@ -125,3 +128,97 @@ export function feeGroups(): { id: string; title: string; rows: FeeRow[] }[] {
 export const validOffers = (today: string) => offers.filter((o) => today <= o.validUntil);
 
 export { seasons, dayMonth };
+
+/**
+ * Headings, labels and notes for the /pricing page, so the page itself holds no copy.
+ * ar/pricing.ts exports the same shape. Paragraphs use the copy mini-markup (**bold**, [label](/path)).
+ */
+export const pricingPage = {
+  crumbs: { home: "Home", page: "Pricing" },
+  jumpLabel: "On this page",
+  jump: [
+    { id: "rates", label: "Car rates" },
+    { id: "seasons", label: "Seasons" },
+    { id: "longer", label: "Longer rentals" },
+    { id: "fees", label: "Fees" },
+    { id: "offers", label: "Offers" },
+  ],
+  hero: {
+    eyebrow: (iso: string) => `Pricing · Updated ${monthStamp(iso)}`,
+    title: "Luxury car rental prices",
+    lede: [
+      `Every rate, deposit and fee for all ${cars.length} cars on one page.`,
+      `Prices are in AED and include ${site.vatRate}% VAT. The deposit is a refundable hold on your card, shown separately.`,
+    ],
+  },
+  facts: (f: { dailyFrom: number; season: Season; depositFrom: number; km: number }) => ({
+    label: "Prices at a glance",
+    items: [
+      { label: "Daily rates from", value: formatAED(f.dailyFrom), note: seasonLabel(f.season).replace(/^./, (ch) => ch.toUpperCase()) },
+      { label: "Deposits from", value: formatAED(f.depositFrom), note: "Refundable card hold" },
+      { label: "Included", value: `${f.km} km / day`, note: "On most cars" },
+      { label: "VAT", value: `${site.vatRate}% included`, note: "In every price shown" },
+    ],
+  }),
+  rates: {
+    eyebrow: "Car rates",
+    title: "Rates for every car",
+    intro: (today: string, season: Season, change?: { date: string; season: Season }) =>
+      `Today, ${formatDayLong(today)}, is in the **${seasonLabel(season)}**${change ? `; the ${seasonLabel(change.season)} starts on ${dayMonth(change.date)}` : ""}. The “Today” column shows the daily rate for a pickup today.`,
+    caption: `Daily, 7-day and 30-day rates, deposit and mileage for all ${cars.length} cars`,
+    /** [label, note under the label]; every column after the first is right-aligned (end). */
+    columns: [
+      ["Car"], ["Today", "Per day"], ["Standard", "Per day"], ["Peak", "Per day"], ["7 days", "Total"], ["30 days", "Total"],
+      ["Deposit", "Card hold"], ["Included", "Per day"], ["Extra km", "Per km"], ["Chauffeur", "From / hour"],
+    ] as [string, string?][],
+    carNote: (car: Car) => `${tierName(car.tier)}${car.chauffeurFirst ? " · chauffeur first" : ""}${car.rates.onRequest ? " · on request" : ""}`,
+    from: "From",
+    weeklyOnRequest: "On request",
+    monthlyNotOffered: "Not offered",
+    selfDriveOnly: "Self-drive only",
+    km: (km: number) => `${n(km)} km`,
+    footnote: `All prices in AED including ${site.vatRate}% VAT. Standard rates apply in spring and autumn, peak rates from November to March; summer and the festive peak are worked out from the standard rate (see seasons below). Bugatti prices are where quotes start; we confirm the final price on WhatsApp. The 30-day rate includes ${n(DEFAULT_MONTH_KM)} km${cars.filter((c) => monthKmFor(c) !== DEFAULT_MONTH_KM).map((c) => ` (${n(monthKmFor(c))} km on the ${c.model})`).join("")}. Chauffeur rates are on the [chauffeur page](/chauffeur).`,
+    scrollHint: "Scroll the table sideways to see every column. The car name stays in view.",
+  },
+  seasons: {
+    eyebrow: "Seasons",
+    title: "Seasons and minimum rentals",
+    intro: "The season is set by the pickup date, in Dubai time.",
+    caption: "Seasons, dates and how they change the daily rate",
+    columns: ["Season", "Dates", "Daily rate", "Also applies"],
+    now: "Now",
+    nothingExtra: "Nothing extra.",
+    joinRanges: (ranges: string[]) => ranges.join(" and "),
+  },
+  longer: {
+    eyebrow: "Longer rentals",
+    title: "The longer you rent, the less you pay per day",
+    intro: (car: Car) => `A rental day is 24 hours from handover, with ${rules.graceMinutes} minutes' grace at the end. The example uses the ${car.name} at its standard rate of ${formatAED(car.rates.daily)} a day.`,
+    caption: "Rental-length pricing",
+    columns: ["Rental length", "How it is priced", "Example", "Per day"],
+    footnote: `A long rental never costs more than the 30-day rate. You can request up to ${rules.maxOnlineDays} days online; for longer rentals, message us on WhatsApp. Bugattis are priced on request.`,
+  },
+  fees: {
+    eyebrow: "Fees",
+    title: "Every fee, in one place",
+    intro: "Delivery fees and extras are added to your quote before you send a request. Charges during the rental are deducted from the deposit or charged to the card on file, with the receipt.",
+    columns: ["Fee", "Amount", "Details"],
+    note: "Excess, deposit and release timing are explained on [rental requirements](/requirements#insurance); delivery zones on the [delivery page](/delivery).",
+  },
+  offers: {
+    eyebrow: "Launch offers",
+    title: "Offers",
+    intro: "The quote applies one offer per booking, the one that saves you the most. Offers end on the date shown.",
+    none: "There are no offers running at the moment.",
+    vat: `Prices in AED including ${site.vatRate}% VAT.`,
+  },
+  cta: {
+    title: "See your exact price",
+    text: "Choose a car and your dates. The quote shows the rental, delivery and extras before you send the request, and nothing is charged on this website.",
+    whatsappText: `Hello ${site.businessName}, I have a question about prices.`,
+    whatsapp: "Ask on WhatsApp",
+    fleet: "Browse the fleet",
+  },
+  /** BCP 47 tag for JSON-LD `inLanguage`; left out on English pages. */
+  inLanguage: undefined as string | undefined,
+};

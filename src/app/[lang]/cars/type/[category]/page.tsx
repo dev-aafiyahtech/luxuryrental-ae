@@ -6,7 +6,9 @@ import { ArrowRight } from "lucide-react";
 import { categories, getCategory } from "@/content/brands";
 import { carsInCategory, chauffeurCars } from "@/content/cars";
 import { rules } from "@/content/rules";
-import { getHref, getT } from "@/i18n/dictionaries";
+import { localizeCategory } from "@/content/localize";
+import { getHref, getLocale, getT } from "@/i18n/dictionaries";
+import { alternatesFor, ogLocaleFor } from "@/i18n/metadata";
 import { getToday } from "@/lib/server-time";
 import { lowestFrom } from "@/lib/pricing";
 import { formatAED, formatNumber } from "@/lib/format";
@@ -20,22 +22,24 @@ export async function generateStaticParams() {
   return categories.map((c) => ({ category: c.slug }));
 }
 
-function load(slug: string) {
-  const category = getCategory(slug);
+/** The category (named in the page language) and its cars. */
+function load(slug: string, locale: string) {
+  const category = localizeCategory(getCategory(slug), locale);
   const list = category ? carsInCategory(category.slug) : [];
   return category && list.length ? { category, list } : undefined;
 }
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/cars/type/[category]">): Promise<Metadata> {
   const { category: slug } = await params;
-  const data = load(slug);
+  const locale = await getLocale();
+  const data = load(slug, locale);
   if (!data) return {};
-  const [t, href, today] = await Promise.all([getT("fleet"), getHref(), getToday()]);
+  const [t, today] = await Promise.all([getT("fleet"), getToday()]);
   const { category, list } = data;
   const title = t("meta.categoryTitle", { category: category.name, min: formatNumber(lowestFrom(list, today)) });
-  const description = t("meta.categoryDescription", { count: list.length, category: category.name.toLowerCase(), models: list.map((c) => c.name).join(", ") });
-  const url = href(`/cars/type/${category.slug}`);
-  return { title, description, alternates: { canonical: url }, openGraph: { title, description, url: absolute(url), type: "website" } };
+  const description = t("meta.categoryDescription", { count: list.length, category: category.name.toLowerCase(), models: list.map((c) => c.name).join(locale === "ar" ? "، " : ", ") });
+  const alternates = alternatesFor(locale, `/cars/type/${category.slug}`);
+  return { title, description, alternates, openGraph: { title, description, url: absolute(alternates.canonical), type: "website", ...ogLocaleFor(locale) } };
 }
 
 export default function CategoryPage({ params }: PageProps<"/[lang]/cars/type/[category]">) {
@@ -49,13 +53,14 @@ export default function CategoryPage({ params }: PageProps<"/[lang]/cars/type/[c
 
 async function CategoryDetail({ params }: { params: PageProps<"/[lang]/cars/type/[category]">["params"] }) {
   const { category: slug } = await params;
-  const data = load(slug);
+  const locale = await getLocale();
+  const data = load(slug, locale);
   if (!data) notFound();
   const [t, href, today] = await Promise.all([getT("fleet"), getHref(), getToday()]);
   const { category, list } = data;
   const min = formatNumber(lowestFrom(list, today));
   const allOnRequest = list.every((c) => c.rates.onRequest);
-  const related = categories.filter((c) => c.slug !== category.slug).sort((a, b) => a.order - b.order);
+  const related = categories.filter((c) => c.slug !== category.slug).sort((a, b) => a.order - b.order).map((c) => localizeCategory(c, locale));
   const chauffeurFrom = Math.min(...chauffeurCars().map((c) => c.chauffeur!.hourly));
 
   return (
@@ -82,7 +87,7 @@ async function CategoryDetail({ params }: { params: PageProps<"/[lang]/cars/type
         <ul className="m-0 grid gap-4 p-0 [list-style:none] md:grid-cols-2 md:gap-5 min-[90rem]:grid-cols-3">
           {list.map((car, i) => (
             <li key={car.slug} className="grid">
-              <CarCard car={car} today={today} href={href} headingLevel="h3" className="h-full" priority={i < 2} />
+              <CarCard car={car} today={today} href={href} headingLevel="h3" className="h-full" priority={i < 2} locale={locale} />
             </li>
           ))}
         </ul>
@@ -106,7 +111,7 @@ async function CategoryDetail({ params }: { params: PageProps<"/[lang]/cars/type
                     <span className="font-display text-[13px] font-bold uppercase tracking-[0.06em] text-fg">{c.name}</span>
                     <ArrowRight className="h-4 w-4 flex-none text-accent rtl:-scale-x-100" aria-hidden="true" />
                   </span>
-                  <span className="text-[13px] text-muted tabular">{t("category.relatedCount", { count: cars.length, price: formatAED(lowestFrom(cars, today)) })}</span>
+                  <span className="text-[13px] text-muted tabular">{t("category.relatedCount", { count: cars.length, price: formatAED(lowestFrom(cars, today), locale) })}</span>
                 </Link>
               </li>
             );
@@ -117,7 +122,7 @@ async function CategoryDetail({ params }: { params: PageProps<"/[lang]/cars/type
                 <span className="font-display text-[13px] font-bold uppercase tracking-[0.06em] text-fg">{t("category.chauffeurCard")}</span>
                 <ArrowRight className="h-4 w-4 flex-none text-accent rtl:-scale-x-100" aria-hidden="true" />
               </span>
-              <span className="text-[13px] text-muted tabular">{t("crossSell.price", { price: formatAED(chauffeurFrom), hours: rules.chauffeur.minHours })}</span>
+              <span className="text-[13px] text-muted tabular">{t("crossSell.price", { price: formatAED(chauffeurFrom, locale), hours: rules.chauffeur.minHours })}</span>
             </Link>
           </li>
         </ul>

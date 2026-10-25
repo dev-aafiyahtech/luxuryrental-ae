@@ -1,15 +1,22 @@
 import * as THREE from "three";
 import { profiles } from "./profiles";
 import { buildCarWithCount, type CarBuild } from "./buildCar";
+import { buildCarFromImage } from "./imageCar";
+import type { ParticleSet } from "./particleSet";
 import * as glsl from "../shaders";
 import type { StageCar } from "../types";
 
-// One particle car on the stage: geometry from buildCar() plus its own uniforms, so two
-// cars can be on stage at once while one dissolves and the next one forms.
+// One particle car on the stage, with its own uniforms so two cars can be on stage at once
+// while one dissolves and the next one forms. The points start empty: the stage fills them
+// once the car's particle set (sampled from its image) has loaded, or with the procedural
+// body-style car if there is no set or it fails to load.
 
 export interface CarPoints {
   slug: string;
-  build: CarBuild;
+  /** Null until the particles are ready. */
+  build: CarBuild | null;
+  /** Stage time when the build arrived (for the fade-in), −1 until the stage has seen it. */
+  readyAt: number;
   points: THREE.Points;
   uniforms: {
     uExplode: { value: number };
@@ -19,7 +26,9 @@ export interface CarPoints {
     uSize: { value: number };
     uPR: { value: number };
     uFade: { value: number };
+    uPaint: { value: number };
   };
+  setBuild(build: CarBuild): void;
   dispose(): void;
 }
 
@@ -30,19 +39,17 @@ function seedOf(slug: string): number {
   return (h >>> 0) % 100000;
 }
 
-export function createCarPoints(car: StageCar, particles: number, shared: { uTime: { value: number }; uPR: { value: number } }, pointSize: number): CarPoints {
-  const build = buildCarWithCount(
-    { profile: profiles[car.body], engineLayout: car.engineLayout, hybrid: car.hybrid, drivetrain: car.drivetrain, seed: car.slug === "lamborghini-revuelto" ? 1337 : seedOf(car.slug) },
-    Math.min(particles, 12_000),
-  );
+/** The car's sculpture: from its image when there is a particle set, else from its body style. */
+export function buildFor(car: StageCar, set: ParticleSet | null, particles: number): CarBuild {
+  const count = Math.min(particles, 12_000);
+  const seed = car.slug === "lamborghini-revuelto" ? 1337 : seedOf(car.slug);
+  const profile = profiles[car.body];
+  if (set) return buildCarFromImage(set, { engine: profile.engine ?? "mid", engineLayout: car.engineLayout, hybrid: car.hybrid, drivetrain: car.drivetrain, seed }, count);
+  return buildCarWithCount({ profile, engineLayout: car.engineLayout, hybrid: car.hybrid, drivetrain: car.drivetrain, seed }, count);
+}
+
+export function createCarPoints(slug: string, shared: { uTime: { value: number }; uPR: { value: number } }, pointSize: number): CarPoints {
   const g = new THREE.BufferGeometry();
-  g.setAttribute("position", new THREE.BufferAttribute(build.position, 3));
-  g.setAttribute("aExplode", new THREE.BufferAttribute(build.explode, 3));
-  g.setAttribute("aScatter", new THREE.BufferAttribute(build.scatter, 3));
-  g.setAttribute("aColor", new THREE.BufferAttribute(build.color, 3));
-  g.setAttribute("aComp", new THREE.BufferAttribute(build.comp, 1));
-  g.setAttribute("aRnd", new THREE.BufferAttribute(build.rnd, 1));
-  g.setAttribute("aBright", new THREE.BufferAttribute(build.bright, 1));
   const uniforms = {
     uExplode: { value: 0 },
     uForm: { value: 0 },
@@ -51,6 +58,7 @@ export function createCarPoints(car: StageCar, particles: number, shared: { uTim
     uSize: { value: pointSize },
     uPR: shared.uPR,
     uFade: { value: 1 },
+    uPaint: { value: 0 },
   };
   const material = new THREE.ShaderMaterial({
     transparent: true,
@@ -62,15 +70,31 @@ export function createCarPoints(car: StageCar, particles: number, shared: { uTim
   });
   const points = new THREE.Points(g, material);
   points.frustumCulled = false;
-  return {
-    slug: car.slug,
-    build,
+  points.visible = false;
+  const self: CarPoints = {
+    slug,
+    build: null,
+    readyAt: -1,
     points,
     uniforms,
+    setBuild(build) {
+      g.setAttribute("position", new THREE.BufferAttribute(build.position, 3));
+      g.setAttribute("aExplode", new THREE.BufferAttribute(build.explode, 3));
+      g.setAttribute("aScatter", new THREE.BufferAttribute(build.scatter, 3));
+      g.setAttribute("aColor", new THREE.BufferAttribute(build.color, 3));
+      g.setAttribute("aPaint", new THREE.BufferAttribute(build.paint, 3));
+      g.setAttribute("aComp", new THREE.BufferAttribute(build.comp, 1));
+      g.setAttribute("aRnd", new THREE.BufferAttribute(build.rnd, 1));
+      g.setAttribute("aBright", new THREE.BufferAttribute(build.bright, 1));
+      g.setDrawRange(0, build.count);
+      self.build = build;
+      self.readyAt = -1;
+    },
     dispose() {
       points.removeFromParent();
       g.dispose();
       material.dispose();
     },
   };
+  return self;
 }

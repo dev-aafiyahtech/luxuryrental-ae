@@ -4,7 +4,7 @@ import Link from "next/link";
 import clsx from "clsx";
 import type { MouseEvent } from "react";
 import { CalendarDays, PencilLine } from "lucide-react";
-import { useHref, useT } from "@/i18n/client";
+import { useHref, useLocale, useT } from "@/i18n/client";
 import { useTripDraft } from "@/lib/booking/draft";
 import { formatDay, formatRange } from "@/lib/dates";
 import { getZone } from "@/content/zones";
@@ -17,21 +17,22 @@ export const DOCK_OPEN_EVENT = "lr:dock:open";
  * has chosen dates (in the dock or on a car page). Edit asks the dock to open; if nothing handles
  * the request it falls back to the trip step of the booking flow.
  */
-export function TripBar({ className }: { className?: string }) {
+export function TripBar({ className, zoneNames }: { className?: string; /** Zone names in the page language, by slug (from the server page). */ zoneNames?: Record<string, string> }) {
   const t = useT("fleet");
+  const locale = useLocale();
   const href = useHref();
   const [trip, , hydrated] = useTripDraft();
   const chosen = hydrated && trip.updatedAt > 0 && !!trip.pickupDate && (trip.service === "chauffeur" || !!trip.returnDate);
   if (!chosen || !trip.pickupDate) return null;
 
-  const when = trip.service === "chauffeur" ? `${formatDay(trip.pickupDate)}, ${trip.pickupTime}` : formatRange(trip.pickupDate, trip.returnDate ?? trip.pickupDate);
+  const when = trip.service === "chauffeur" ? `${formatDay(trip.pickupDate, locale)}${locale === "ar" ? "، " : ", "}${trip.pickupTime}` : formatRange(trip.pickupDate, trip.returnDate ?? trip.pickupDate, locale);
   const zone = getZone(trip.pickup.zone);
   const how =
     trip.service === "chauffeur"
       ? t("trip.chauffeur")
       : trip.handover === "collect"
         ? t("trip.collect")
-        : `${t("trip.delivery")}${zone && zone.slug !== "dubai" ? `, ${zone.kind === "airport" ? zone.slug.toUpperCase() : zone.name}` : ""}`;
+        : `${t("trip.delivery")}${zone && zone.slug !== "dubai" ? `${locale === "ar" ? "،" : ","} ${zone.kind === "airport" ? zone.slug.toUpperCase() : zoneNames?.[zone.slug] ?? zone.name}` : ""}`;
 
   const onEdit = (e: MouseEvent<HTMLAnchorElement>) => {
     const handled = !window.dispatchEvent(new CustomEvent(DOCK_OPEN_EVENT, { cancelable: true }));

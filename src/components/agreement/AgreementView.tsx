@@ -6,7 +6,7 @@ import { useRef, useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, CircleCheck, FileSignature, Printer, Search } from "lucide-react";
 import { getCar } from "@/content/cars";
-import { useHref, useT } from "@/i18n/client";
+import { useHref, useLocale, useT } from "@/i18n/client";
 import { useBooking } from "@/lib/booking/draft";
 import { agreementFor, agreementOpen } from "@/lib/booking/store";
 import type { BookingRecord } from "@/lib/booking/types";
@@ -62,6 +62,7 @@ function Lookup({ initial, notFound }: { initial?: string; notFound?: boolean })
 function NotIssued({ b }: { b: BookingRecord }) {
   const t = useT("agreement");
   const tb = useT("booking");
+  const locale = useLocale();
   const href = useHref();
   const waiting = b.status === "requested";
   return (
@@ -74,7 +75,7 @@ function NotIssued({ b }: { b: BookingRecord }) {
         <h1 className="display-md">{t("doc.title")}</h1>
       </header>
       <Notice tone={waiting ? "info" : "warning"} title={waiting ? t("pending.title") : t("pending.closedTitle")}>
-        {waiting ? t("pending.text", { car: b.carName }) : t("pending.closedText", { status: tb(`status.labels.${b.status}`).toLowerCase() })}
+        {waiting ? t("pending.text", { car: b.carName }) : t("pending.closedText", { status: tb(`status.labels.${b.status}`).toLocaleLowerCase(locale) })}
       </Notice>
       <Link href={href(`/booking?ref=${b.ref}`)} className="btn btn-primary w-fit">{t("pending.status")}</Link>
     </div>
@@ -87,6 +88,7 @@ function NotIssued({ b }: { b: BookingRecord }) {
  */
 export function AgreementView() {
   const t = useT("agreement");
+  const locale = useLocale();
   const href = useHref();
   const params = useSearchParams();
   const ref = (params.get("ref") ?? "").trim().toUpperCase();
@@ -127,7 +129,7 @@ export function AgreementView() {
           <div className="grid gap-3">
             <div className="grid gap-1">
               <p className="font-semibold text-fg">{t("signed.banner")}</p>
-              <p className="text-champagne">{t("signed.bannerText", { name: agreement.signerName ?? "", time: longStamp(agreement.signedAt) })}</p>
+              <p className="text-champagne">{t("signed.bannerText", { name: agreement.signerName ?? "", time: longStamp(agreement.signedAt, locale) })}</p>
             </div>
             <button type="button" className="btn btn-secondary btn-sm w-fit gap-2" onClick={() => window.print()}>
               <Printer className="h-4 w-4" aria-hidden="true" />
@@ -160,7 +162,7 @@ export function AgreementView() {
       <p className="fine flex items-center gap-2 print:hidden">
         <FileSignature className="h-4 w-4 flex-none" aria-hidden="true" />
         <span>
-          {agreement.number} · {t("doc.version")} {agreement.version}
+          <bdi dir="ltr">{agreement.number}</bdi> · {t("doc.version")} <bdi dir="ltr">{agreement.version}</bdi>
         </span>
       </p>
     </div>

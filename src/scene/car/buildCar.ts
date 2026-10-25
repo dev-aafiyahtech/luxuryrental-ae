@@ -1,6 +1,7 @@
 import type { CarSpecs } from "@/content/types";
 import { clamp01, hermite, mulberry } from "../math";
 import type { CarProfile } from "./profiles";
+import { addPowertrain, palette, type RGB } from "./powertrain";
 
 // The light-sculpture car, ported from the approved prototype's buildCar() and driven by a
 // body-style profile. Every particle knows where it sits assembled (`position`), where it
@@ -32,7 +33,10 @@ export interface CarBuild {
   position: Float32Array;
   explode: Float32Array;
   scatter: Float32Array;
+  /** Colour by part (D-13). */
   color: Float32Array;
+  /** The car's own colour from its image (equal to `color` for the procedural car). */
+  paint: Float32Array;
   comp: Float32Array;
   rnd: Float32Array;
   bright: Float32Array;
@@ -41,23 +45,14 @@ export interface CarBuild {
   lamp: [number, number, number];
   /** Nose x, for headlight beams. */
   nose: number;
+  /** Overall length and height in metres (camera framing). */
+  length: number;
+  height: number;
+  /** Sampled from the car's image, or drawn from its body-style profile. */
+  source: "image" | "profile";
 }
 
-type RGB = readonly [number, number, number];
-const champ: RGB = [0.96, 0.92, 0.86];
-const gold: RGB = [0.9, 0.78, 0.5];
-const goldS: RGB = [0.96, 0.9, 0.74];
-const ice: RGB = [0.62, 0.88, 0.88];
-const amber: RGB = [0.72, 0.58, 0.34];
-const white: RGB = [0.92, 0.96, 1.0];
-const red: RGB = [0.97, 0.22, 0.18];
-
-const BANKS: Record<CarSpecs["engineLayout"], { banks: number[]; perBank: number }> = {
-  V6: { banks: [-0.2, 0.2], perBank: 3 },
-  V8: { banks: [-0.2, 0.2], perBank: 4 },
-  V12: { banks: [-0.2, 0.2], perBank: 6 },
-  W16: { banks: [-0.3, -0.1, 0.1, 0.3], perBank: 4 },
-};
+const { champ, gold, goldS, ice, amber, white, red } = palette;
 
 export function buildCar(opts: CarBuildOptions, N: number): CarBuild {
   const P = opts.profile;
@@ -290,74 +285,33 @@ export function buildCar(opts: CarBuildOptions, N: number): CarBuild {
   }
 
   // Powertrain schematic from the car's data (layout, cylinders, hybrid), revealed when exploded
-  const boxEdges = (x0: number, x1: number, y0: number, y1: number, z0: number, z1: number, count: number, c: RGB, bright: number, ey: number) => {
-    const edges: number[][] = [
-      [x0, y0, z0, x1, y0, z0], [x0, y1, z0, x1, y1, z0], [x0, y0, z1, x1, y0, z1], [x0, y1, z1, x1, y1, z1],
-      [x0, y0, z0, x0, y1, z0], [x1, y0, z0, x1, y1, z0], [x0, y0, z1, x0, y1, z1], [x1, y0, z1, x1, y1, z1],
-      [x0, y0, z0, x0, y0, z1], [x1, y0, z0, x1, y0, z1], [x0, y1, z0, x0, y1, z1], [x1, y1, z0, x1, y1, z1],
-    ];
-    for (const e of edges) line(count, (t) => add(e[0] + (e[3] - e[0]) * t, e[1] + (e[4] - e[1]) * t, e[2] + (e[5] - e[2]) * t, COMP.powertrain, 0, ey, 0, c, bright));
-  };
-  const mid = (P.engine ?? "mid") === "mid";
-  const ex0 = mid ? rear[0] + 0.03 : front[0] - 0.85;
-  const ex1 = mid ? rear[0] + 0.98 : front[0] + 0.3;
-  const ey0 = bot((ex0 + ex1) / 2) + 0.1;
-  const ey1 = Math.max(ey0 + 0.3, beltH - 0.12);
-  boxEdges(ex0, ex1, ey0, ey1, -0.36, 0.36, n(0.006), gold, 1, -0.1);
-  const layout = BANKS[opts.engineLayout] ?? BANKS.V8;
-  const spacing = (ex1 - ex0 - 0.16) / Math.max(1, layout.perBank - 1);
-  const cr = Math.min(0.065, spacing * 0.4);
-  for (const bz of layout.banks) {
-    for (let k = 0; k < layout.perBank; k++) {
-      const cx = ex0 + 0.08 + k * spacing;
-      line(n(0.003), (t) => {
-        const a = t * Math.PI * 2;
-        add(cx + Math.cos(a) * cr, ey1 + 0.04, bz + Math.sin(a) * cr, COMP.powertrain, 0, -0.1, 0, goldS, 1);
-      });
-    }
-  }
-  for (let i = 0, c = n(0.04); i < c; i++) add(ex0 + rnd() * (ex1 - ex0), ey0 + rnd() * (ey1 - ey0), (rnd() * 2 - 1) * 0.36, COMP.powertrain, 0, -0.1, 0, amber, 0.2);
-  if (opts.hybrid) {
-    const bx0 = mid ? ex1 + 0.1 : rear[0] + 0.5;
-    const bx1 = mid ? front[0] - 0.47 : ex0 - 0.1;
-    const by = bot((bx0 + bx1) / 2) + 0.04;
-    boxEdges(bx0, bx1, by, by + 0.1, -0.36, 0.36, n(0.005), ice, 0.8, -0.15);
-  }
-  // Drive: a shaft to each driven axle, then the axles themselves
-  const driven = opts.drivetrain === "AWD" ? WH : [rear];
-  for (const [wx, wy] of driven) {
-    if (wx > ex0 - 0.2 && wx < ex1 + 0.2) continue;
-    const fromX = wx < ex0 ? ex0 : ex1;
-    line(n(0.008), (t) => add(fromX + (wx - fromX) * t, wy, 0, COMP.powertrain, 0, -0.1, 0, goldS, 0.6));
-  }
-  for (const [wx, wy] of WH) line(n(0.01), (t) => add(wx, wy, (t * 2 - 1) * 0.85, COMP.powertrain, 0, -0.1, 0, goldS, 0.7));
-  for (const z of [-0.32, -0.18, 0.18, 0.32]) {
-    line(n(0.002), (t) => {
-      const a = t * Math.PI * 2;
-      add(X0 + 0.01, bot(X0) + 0.05 + Math.sin(a) * 0.05, z + Math.cos(a) * 0.05, COMP.powertrain, 0, -0.1, 0, amber, 1);
-    });
-  }
+  const powerAnchor = addPowertrain(add, n, rnd, { engine: P.engine ?? "mid", wheels: WH, bottom: bot, belt: beltH, tail: X0, axle: 0.85 }, opts);
 
   const cabinX = s0 + 0.18;
   const anchors: Record<AnchorPart, Anchor> = {
     cabin: seatAnchor ? { p: seatAnchor, e: [0, 1.9, 0] } : { p: [cabinX, top(cabinX) - 0.01, 0], e: [0, 2.05, 0] },
     body: { p: [front[0] + 0.18, top(front[0] + 0.18) - 0.02, 0], e: [0, 1.4, 0] },
     wheels: { p: [front[0], front[1], -(hw(front[0], front[1] + 0.06) + 0.03)], e: [front[0] * 0.15, 0, -1.35] },
-    powertrain: { p: [(ex0 + ex1) / 2, ey1 + 0.04, 0], e: [0, -0.1, 0] },
+    powertrain: { p: powerAnchor, e: [0, -0.1, 0] },
   };
+  const color = new Float32Array(col);
 
   return {
     count: cmp.length,
     position: new Float32Array(pos),
     explode: new Float32Array(ex),
     scatter: new Float32Array(sc),
-    color: new Float32Array(col),
+    color,
+    paint: color,
     comp: new Float32Array(cmp),
     rnd: new Float32Array(rn),
     bright: new Float32Array(br),
     anchors,
     lamp: [X1 - 0.16, headY + 0.01, 0.68 * lampK],
     nose: X1,
+    length: X1 - X0,
+    height: Math.max(...P.top.map((t) => t[1])),
+    source: "profile",
   };
 }
 

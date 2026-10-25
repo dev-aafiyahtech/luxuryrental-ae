@@ -138,12 +138,13 @@ export const streaks = {
 
 /**
  * The light-sculpture car. Additions to the prototype: `uFade` dissolves a car away when
- * another one takes its place, and loose dust drifts slowly with `uTime` (the ambient
- * motion the Pause control stops).
+ * another one takes its place, loose dust drifts slowly with `uTime` (the ambient motion the
+ * Pause control stops), and `uPaint` lets the formed car take on its own image colour
+ * (`aPaint`) over the colour-by-part palette (`aColor`); loose dust always stays gold.
  */
 export const car = {
-  vertex: /* glsl */ `attribute vec3 aExplode, aScatter, aColor; attribute float aComp, aRnd, aBright;
-    uniform float uExplode, uForm, uHead, uTime, uSize, uPR, uFade;
+  vertex: /* glsl */ `attribute vec3 aExplode, aScatter, aColor, aPaint; attribute float aComp, aRnd, aBright;
+    uniform float uExplode, uForm, uHead, uTime, uSize, uPR, uFade, uPaint;
     varying vec3 vColor; varying float vAlpha;
     void main(){
       float e = clamp(uExplode * 1.3 - aRnd * 0.3, 0.0, 1.0); e = e * e * (3.0 - 2.0 * e);
@@ -163,7 +164,7 @@ export const car = {
       a *= mix(1.0, 0.45 + 1.2 * uHead, isHead);
       a *= mix(0.55, 1.0, f);
       a *= uFade;
-      vColor = aColor; vAlpha = a;
+      vColor = mix(aColor, aPaint, uPaint * f * (1.0 - isHead)); vAlpha = a;
     }`,
   fragment: /* glsl */ `varying vec3 vColor; varying float vAlpha;
     void main(){ float d = length(gl_PointCoord - 0.5); float m = smoothstep(0.5, 0.0, d); gl_FragColor = vec4(vColor * m * m * vAlpha, 1.0); }`,

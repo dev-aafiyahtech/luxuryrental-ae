@@ -3,7 +3,7 @@
 import clsx from "clsx";
 import { useState, type FormEvent } from "react";
 import { CircleCheck } from "lucide-react";
-import { useT } from "@/i18n/client";
+import { useLocale, useT } from "@/i18n/client";
 import { signConditionReport } from "@/lib/booking/store";
 import type { ConditionReport } from "@/lib/booking/types";
 import { formatNumber } from "@/lib/format";
@@ -69,6 +69,7 @@ function SignCheckForm({ bookingRef, stage, defaultName }: { bookingRef: string;
  */
 export function ConditionReportView({ bookingRef, stage, report, canSign, defaultName }: { bookingRef: string; stage: ConditionReport["stage"]; report?: ConditionReport; canSign: boolean; defaultName?: string }) {
   const t = useT("agreement");
+  const locale = useLocale();
   const titleId = `${stage}-check-h`;
   return (
     <section id={`${stage}-check`} aria-labelledby={titleId} className={clsx("card grid scroll-mt-28 gap-6 p-5 sm:p-8 print:block print:rounded-none print:border-0 print:bg-white print:p-0 print:[&>*+*]:mt-5", report && "print:break-before-page")}>
@@ -82,8 +83,8 @@ export function ConditionReportView({ bookingRef, stage, report, canSign, defaul
         <>
           <Rows
             rows={[
-              { label: t("checks.by"), value: report.recordedBy },
-              { label: t("checks.at"), value: <span className="tabular">{longStamp(report.recordedAt)}</span> },
+              { label: t("checks.by"), value: <bdi>{report.recordedBy}</bdi> },
+              { label: t("checks.at"), value: <span className="tabular">{longStamp(report.recordedAt, locale)}</span> },
               { label: t("checks.odometer"), value: <span className="tabular">{t("checks.km", { km: formatNumber(report.odometerKm) })}</span> },
               { label: t("checks.fuel"), value: <FuelGauge eighths={report.fuelEighths} /> },
               { label: t("checks.photos"), value: <span className="tabular">{report.photos}</span> },
@@ -98,7 +99,7 @@ export function ConditionReportView({ bookingRef, stage, report, canSign, defaul
             <div className="grid gap-3 border-t border-line pt-6">
               <p className="flex items-start gap-2 text-sm font-semibold text-fg">
                 <CircleCheck className="mt-px h-4 w-4 flex-none text-success" aria-hidden="true" />
-                {t("checks.confirmed", { name: report.customerName ?? "", time: longStamp(report.customerSignedAt) })}
+                {t("checks.confirmed", { name: report.customerName ?? "", time: longStamp(report.customerSignedAt, locale) })}
               </p>
               <SignatureImage src={report.customerSignature} alt={t("signed.image", { name: report.customerName ?? "" })} />
             </div>

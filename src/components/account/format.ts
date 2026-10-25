@@ -2,18 +2,26 @@ import { formatDay, nowInDubai } from "@/lib/dates";
 
 // Display helpers for the account area (no React).
 
-/** "840 KB", "2.4 MB" */
-export function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+/** "840 KB", "2.4 MB"; Arabic "840 كيلوبايت", "2.4 ميغابايت" (CLDR unit names, Western digits). */
+export function formatBytes(bytes: number, locale?: string): string {
   const mb = bytes / (1024 * 1024);
+  const [value, unit] = bytes < 1024 ? [bytes, "byte"] : bytes < 1024 * 1024 ? [Math.max(1, Math.round(bytes / 1024)), "kilobyte"] : [mb < 10 ? Math.round(mb * 10) / 10 : Math.round(mb), "megabyte"];
+  if (locale === "ar") {
+    try {
+      return new Intl.NumberFormat("ar-u-nu-latn", { style: "unit", unit: unit as string, unitDisplay: "long", maximumFractionDigits: 1 }).format(value as number);
+    } catch {
+      /* fall through to the English short form */
+    }
+  }
+  if (unit === "byte") return `${bytes} B`;
+  if (unit === "kilobyte") return `${value} KB`;
   return `${mb < 10 ? mb.toFixed(1) : Math.round(mb)} MB`;
 }
 
-/** "Fri 24 Oct, 14:05" in Dubai time for an ISO timestamp. */
-export function stamp(iso: string): string {
+/** "Fri 24 Oct, 14:05" (Arabic "الجمعة 24 أكتوبر، 14:05") in Dubai time for an ISO timestamp. */
+export function stamp(iso: string, locale?: string): string {
   const n = nowInDubai(new Date(iso));
-  return `${formatDay(n.date)}, ${n.time}`;
+  return `${formatDay(n.date, locale)}${locale === "ar" ? "، " : ", "}${n.time}`;
 }
 
 export const firstName = (name?: string) => name?.trim().split(/\s+/)[0] ?? "";

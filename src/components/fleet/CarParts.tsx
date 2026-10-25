@@ -5,9 +5,10 @@ import { ArrowRight, Check, CircleDollarSign, Fuel, Gauge, Receipt, ShieldCheck,
 import type { Car } from "@/content/types";
 import { rules, seasonFor, seasons } from "@/content/rules";
 import { getZone } from "@/content/zones";
-import { site } from "@/content/site";
+import { chauffeurIncluded, seasonName, siteFor } from "@/content/localize";
 import { fromPrice, seasonalDaily } from "@/lib/pricing";
-import { formatAED, formatNumber, formatSeconds } from "@/lib/format";
+import { formatAED, formatNumber } from "@/lib/format";
+import { dirOf } from "@/i18n/config";
 import { whatsappHref } from "@/lib/whatsapp";
 import { CarArt } from "@/components/car/CarArt";
 import { callouts } from "@/components/car/CarBits";
@@ -40,7 +41,7 @@ export function Section({ id, title, lede, children, className, eyebrow }: { id:
 export function HeadlineStats({ car, t }: { car: Car; t: T }) {
   const stats = [
     { value: formatNumber(car.specs.hp), unit: t("car.hpUnit"), label: t("car.statPower") },
-    { value: formatSeconds(car.specs.zeroTo100).replace(" s", ""), unit: t("car.secondsUnit"), label: t("car.statSprint") },
+    { value: car.specs.zeroTo100.toFixed(1), unit: t("car.secondsUnit"), label: t("car.statSprint") },
     { value: car.specs.seats, unit: "", label: t("car.statSeats") },
   ];
   return (
@@ -93,8 +94,10 @@ function partMarkers(car: Car): Record<"powertrain" | "body" | "cabin" | "wheels
 }
 
 /** "Kinetic sculpture" block: the car's side view with numbered markers on four parts. */
-export function KineticCallouts({ car, t, id }: { car: Car; t: T; id: string }) {
-  const items = callouts(car);
+export function KineticCallouts({ car, t, id, locale }: { car: Car; t: T; id: string; locale?: string }) {
+  const items = callouts(car, locale);
+  // Markers sit on an unmirrored picture, so in RTL the inline-start offset is measured from the right.
+  const rtl = dirOf(locale ?? "en") === "rtl";
   const markers = partMarkers(car);
   return (
     <section aria-labelledby={id} className="relative grid gap-6 overflow-hidden rounded-[24px] border border-line bg-[radial-gradient(90%_60%_at_50%_45%,rgba(214,211,209,0.07),transparent_70%)] p-5 md:p-8">
@@ -104,7 +107,7 @@ export function KineticCallouts({ car, t, id }: { car: Car; t: T; id: string }) 
         <p className="text-muted">{t("car.kineticLede", { model: car.model })}</p>
       </div>
       <div className="relative -mx-2 md:mx-0">
-        <CarArt car={car} view="side" className="aspect-[124/55] w-full" alt="" />
+        <CarArt car={car} view="side" className="aspect-[124/55] w-full" alt="" locale={locale} />
         {items.map((c, i) => {
           const m = markers[c.part as keyof typeof markers];
           return (
@@ -112,7 +115,7 @@ export function KineticCallouts({ car, t, id }: { car: Car; t: T; id: string }) 
               key={c.part}
               aria-hidden="true"
               className="absolute grid h-6 w-6 -translate-x-1/2 sm:h-7 sm:w-7 -translate-y-1/2 place-items-center rounded-full border border-accent bg-bg/85 font-display text-[9px] font-bold text-accent-hover shadow-[0_0_0_5px_rgba(235,218,176,0.14),0_0_24px_rgba(246,235,207,0.35)] rtl:translate-x-1/2"
-              style={{ insetInlineStart: `${m.x}%`, top: `${m.y}%` }}
+              style={{ insetInlineStart: `${rtl ? 100 - m.x : m.x}%`, top: `${m.y}%` }}
             >
               {String(i + 1).padStart(2, "0")}
             </span>
@@ -150,35 +153,35 @@ function FactItem({ icon: Icon, title, children }: { icon: typeof Check; title: 
 }
 
 /** What the daily rate includes, then what is charged as used. */
-export function Included({ car, today, t }: { car: Car; today: string; t: T }) {
+export function Included({ car, today, t, locale }: { car: Car; today: string; t: T; locale?: string }) {
   const tier = rules.tiers[car.tier];
   const founding = !car.rates.onRequest ? activeOffer("founding-client", today) : undefined;
-  const until = founding ? shortDate(founding.validUntil) : "";
+  const until = founding ? shortDate(founding.validUntil, locale) : "";
   return (
     <div className="grid gap-8 md:grid-cols-2 md:gap-10">
       <ul className="m-0 border-t border-line p-0 [list-style:none]">
         <FactItem icon={ShieldCheck} title={t("car.inc.insuranceTitle")}>
-          {t("car.inc.insurance", { excess: formatAED(tier.excess), fcExcess: formatAED(tier.fullCoverExcess), fc: formatAED(tier.fullCoverPerDay) })}
+          {t("car.inc.insurance", { excess: formatAED(tier.excess, locale), fcExcess: formatAED(tier.fullCoverExcess, locale), fc: formatAED(tier.fullCoverPerDay, locale) })}
         </FactItem>
         <FactItem icon={Gauge} title={t("car.inc.kmTitle", { km: formatNumber(car.rates.kmPerDay) })}>
-          {t("car.inc.km", { extra: formatAED(car.rates.extraKm), month: formatNumber(kmMonth(car)) })}
+          {t("car.inc.km", { extra: formatAED(car.rates.extraKm, locale), month: formatNumber(kmMonth(car)) })}
           {founding && <> {t("car.inc.kmOffer", { until })}</>}
         </FactItem>
         {car.rates.onRequest ? (
           <FactItem icon={UserCheck} title={t("car.inc.escortTitle")}>{t("car.inc.escort")}</FactItem>
         ) : founding ? (
-          <FactItem icon={Truck} title={t("car.inc.deliveryOfferTitle")}>{t("car.inc.deliveryOffer", { until, airport: formatAED(airportFee()) })}</FactItem>
+          <FactItem icon={Truck} title={t("car.inc.deliveryOfferTitle")}>{t("car.inc.deliveryOffer", { until, airport: formatAED(airportFee(), locale) })}</FactItem>
         ) : (
-          <FactItem icon={Truck} title={t("car.inc.deliveryTitle")}>{t("car.inc.delivery", { fee: formatAED(dubaiFee()), airport: formatAED(airportFee()) })}</FactItem>
+          <FactItem icon={Truck} title={t("car.inc.deliveryTitle")}>{t("car.inc.delivery", { fee: formatAED(dubaiFee(), locale), airport: formatAED(airportFee(), locale) })}</FactItem>
         )}
         <FactItem icon={Receipt} title={t("car.inc.vatTitle")}>{t("car.inc.vat")}</FactItem>
       </ul>
       <div className="grid content-start gap-3">
         <p className="label">{t("car.usage")}</p>
         <ul className="m-0 border-t border-line p-0 [list-style:none]">
-          <FactItem icon={CircleDollarSign} title={t("car.use.salikTitle")}>{t("car.use.salik", { admin: formatAED(rules.tollAdminFee), off: formatAED(rules.tolls.salikOffPeak), peak: formatAED(rules.tolls.salikPeak), free: rules.tolls.salikFreeHours })}</FactItem>
-          <FactItem icon={Fuel} title={t("car.use.fuelTitle")}>{t("car.use.fuel", { fee: formatAED(rules.refuelFee) })}</FactItem>
-          <FactItem icon={Receipt} title={t("car.use.finesTitle")}>{t("car.use.fines", { fee: formatAED(rules.fineAdminFee) })}</FactItem>
+          <FactItem icon={CircleDollarSign} title={t("car.use.salikTitle")}>{t("car.use.salik", { admin: formatAED(rules.tollAdminFee, locale), off: formatAED(rules.tolls.salikOffPeak, locale), peak: formatAED(rules.tolls.salikPeak, locale), free: rules.tolls.salikFreeHours })}</FactItem>
+          <FactItem icon={Fuel} title={t("car.use.fuelTitle")}>{t("car.use.fuel", { fee: formatAED(rules.refuelFee, locale) })}</FactItem>
+          <FactItem icon={Receipt} title={t("car.use.finesTitle")}>{t("car.use.fines", { fee: formatAED(rules.fineAdminFee, locale) })}</FactItem>
         </ul>
       </div>
     </div>
@@ -186,12 +189,12 @@ export function Included({ car, today, t }: { car: Car; today: string; t: T }) {
 }
 
 /** Driver requirements for this car as a definition list. */
-export function Requirements({ car, t }: { car: Car; t: T }) {
+export function Requirements({ car, t, locale }: { car: Car; t: T; locale?: string }) {
   const tier = rules.tiers[car.tier];
   const rows: { label: string; value: string }[] = [
     { label: t("car.req.age"), value: car.chauffeurFirst ? t("car.req.ageApproval", { age: car.minAge }) : t("car.req.ageValue", { age: car.minAge }) },
     { label: t("car.req.licence"), value: t("car.req.licenceValue", { years: car.licenceYears }) },
-    { label: t("car.req.deposit"), value: t("car.req.depositValue", { amount: formatAED(car.rates.deposit), days: tier.releaseDays }) },
+    { label: t("car.req.deposit"), value: t("car.req.depositValue", { amount: formatAED(car.rates.deposit, locale), days: tier.releaseDays }) },
     { label: t("car.req.notice"), value: car.leadHours >= 24 ? t("car.req.noticeDays", { days: car.leadHours / 24, hours: car.leadHours }) : t("car.req.noticeHours", { hours: car.leadHours }) },
     { label: t("car.req.minimum"), value: car.minDays > 1 ? t("car.req.minimumValue", { days: car.minDays }) : t("car.req.minimumOne") },
   ];
@@ -210,20 +213,20 @@ export function Requirements({ car, t }: { car: Car; t: T }) {
 }
 
 /** Rate card: today's daily, standard, peak and festive daily, 7 and 30 days, deposit and km. */
-export function RateTable({ car, today, t }: { car: Car; today: string; t: T }) {
+export function RateTable({ car, today, t, locale }: { car: Car; today: string; t: T; locale?: string }) {
   const season = seasonFor(today);
-  const onReq = (n: number | null) => (n === null ? t("car.rate.onRequest") : formatAED(n));
-  const from = (n: number) => (car.rates.onRequest ? t("car.rate.fromDay", { price: formatAED(n) }) : formatAED(n));
+  const onReq = (n: number | null) => (n === null ? t("car.rate.onRequest") : formatAED(n, locale));
+  const from = (n: number) => (car.rates.onRequest ? t("car.rate.fromDay", { price: formatAED(n, locale) }) : formatAED(n, locale));
   const rows: { label: string; note?: string; value: string; strong?: boolean }[] = [
-    { label: t("car.rate.today"), note: t("car.rate.todaySeason", { season: season.name }), value: from(fromPrice(car, today)), strong: true },
+    { label: t("car.rate.today"), note: t("car.rate.todaySeason", { season: seasonName(season, locale) }), value: from(fromPrice(car, today)), strong: true },
     { label: t("car.rate.standard"), value: from(car.rates.daily) },
     { label: t("car.rate.peak"), note: t("car.rate.peakDates"), value: from(car.rates.peakDaily) },
     { label: t("car.rate.festive"), note: t("car.rate.festiveDates"), value: from(seasonalDaily(car, seasons["super-peak"])) },
     { label: t("car.rate.weekly"), value: onReq(car.rates.weekly) },
     { label: t("car.rate.monthly"), value: onReq(car.rates.monthly) },
-    { label: t("car.rate.deposit"), note: t("car.rate.depositNote", { days: rules.tiers[car.tier].releaseDays }), value: formatAED(car.rates.deposit) },
+    { label: t("car.rate.deposit"), note: t("car.rate.depositNote", { days: rules.tiers[car.tier].releaseDays }), value: formatAED(car.rates.deposit, locale) },
     { label: t("car.rate.km"), value: car.rates.monthly ? t("car.rate.kmValue", { day: formatNumber(car.rates.kmPerDay), month: formatNumber(kmMonth(car)) }) : t("car.rate.kmDay", { day: formatNumber(car.rates.kmPerDay) }) },
-    { label: t("car.rate.extraKm"), value: t("car.rate.extraKmValue", { amount: formatAED(car.rates.extraKm) }) },
+    { label: t("car.rate.extraKm"), value: t("car.rate.extraKmValue", { amount: formatAED(car.rates.extraKm, locale) }) },
     { label: t("car.rate.minimum"), value: car.minDays > 1 ? t("car.req.minimumValue", { days: car.minDays }) : t("car.req.minimumOne") },
   ];
   return (
@@ -251,16 +254,16 @@ export function RateTable({ car, today, t }: { car: Car; today: string; t: T }) 
 }
 
 /** Chauffeur rates for cars that offer them. */
-export function ChauffeurRates({ car, t }: { car: Car; t: T }) {
+export function ChauffeurRates({ car, t, locale }: { car: Car; t: T; locale?: string }) {
   const c = car.chauffeur;
   if (!c) return null;
   const r = rules.chauffeur;
   const rows = [
-    { label: t("car.ch.hourly"), note: t("car.ch.hourlyNote", { hours: r.minHours }), value: formatAED(c.hourly) },
-    { label: t("car.ch.halfDay"), note: t("car.ch.hoursNote", { hours: r.halfDayHours }), value: formatAED(c.halfDay) },
-    { label: t("car.ch.fullDay"), note: t("car.ch.hoursNote", { hours: r.fullDayHours }), value: formatAED(c.fullDay) },
-    { label: t("car.ch.airport"), note: t("car.ch.airportNote"), value: formatAED(c.airport) },
-    { label: t("car.ch.overtime"), value: formatAED(c.overtime) },
+    { label: t("car.ch.hourly"), note: t("car.ch.hourlyNote", { hours: r.minHours }), value: formatAED(c.hourly, locale) },
+    { label: t("car.ch.halfDay"), note: t("car.ch.hoursNote", { hours: r.halfDayHours }), value: formatAED(c.halfDay, locale) },
+    { label: t("car.ch.fullDay"), note: t("car.ch.hoursNote", { hours: r.fullDayHours }), value: formatAED(c.fullDay, locale) },
+    { label: t("car.ch.airport"), note: t("car.ch.airportNote"), value: formatAED(c.airport, locale) },
+    { label: t("car.ch.overtime"), value: formatAED(c.overtime, locale) },
   ];
   return (
     <table className="w-full border-collapse text-[14px]">
@@ -287,15 +290,16 @@ export function ChauffeurRates({ car, t }: { car: Car; t: T }) {
 }
 
 /** Bugatti booking module: price on request, the rules that apply, WhatsApp concierge first. */
-export function ConciergePanel({ car, today, t, href, className }: { car: Car; today: string; t: T; href: Href; className?: string }) {
-  const price = formatAED(fromPrice(car, today));
+export function ConciergePanel({ car, today, t, href, className, locale }: { car: Car; today: string; t: T; href: Href; className?: string; locale?: string }) {
+  const site = siteFor(locale);
+  const price = formatAED(fromPrice(car, today), locale);
   const message = t("car.conciergeMessage", { business: site.businessName, car: car.name, price });
   const list = [
     t("car.conciergeRules.escort"),
     t("car.conciergeRules.notice", { hours: car.leadHours }),
     t("car.conciergeRules.age", { age: car.minAge, years: car.licenceYears }),
     t("car.conciergeRules.minimum", { days: car.minDays }),
-    t("car.conciergeRules.deposit", { amount: formatAED(car.rates.deposit) }),
+    t("car.conciergeRules.deposit", { amount: formatAED(car.rates.deposit, locale) }),
   ];
   return (
     <div className={clsx("glass grid gap-5 p-6", className)}>
@@ -327,21 +331,22 @@ export function ConciergePanel({ car, today, t, href, className }: { car: Car; t
 }
 
 /** Phantom booking module: chauffeur first, self-drive on approval. */
-export function ChauffeurPanel({ car, today, t, href, className }: { car: Car; today: string; t: T; href: Href; className?: string }) {
+export function ChauffeurPanel({ car, today, t, href, className, locale }: { car: Car; today: string; t: T; href: Href; className?: string; locale?: string }) {
+  const site = siteFor(locale);
   const c = car.chauffeur;
   if (!c) return null;
   const r = rules.chauffeur;
   const packages = [
-    { label: `${t("car.ch.halfDay")} · ${t("car.ch.hoursNote", { hours: r.halfDayHours })}`, value: formatAED(c.halfDay) },
-    { label: `${t("car.ch.fullDay")} · ${t("car.ch.hoursNote", { hours: r.fullDayHours })}`, value: formatAED(c.fullDay) },
-    { label: t("car.ch.airport"), value: formatAED(c.airport) },
+    { label: `${t("car.ch.halfDay")} · ${t("car.ch.hoursNote", { hours: r.halfDayHours })}`, value: formatAED(c.halfDay, locale) },
+    { label: `${t("car.ch.fullDay")} · ${t("car.ch.hoursNote", { hours: r.fullDayHours })}`, value: formatAED(c.fullDay, locale) },
+    { label: t("car.ch.airport"), value: formatAED(c.airport, locale) },
   ];
   return (
     <div className={clsx("glass grid gap-5 p-6", className)}>
       <div className="grid gap-2">
         <p className="eyebrow"><span className="num">VIP</span>{t("car.chauffeurPanelEyebrow")}</p>
         <p className="display-sm">{t("car.chauffeurPanelTitle")}</p>
-        <p className="font-semibold tabular text-accent-hover">{t("car.chauffeurPanelPrice", { price: formatAED(c.hourly), hours: r.minHours })}</p>
+        <p className="font-semibold tabular text-accent-hover">{t("car.chauffeurPanelPrice", { price: formatAED(c.hourly, locale), hours: r.minHours })}</p>
       </div>
       <dl className="m-0 grid border-t border-line">
         {packages.map((p) => (
@@ -351,11 +356,11 @@ export function ChauffeurPanel({ car, today, t, href, className }: { car: Car; t
           </div>
         ))}
       </dl>
-      <p className="text-[13px] text-muted">{r.included}</p>
+      <p className="text-[13px] text-muted">{chauffeurIncluded(locale)}</p>
       <Link href={href(`/book/trip?car=${car.slug}&service=chauffeur`)} className="btn btn-primary btn-block">{t("car.bookChauffeur")}</Link>
       <div className="grid gap-2 border-t border-line pt-4">
         <p className="label">{t("car.selfDriveApproval")}</p>
-        <p className="text-[14px] text-muted">{t("car.selfDriveText", { price: formatAED(fromPrice(car, today)), age: car.minAge })}</p>
+        <p className="text-[14px] text-muted">{t("car.selfDriveText", { price: formatAED(fromPrice(car, today), locale), age: car.minAge })}</p>
         <Link href={href(`/book/trip?car=${car.slug}`)} className="btn btn-secondary btn-sm justify-self-start">{t("car.selfDriveCta")}</Link>
       </div>
       <p className="fine">{t("car.replyPromise")} {site.replyPromise}</p>
@@ -364,9 +369,9 @@ export function ChauffeurPanel({ car, today, t, href, className }: { car: Car; t
 }
 
 /** Three data-driven FAQs for a car page. */
-export function carFaqs(car: Car, today: string, t: T): { q: string; a: string }[] {
+export function carFaqs(car: Car, today: string, t: T, locale?: string): { q: string; a: string }[] {
   const model = car.model;
-  const deposit = formatAED(car.rates.deposit);
+  const deposit = formatAED(car.rates.deposit, locale);
   const out: { q: string; a: string }[] = [];
   const c = car.chauffeur;
   const ch = rules.chauffeur;
@@ -374,15 +379,15 @@ export function carFaqs(car: Car, today: string, t: T): { q: string; a: string }
   if (car.chauffeurFirst && c) {
     out.push({
       q: t("carFaq.priceChauffeurQ", { model }),
-      a: t("carFaq.priceChauffeurA", { hourly: formatAED(c.hourly), hours: ch.minHours, halfDay: formatAED(c.halfDay), halfHours: ch.halfDayHours, fullDay: formatAED(c.fullDay), fullHours: ch.fullDayHours, airport: formatAED(c.airport) }),
+      a: t("carFaq.priceChauffeurA", { hourly: formatAED(c.hourly, locale), hours: ch.minHours, halfDay: formatAED(c.halfDay, locale), halfHours: ch.halfDayHours, fullDay: formatAED(c.fullDay, locale), fullHours: ch.fullDayHours, airport: formatAED(c.airport, locale) }),
     });
-    out.push({ q: t("carFaq.selfDriveQ", { model }), a: t("carFaq.selfDriveA", { model, age: car.minAge, years: car.licenceYears, price: formatAED(fromPrice(car, today)) }) });
+    out.push({ q: t("carFaq.selfDriveQ", { model }), a: t("carFaq.selfDriveA", { model, age: car.minAge, years: car.licenceYears, price: formatAED(fromPrice(car, today), locale) }) });
   } else if (car.rates.onRequest) {
-    out.push({ q: t("carFaq.priceOnRequestQ", { model }), a: t("carFaq.priceOnRequestA", { model, today: formatAED(fromPrice(car, today)), days: car.minDays, deposit }) });
+    out.push({ q: t("carFaq.priceOnRequestQ", { model }), a: t("carFaq.priceOnRequestA", { model, today: formatAED(fromPrice(car, today), locale), days: car.minDays, deposit }) });
   } else {
     out.push({
       q: t("carFaq.priceQ", { model }),
-      a: t("carFaq.priceA", { today: formatAED(fromPrice(car, today)), standard: formatAED(car.rates.daily), peak: formatAED(car.rates.peakDaily), weekly: car.rates.weekly ? formatAED(car.rates.weekly) : t("car.rate.onRequest"), monthly: car.rates.monthly ? formatAED(car.rates.monthly) : t("car.rate.onRequest"), deposit }),
+      a: t("carFaq.priceA", { today: formatAED(fromPrice(car, today), locale), standard: formatAED(car.rates.daily, locale), peak: formatAED(car.rates.peakDaily, locale), weekly: car.rates.weekly ? formatAED(car.rates.weekly, locale) : t("car.rate.onRequest"), monthly: car.rates.monthly ? formatAED(car.rates.monthly, locale) : t("car.rate.onRequest"), deposit }),
     });
   }
 
@@ -396,8 +401,8 @@ export function carFaqs(car: Car, today: string, t: T): { q: string; a: string }
       out.push({
         q: t("carFaq.deliveryQ", { model }),
         a: founding
-          ? t("carFaq.deliveryOfferA", { until: shortDate(founding.validUntil), airport: formatAED(airportFee()) })
-          : t("carFaq.deliveryA", { fee: formatAED(dubaiFee()), airport: formatAED(airportFee()) }),
+          ? t("carFaq.deliveryOfferA", { until: shortDate(founding.validUntil, locale), airport: formatAED(airportFee(), locale) })
+          : t("carFaq.deliveryA", { fee: formatAED(dubaiFee(), locale), airport: formatAED(airportFee(), locale) }),
       });
     }
   }

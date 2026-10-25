@@ -15,6 +15,8 @@ export interface FilterControlsProps {
   layout: "bar" | "sheet";
   brandLinks: { label: string; href: string }[];
   chauffeurHref: string;
+  /** Category names in the page language, by slug. */
+  categoryNames?: Record<string, string>;
 }
 
 const SORT_LABEL: Record<SortKey, string> = { featured: "sortFeatured", "price-asc": "sortPriceAsc", "price-desc": "sortPriceDesc", power: "sortPower" };
@@ -24,7 +26,7 @@ const chip =
 const chipOff = "border-line text-muted hover:border-input hover:text-fg";
 const chipOn = "border-accent bg-accent/10 text-accent-hover";
 
-export function FilterControls({ filters, onChange, layout, brandLinks, chauffeurHref }: FilterControlsProps) {
+export function FilterControls({ filters, onChange, layout, brandLinks, chauffeurHref, categoryNames }: FilterControlsProps) {
   const t = useT("fleet");
   const id = useId();
   const sheet = layout === "sheet";
@@ -36,7 +38,7 @@ export function FilterControls({ filters, onChange, layout, brandLinks, chauffeu
     onChange(next);
   };
 
-  const categoryOptions = [{ slug: undefined, label: t("filters.all") }, ...categories.map((c) => ({ slug: c.slug, label: c.name }))];
+  const categoryOptions = [{ slug: undefined, label: t("filters.all") }, ...categories.map((c) => ({ slug: c.slug, label: categoryNames?.[c.slug] ?? c.name }))];
 
   const categoryGroup = (
     <div className={clsx("grid gap-3", !sheet && "min-w-0")}>

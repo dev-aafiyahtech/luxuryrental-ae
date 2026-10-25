@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { CalendarX2, Trash2 } from "lucide-react";
 import { cars, getCar } from "@/content/cars";
-import { useT } from "@/i18n/client";
+import { useLocale, useT } from "@/i18n/client";
 import { addBlock, removeBlock, useBlocks, type BlockReason } from "@/lib/booking/availability";
 import { addDays, todayInDubai } from "@/lib/dates";
 import { busyRange } from "./Availability";
@@ -17,6 +17,7 @@ const REASONS: BlockReason[] = ["maintenance", "owner", "event", "other"];
  */
 export function OpsAvailability({ onSaved }: { onSaved: (message: string) => void }) {
   const t = useT("booking");
+  const locale = useLocale();
   const blocks = useBlocks();
   const today = todayInDubai();
   const [carSlug, setCarSlug] = useState(cars[0].slug);
@@ -36,7 +37,7 @@ export function OpsAvailability({ onSaved }: { onSaved: (message: string) => voi
     setError("");
     const block = addBlock({ carSlug, from, to, reason, note: note.trim() || undefined });
     setNote("");
-    onSaved(t("ops.blocks.saved", { car: getCar(block.carSlug)?.name ?? block.carSlug, range: busyRange({ ...block, kind: "block" }) }));
+    onSaved(t("ops.blocks.saved", { car: getCar(block.carSlug)?.name ?? block.carSlug, range: busyRange({ ...block, kind: "block" }, locale) }));
   };
 
   return (
@@ -57,7 +58,7 @@ export function OpsAvailability({ onSaved }: { onSaved: (message: string) => voi
                 <span className="grid">
                   <span className="font-semibold">{getCar(b.carSlug)?.name ?? b.carSlug}</span>
                   <span className="text-[13px] text-muted tabular">
-                    {busyRange({ ...b, kind: "block" })} · {t(`ops.blocks.reasons.${b.reason}`)}{b.note ? ` · ${b.note}` : ""}
+                    {busyRange({ ...b, kind: "block" }, locale)} · {t(`ops.blocks.reasons.${b.reason}`)}{b.note ? <> · <bdi>{b.note}</bdi></> : null}
                   </span>
                 </span>
                 <button type="button" className="btn btn-ghost btn-sm gap-2" onClick={() => { removeBlock(b.id); onSaved(t("ops.blocks.removed")); }} aria-label={t("ops.blocks.removeLabel", { car: getCar(b.carSlug)?.name ?? b.carSlug })}>

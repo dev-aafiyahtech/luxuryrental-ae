@@ -3,10 +3,10 @@
 import clsx from "clsx";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useT } from "@/i18n/client";
+import { useLocale, useT } from "@/i18n/client";
 import { addDays, dayOfWeek, formatDayLong, monthName, weekdayName } from "@/lib/dates";
 import { firstBusyAfter } from "./DateRangePicker";
-import { pickDay } from "./lib";
+import { listSep, pickDay } from "./lib";
 
 /**
  * The next 30 days as a horizontal rail of day buttons. Range mode: the first tap moves the
@@ -29,6 +29,8 @@ export function DateRail({ mode = "range", start, end, today, min, max, minDays 
   unavailable?: (iso: string) => boolean;
 }) {
   const t = useT("booking");
+  const locale = useLocale();
+  const ar = locale === "ar";
   const scroller = useRef<HTMLDivElement>(null);
   const [awaitingEnd, setAwaitingEnd] = useState(false);
   const [focusDay, setFocusDay] = useState<string | null>(null);
@@ -106,7 +108,7 @@ export function DateRail({ mode = "range", start, end, today, min, max, minDays 
             const isEnd = d === rangeEnd;
             const inRange = !!start && !!rangeEnd && d > start && d < rangeEnd;
             const dom = Number(d.slice(8, 10));
-            const state = [isStart ? t(mode === "range" ? "picker.pickup" : "picker.selected") : "", isEnd ? t("picker.return") : "", inRange ? t("picker.inRange") : "", d === today ? t("picker.today") : "", disabled ? t("picker.unavailable") : ""].filter(Boolean).join(", ");
+            const state = [isStart ? t(mode === "range" ? "picker.pickup" : "picker.selected") : "", isEnd ? t("picker.return") : "", inRange ? t("picker.inRange") : "", d === today ? t("picker.today") : "", disabled ? t("picker.unavailable") : ""].filter(Boolean).join(listSep(locale));
             return (
               <button
                 key={d}
@@ -115,7 +117,7 @@ export function DateRail({ mode = "range", start, end, today, min, max, minDays 
                 tabIndex={d === tabbable ? 0 : -1}
                 aria-pressed={isStart || isEnd}
                 aria-disabled={disabled || undefined}
-                aria-label={`${formatDayLong(d)}${state ? `, ${state}` : ""}`}
+                aria-label={`${formatDayLong(d, locale)}${state ? `${listSep(locale)}${state}` : ""}`}
                 onClick={() => {
                   setFocusDay(d);
                   choose(d);
@@ -127,9 +129,9 @@ export function DateRail({ mode = "range", start, end, today, min, max, minDays 
                   disabled && "cursor-not-allowed border-transparent text-muted/50 hover:border-transparent",
                 )}
               >
-                <span className={clsx("text-[10px] font-semibold uppercase tracking-[0.1em]", isStart || isEnd ? "text-on-accent" : "text-muted")}>{weekdayName(dayOfWeek(d))}</span>
+                <span className={clsx("font-semibold", ar ? "text-[11px] leading-none" : "text-[10px] uppercase tracking-[0.1em]", isStart || isEnd ? "text-on-accent" : "text-muted")}>{weekdayName(dayOfWeek(d), false, locale)}</span>
                 <span className={clsx("text-base font-semibold tabular", disabled && "line-through")}>{dom}</span>
-                <span className={clsx("text-[10px] uppercase tracking-[0.08em]", isStart || isEnd ? "text-on-accent" : "text-muted", !(i === 0 || dom === 1) && "invisible")}>{monthName(Number(d.slice(5, 7)), false)}</span>
+                <span className={clsx(ar ? "text-[10px] leading-none" : "text-[10px] uppercase tracking-[0.08em]", isStart || isEnd ? "text-on-accent" : "text-muted", !(i === 0 || dom === 1) && "invisible")}>{monthName(Number(d.slice(5, 7)), false, locale)}</span>
               </button>
             );
           })}

@@ -39,7 +39,7 @@ export async function Header() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
-          <LanguageSwitch variant="header" className="hidden lg:inline-flex" />
+          <LanguageSwitch variant="header" />
           <a href={whatsappHref()} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-line text-fg transition-colors hover:border-accent" aria-label={t("nav.whatsapp")} target="_blank" rel="noopener">
             <WhatsAppIcon />
           </a>

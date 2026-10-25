@@ -4,7 +4,7 @@ import Link from "next/link";
 import clsx from "clsx";
 import { useState, type FormEvent, type ReactNode } from "react";
 import { CircleCheck, ClipboardCheck, Clock, FileSignature } from "lucide-react";
-import { useHref, useT } from "@/i18n/client";
+import { useHref, useLocale, useT } from "@/i18n/client";
 import { agreementFor, agreementOpen, recordConditionReport } from "@/lib/booking/store";
 import type { BookingRecord, ConditionReport, DamageMark } from "@/lib/booking/types";
 import { formatNumber } from "@/lib/format";
@@ -31,12 +31,13 @@ function Cell({ icon, label, children }: { icon: ReactNode; label: string; child
 
 function CheckSummary({ r }: { r: ConditionReport }) {
   const t = useT("agreement");
+  const locale = useLocale();
   const marks = r.damages.length === 1 ? t("ops.markOne") : t("ops.marks", { n: r.damages.length });
   return (
     <div className="grid gap-0.5 text-sm">
       <p className="m-0 tabular text-fg">{t("ops.summary", { km: formatNumber(r.odometerKm), fuel: r.fuelEighths, marks })}</p>
       <p className="m-0 text-[13px] text-muted">
-        {r.recordedBy} · {stamp(r.recordedAt)} · {t("ops.photos", { n: r.photos })}
+        <bdi>{r.recordedBy}</bdi> · {stamp(r.recordedAt, locale)} · {t("ops.photos", { n: r.photos })}
       </p>
       <p className={clsx("m-0 flex items-center gap-1.5 text-[13px]", r.customerSignedAt ? "text-success" : "text-warning")}>
         {r.customerSignedAt ? <CircleCheck className="h-3.5 w-3.5 flex-none" aria-hidden="true" /> : <Clock className="h-3.5 w-3.5 flex-none" aria-hidden="true" />}
@@ -52,6 +53,7 @@ function CheckSummary({ r }: { r: ConditionReport }) {
  */
 export function OpsChecks({ b, onRecord }: { b: BookingRecord; onRecord: (stage: Stage) => void }) {
   const t = useT("agreement");
+  const locale = useLocale();
   const href = useHref();
   const agreement = agreementFor(b);
   const open = agreementOpen(b.status);
@@ -68,7 +70,7 @@ export function OpsChecks({ b, onRecord }: { b: BookingRecord; onRecord: (stage:
           <>
             <p className={clsx("m-0 flex items-center gap-1.5 text-sm", agreement.signedAt ? "text-success" : "text-warning")}>
               {agreement.signedAt ? <CircleCheck className={iconClass} aria-hidden="true" /> : <Clock className={iconClass} aria-hidden="true" />}
-              {agreement.signedAt ? t("ops.signed", { time: stamp(agreement.signedAt) }) : t("ops.awaiting")}
+              {agreement.signedAt ? t("ops.signed", { time: stamp(agreement.signedAt, locale) }) : t("ops.awaiting")}
             </p>
             <p className="m-0 text-[13px] tabular text-muted" dir="ltr">{agreement.number}</p>
             <Link href={href(`/booking/agreement?ref=${b.ref}`)} className="-ms-1 inline-flex min-h-11 w-fit items-center px-1 text-sm font-semibold text-fg underline decoration-accent/60 underline-offset-4 hover:decoration-accent">

@@ -1,14 +1,14 @@
 "use client";
 
 import { CircleCheck, PenLine } from "lucide-react";
-import { useHref, useT } from "@/i18n/client";
+import { useHref, useLocale, useT } from "@/i18n/client";
 import { useBookings } from "@/lib/booking/draft";
 import { agreementFor } from "@/lib/booking/store";
 import type { BookingRecord } from "@/lib/booking/types";
 import type { CustomerProfile } from "@/lib/customer/store";
 import { formatDay, formatRange } from "@/lib/dates";
 import { StatusBadge, rich } from "@/components/booking/bits";
-import { formatPhone } from "@/components/booking/lib";
+import { formatPhone, listSep } from "@/components/booking/lib";
 import { ButtonLink } from "@/components/ui";
 
 /** Requests sent with the profile's phone or email (case-insensitive), newest first. */
@@ -24,10 +24,11 @@ export function requestsFor(bookings: BookingRecord[], profile: CustomerProfile)
 
 function RequestRow({ b }: { b: BookingRecord }) {
   const t = useT("account");
+  const locale = useLocale();
   const href = useHref();
   const trip = b.trip;
   const chauffeur = trip.service === "chauffeur";
-  const when = chauffeur ? (trip.pickupDate ? `${formatDay(trip.pickupDate)}, ${trip.pickupTime}` : "") : trip.pickupDate && trip.returnDate ? formatRange(trip.pickupDate, trip.returnDate) : "";
+  const when = chauffeur ? (trip.pickupDate ? `${formatDay(trip.pickupDate, locale)}${listSep(locale)}${trip.pickupTime}` : "") : trip.pickupDate && trip.returnDate ? formatRange(trip.pickupDate, trip.returnDate, locale) : "";
   const agreement = agreementFor(b);
   // Names that start with the visible text and say which request (several rows share the same buttons).
   const named = (action: string) => t("requests.action", { action, car: b.carName, ref: b.ref });
@@ -73,7 +74,7 @@ export function RequestsList({ profile }: { profile: CustomerProfile }) {
   const href = useHref();
   const bookings = useBookings();
   const mine = requestsFor(bookings, profile);
-  const strong = (text: string) => <bdi className="font-semibold text-fg">{text}</bdi>;
+  const strong = (text: string) => <bdi dir="ltr" className="font-semibold text-fg">{text}</bdi>;
   const phone = profile.phone ? strong(formatPhone(profile.phone)) : null;
   const email = profile.email ? strong(profile.email) : null;
   const contact = phone && email ? rich(t("requests.or"), { a: phone, b: email }) : phone || email;

@@ -7,16 +7,17 @@ import { useSearchParams } from "next/navigation";
 import { CalendarPlus, Check, Copy, FileUp, ListChecks, MessageSquareText } from "lucide-react";
 import { getCar } from "@/content/cars";
 import { site } from "@/content/site";
-import { useHref, useT } from "@/i18n/client";
+import { useHref, useLocale, useT } from "@/i18n/client";
 import { resetDraft, useBooking, useTripDraft } from "@/lib/booking/draft";
 import { bookingMessage, whatsappHref } from "@/lib/whatsapp";
 import { formatAED } from "@/lib/format";
 import { Notice } from "@/components/ui";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
-import { FlowSkeleton, Rows, StatusBadge } from "./bits";
+import { FlowSkeleton, Rows, StatusBadge, rich } from "./bits";
 import { tripLines } from "./FlowShell";
 import { useHydrated, useNow } from "./hooks";
 import { buildIcs, consumeSent, downloadFile, isReplyOutOfHours } from "./lib";
+import { waWords } from "@/lib/whatsapp";
 
 /** Copy to the clipboard, with a textarea fallback for browsers without the async API. */
 export async function copyText(text: string): Promise<boolean> {
@@ -43,6 +44,7 @@ export async function copyText(text: string): Promise<boolean> {
 
 export function ConfirmedView() {
   const t = useT("booking");
+  const locale = useLocale();
   const href = useHref();
   const params = useSearchParams();
   const ref = (params.get("ref") ?? "").toUpperCase();
@@ -61,7 +63,7 @@ export function ConfirmedView() {
   if (!hydrated) return <FlowSkeleton />;
 
   const ooh = now > 0 && isReplyOutOfHours(new Date(now));
-  const message = record ? bookingMessage(record) : `Hello ${site.businessName}, I'd like to confirm booking request ${ref}.`;
+  const message = record ? bookingMessage(record, locale) : waWords(locale).hello(ref);
   const copy = async (what: "ref" | "msg") => {
     if (await copyText(what === "ref" ? ref : message)) {
       setCopied(what);
@@ -69,7 +71,7 @@ export function ConfirmedView() {
     }
   };
   const car = record ? getCar(record.carSlug) : undefined;
-  const lines = record ? tripLines(record.trip, record.trip.service, t) : null;
+  const lines = record ? tripLines(record.trip, record.trip.service, t, locale) : null;
   const steps = [
     { title: t("confirmed.t1"), text: t("confirmed.t1Text"), state: "done" },
     { title: t("confirmed.t2"), text: ooh ? t("confirmed.t2TextOoh") : t("confirmed.t2Text"), state: "current" },
@@ -114,7 +116,7 @@ export function ConfirmedView() {
             <WhatsAppIcon className="h-5 w-5" />
             {t("confirmed.whatsapp")}
           </a>
-          <p className="text-center text-[13px] text-muted">{t("confirmed.whatsappHint", { number: site.whatsappDisplay })}</p>
+          <p className="text-center text-[13px] text-muted">{rich(t("confirmed.whatsappHint"), { number: <bdi dir="ltr" className="whitespace-nowrap">{site.whatsappDisplay}</bdi> })}</p>
         </div>
         <div className="flex flex-wrap gap-2 border-t border-line pt-4">
           <button type="button" className="btn btn-secondary btn-sm gap-2" onClick={() => void copy("msg")}>
@@ -122,7 +124,7 @@ export function ConfirmedView() {
             {copied === "msg" ? t("confirmed.messageCopied") : t("confirmed.copyMessage")}
           </button>
           {record && (
-            <button type="button" className="btn btn-secondary btn-sm gap-2" onClick={() => downloadFile(`${record.ref}.ics`, buildIcs(record, new Date()), "text/calendar")}>
+            <button type="button" className="btn btn-secondary btn-sm gap-2" onClick={() => downloadFile(`${record.ref}.ics`, buildIcs(record, new Date(), t, locale), "text/calendar")}>
               <CalendarPlus className="h-4 w-4" aria-hidden="true" />
               {t("confirmed.calendar")}
             </button>
@@ -165,8 +167,8 @@ export function ConfirmedView() {
               { label: t("review.car"), value: `${record.carName}${record.trip.service === "chauffeur" ? ` · ${t("reserve.chauffeur")}` : ""}` },
               { label: t("review.when"), value: <span className="tabular">{lines.when}</span> },
               { label: t("review.handover"), value: lines.where },
-              { label: t("quote.total"), value: <span className="font-semibold tabular">{record.quote.onRequest ? `${t("quote.totalFrom")} ` : ""}{formatAED(record.quote.total)} <span className="font-normal text-muted">{t("quote.inclVat")}</span></span> },
-              { label: t("quote.depositShort"), value: record.quote.deposit ? <span className="tabular">{formatAED(record.quote.deposit)}</span> : "" },
+              { label: t("quote.total"), value: <span className="font-semibold tabular">{record.quote.onRequest ? `${t("quote.totalFrom")} ` : ""}{formatAED(record.quote.total, locale)} <span className="font-normal text-muted">{t("quote.inclVat")}</span></span> },
+              { label: t("quote.depositShort"), value: record.quote.deposit ? <span className="tabular">{formatAED(record.quote.deposit, locale)}</span> : "" },
             ]}
           />
           {car && <p className="fine">{t("quote.nothingCharged")}</p>}

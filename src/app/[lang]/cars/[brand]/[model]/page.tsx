@@ -7,12 +7,14 @@ import { ArrowRight, Check, Info, UserRound } from "lucide-react";
 import type { Car } from "@/content/types";
 import { carPath, cars, getCarByPath } from "@/content/cars";
 import { carMedia, imageStatus } from "@/content/car-media";
-import { carCopy } from "@/content/copy";
+import { copyFor } from "@/content/copy";
 import { rules } from "@/content/rules";
-import { getHref, getT } from "@/i18n/dictionaries";
+import { chauffeurIncluded, localizeCar, localizeCategory } from "@/content/localize";
+import { getHref, getLocale, getT } from "@/i18n/dictionaries";
+import { alternatesFor, ogLocaleFor } from "@/i18n/metadata";
 import { getToday } from "@/lib/server-time";
 import { fromPrice } from "@/lib/pricing";
-import { formatAED, formatNumber, formatSeconds } from "@/lib/format";
+import { formatAED, formatNumber } from "@/lib/format";
 import { Badge, Breadcrumbs } from "@/components/ui";
 import { CarArt } from "@/components/car/CarArt";
 import { CarCard } from "@/components/car/CarCard";
@@ -34,7 +36,7 @@ type T = (key: string, vars?: Record<string, string | number>) => string;
 function metaFor(car: Car, today: string, t: T) {
   const price = formatNumber(fromPrice(car, today));
   const s = car.specs;
-  const base = { name: car.name, model: car.name, hp: formatNumber(s.hp), s: formatSeconds(s.zeroTo100).replace(" s", ""), price, km: car.rates.kmPerDay };
+  const base = { name: car.name, model: car.name, hp: formatNumber(s.hp), s: s.zeroTo100.toFixed(1), price, km: car.rates.kmPerDay };
   if (car.chauffeurFirst && car.chauffeur) {
     const hourly = formatNumber(car.chauffeur.hourly);
     return { title: t("meta.carTitleChauffeur", { ...base, price: hourly }), description: t("meta.carDescriptionChauffeur", { ...base, hourly }) };
@@ -43,15 +45,23 @@ function metaFor(car: Car, today: string, t: T) {
   return { title: t("meta.carTitle", base), description: t("meta.carDescription", base) };
 }
 
+const VIEWS: Record<string, string> = { "front three-quarter view": "front", "side view": "side", "rear three-quarter view": "rear", interior: "interior", "wheel and brake detail": "wheel" };
+
+/** Gallery alt text in the page language: the generated alts read "<car name>, <view>". */
+function galleryAlt(name: string, alt: string, t: T) {
+  const view = VIEWS[alt.slice(alt.lastIndexOf(", ") + 2)];
+  return view ? t("car.galleryAlt", { name, view: t(`car.views.${view}`) }) : alt;
+}
+
 export async function generateMetadata({ params }: PageProps<"/[lang]/cars/[brand]/[model]">): Promise<Metadata> {
   const { brand, model } = await params;
   const car = getCarByPath(brand, model);
   if (!car) notFound();
-  const [t, href, today] = await Promise.all([getT("fleet"), getHref(), getToday()]);
+  const [t, locale, today] = await Promise.all([getT("fleet"), getLocale(), getToday()]);
   const { title, description } = metaFor(car, today, t);
-  const url = href(carPath(car));
+  const alternates = alternatesFor(locale, carPath(car));
   // The template already carries the price, so the brand suffix is left off (07 §7.2).
-  return { title: { absolute: title }, description, alternates: { canonical: url }, openGraph: { title, description, url: absolute(url), type: "website" } };
+  return { title: { absolute: title }, description, alternates, openGraph: { title, description, url: absolute(alternates.canonical), type: "website", ...ogLocaleFor(locale) } };
 }
 
 export default function CarPage({ params }: PageProps<"/[lang]/cars/[brand]/[model]">) {
@@ -65,19 +75,21 @@ export default function CarPage({ params }: PageProps<"/[lang]/cars/[brand]/[mod
 
 async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[model]">["params"] }) {
   const { brand: brandSlug, model } = await params;
-  const car = getCarByPath(brandSlug, model);
-  if (!car) notFound();
-  const [t, href, today] = await Promise.all([getT("fleet"), getHref(), getToday()]);
+  const found = getCarByPath(brandSlug, model);
+  if (!found) notFound();
+  const [t, href, today, locale] = await Promise.all([getT("fleet"), getHref(), getToday(), getLocale()]);
 
+  // Car text, category and copy in the page language; numbers and slugs never change.
+  const car = localizeCar(found, locale);
   const brand = brandName(car);
-  const category = primaryCategory(car);
-  const copy = carCopy[car.slug];
+  const category = localizeCategory(primaryCategory(car), locale);
+  const copy = copyFor(locale).carCopy[car.slug];
   const paragraphs = copy?.description ? copy.description.split("\n\n") : [car.tagline];
   const highlights = copy?.highlights ?? [];
   const price = fromPrice(car, today);
   const path = carPath(car);
   const similar = similarCars(car, today);
-  const faqs = carFaqs(car, today, t);
+  const faqs = carFaqs(car, today, t, locale);
   const { description } = metaFor(car, today, t);
 
   const crumbs = [
@@ -87,15 +99,15 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
     { label: car.model },
   ];
 
-  const specs = specRows(car);
+  const specs = specRows(car, locale);
   // The hero is already at the top of the page, so the gallery starts with the other views.
-  const gallery = (carMedia[car.slug]?.gallery ?? []).filter((g) => g.src !== carMedia[car.slug]?.hero);
-  if (car.chauffeur) specs.push({ label: t("car.chauffeurRow"), value: t("car.chauffeurRowValue", { price: formatAED(car.chauffeur.hourly) }) });
+  const gallery = (carMedia[car.slug]?.gallery ?? []).filter((g) => g.src !== carMedia[car.slug]?.hero).map((g) => ({ ...g, alt: galleryAlt(car.name, g.alt, t) }));
+  if (car.chauffeur) specs.push({ label: t("car.chauffeurRow"), value: t("car.chauffeurRowValue", { price: formatAED(car.chauffeur.hourly, locale) }) });
 
   // Mobile sticky bar: chauffeur-first for the Phantom, concierge for Bugatti, Reserve otherwise.
   const sticky = car.chauffeurFirst && car.chauffeur
-    ? { price: t("car.stickyHour", { price: formatAED(car.chauffeur.hourly) }), note: t("car.stickyNoteHour", { hours: rules.chauffeur.minHours }), ctaLabel: t("car.stickyChauffeurCta"), ctaHref: href(`/book/trip?car=${car.slug}&service=chauffeur`) }
-    : { price: t("car.stickyDay", { price: formatAED(price) }), note: car.rates.onRequest ? t("car.stickyNoteRequest") : t("car.stickyNote"), ctaLabel: car.rates.onRequest ? t("car.request") : t("car.reserve"), ctaHref: href(`/book/trip?car=${car.slug}`) };
+    ? { price: t("car.stickyHour", { price: formatAED(car.chauffeur.hourly, locale) }), note: t("car.stickyNoteHour", { hours: rules.chauffeur.minHours }), ctaLabel: t("car.stickyChauffeurCta"), ctaHref: href(`/book/trip?car=${car.slug}&service=chauffeur`) }
+    : { price: t("car.stickyDay", { price: formatAED(price, locale) }), note: car.rates.onRequest ? t("car.stickyNoteRequest") : t("car.stickyNote"), ctaLabel: car.rates.onRequest ? t("car.request") : t("car.reserve"), ctaHref: href(`/book/trip?car=${car.slug}`) };
 
   return (
     <>
@@ -108,7 +120,7 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
               { name: brand, path: href(`/cars/${car.brand}`) },
               { name: car.name },
             ]),
-            carLd(car, { path: href(path), price, description }),
+            carLd(car, { path: href(path), price, description, t }),
           )}
         />
 
@@ -121,7 +133,7 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
           <header className="grid min-w-0 content-start gap-7 lg:col-start-1">
             <figure className="m-0 grid gap-3">
               <div className="relative overflow-hidden rounded-[24px] border border-line bg-card">
-                <CarArt car={car} view="hero" priority className="aspect-video w-full" sizes="(min-width: 1024px) 66vw, 100vw" />
+                <CarArt car={car} view="hero" priority className="aspect-video w-full" sizes="(min-width: 1024px) 66vw, 100vw" locale={locale} />
               </div>
               {imageStatus(car) !== "photo" && (
                 <figcaption className="fine flex items-start gap-2">
@@ -147,13 +159,13 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
                   <div className="grid gap-1">
                     <p className="flex flex-wrap items-baseline gap-x-2 gap-y-1 tabular">
                       <span className="text-[12px] font-medium uppercase tracking-[0.08em] text-muted">{t("car.from")}</span>
-                      <span className="text-2xl font-semibold">{formatAED(car.chauffeur.hourly)}</span>
+                      <span className="text-2xl font-semibold">{formatAED(car.chauffeur.hourly, locale)}</span>
                       <span className="text-[12px] text-muted">{t("car.perHourChauffeur")}</span>
                     </p>
-                    <p className="text-[13px] text-muted tabular">{t("car.selfDriveFrom", { price: formatAED(price) })}</p>
+                    <p className="text-[13px] text-muted tabular">{t("car.selfDriveFrom", { price: formatAED(price, locale) })}</p>
                   </div>
                 ) : (
-                  <PriceFrom car={car} today={today} size="lg" />
+                  <PriceFrom car={car} today={today} size="lg" locale={locale} />
                 )}
                 {car.chauffeur && (
                   <p className="flex items-center gap-2 text-sm text-champagne">
@@ -170,9 +182,9 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
           <aside aria-label={t("car.bookingLabel", { model: car.model })} className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
             <div id="booking" className="grid scroll-mt-28 grid-cols-1 gap-4 lg:sticky lg:top-28">
               {car.rates.onRequest ? (
-                <ConciergePanel car={car} today={today} t={t} href={href} />
+                <ConciergePanel car={car} today={today} t={t} href={href} locale={locale} />
               ) : car.chauffeurFirst ? (
-                <ChauffeurPanel car={car} today={today} t={t} href={href} />
+                <ChauffeurPanel car={car} today={today} t={t} href={href} locale={locale} />
               ) : (
                 <>
                   <div className="hidden min-w-0 lg:block [&_.grid>*]:min-w-0"><ReserveCard car={car} eyebrow={t("car.reserveEyebrow")} className="grid-cols-1" /></div>
@@ -181,7 +193,7 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
                     <Link href={href(`/book/trip?car=${car.slug}&service=chauffeur`)} className="card card-hover flex min-h-11 items-center justify-between gap-3 px-5 py-4 no-underline">
                       <span className="grid gap-0.5">
                         <span className="text-[13px] font-semibold uppercase tracking-[0.12em] text-accent-hover">{t("car.bookChauffeur")}</span>
-                        <span className="text-[13px] text-muted tabular">{t("car.chauffeurPanelPrice", { price: formatAED(car.chauffeur.hourly), hours: rules.chauffeur.minHours })}</span>
+                        <span className="text-[13px] text-muted tabular">{t("car.chauffeurPanelPrice", { price: formatAED(car.chauffeur.hourly, locale), hours: rules.chauffeur.minHours })}</span>
                       </span>
                       <ArrowRight className="h-4 w-4 flex-none text-accent rtl:-scale-x-100" aria-hidden="true" />
                     </Link>
@@ -212,7 +224,7 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
               )}
             </Section>
 
-            <KineticCallouts id="kinetic" car={car} t={t} />
+            <KineticCallouts id="kinetic" car={car} t={t} locale={locale} />
 
             <Section id="specs" title={t("car.specs")}>
               <SpecList car={car} rows={specs} />
@@ -261,11 +273,11 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
             )}
 
             <Section id="included" title={t("car.included")} lede={t("car.includedLede")}>
-              <Included car={car} today={today} t={t} />
+              <Included car={car} today={today} t={t} locale={locale} />
             </Section>
 
             <Section id="requirements" title={t("car.requirements")} lede={t("car.requirementsLede")}>
-              <Requirements car={car} t={t} />
+              <Requirements car={car} t={t} locale={locale} />
               <Link href={href("/requirements")} className="btn btn-ghost btn-sm -ms-3 justify-self-start gap-2 text-accent-hover">
                 {t("car.requirementsLink")}
                 <ArrowRight className="h-4 w-4 rtl:-scale-x-100" aria-hidden="true" />
@@ -273,7 +285,7 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
             </Section>
 
             <Section id="rates" title={car.chauffeurFirst ? `${t("car.rates")} · ${t("car.selfDriveApproval")}` : t("car.rates")} lede={car.rates.onRequest ? undefined : t("car.ratesNote")}>
-              <RateTable car={car} today={today} t={t} />
+              <RateTable car={car} today={today} t={t} locale={locale} />
               <div className="flex flex-wrap gap-x-2 gap-y-1">
                 <Link href={href("/pricing")} className="btn btn-ghost btn-sm -ms-3 gap-2 text-accent-hover">
                   {t("car.pricingLink")}
@@ -287,8 +299,8 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
             </Section>
 
             {car.chauffeur && (
-              <Section id="chauffeur" title={t("car.chauffeurRates")} lede={t("car.chauffeurLede", { included: rules.chauffeur.included })}>
-                <ChauffeurRates car={car} t={t} />
+              <Section id="chauffeur" title={t("car.chauffeurRates")} lede={t("car.chauffeurLede", { included: chauffeurIncluded(locale) })}>
+                <ChauffeurRates car={car} t={t} locale={locale} />
                 <div className="flex flex-wrap items-center gap-3">
                   <Link href={href(`/book/trip?car=${car.slug}&service=chauffeur`)} className={car.chauffeurFirst ? "btn btn-primary" : "btn btn-secondary"}>{t("car.bookChauffeur")}</Link>
                   <Link href={href("/chauffeur")} className="btn btn-ghost btn-sm gap-2 text-accent-hover">
@@ -315,7 +327,7 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
             <ul className="m-0 grid gap-4 p-0 [list-style:none] md:grid-cols-2 md:gap-5 lg:grid-cols-3">
               {similar.map((c) => (
                 <li key={c.slug} className="grid">
-                  <CarCard car={c} today={today} href={href} headingLevel="h3" className="h-full" />
+                  <CarCard car={c} today={today} href={href} headingLevel="h3" className="h-full" locale={locale} />
                 </li>
               ))}
             </ul>

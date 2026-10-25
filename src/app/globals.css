@@ -185,8 +185,12 @@
     --font-display: "Syncopate", var(--font-kufi), var(--font-syncopate), "Arial Black", system-ui, sans-serif;
     --font-body: "Montserrat", var(--font-plex-arabic), var(--font-montserrat), Arial, system-ui, sans-serif;
   }
-  /* Arabic has no case, and tracking breaks the joins between letters: no uppercase, no letter-spacing. */
-  :lang(ar), :lang(ar)::before, :lang(ar)::after { letter-spacing: 0 !important; text-transform: none !important; }
+  /* Tracking breaks the joins between Arabic letters: no letter-spacing anywhere. Arabic has no
+     case, so uppercase only touches Latin words: small Montserrat labels go mixed case, while
+     display text (Syncopate, whose lowercase are odd small caps) stays uppercase as in English. */
+  :lang(ar), :lang(ar)::before, :lang(ar)::after { letter-spacing: 0 !important; }
+  :lang(ar) :is(.eyebrow, .label, .badge, .btn, .trust, .spec-list dt, .field > label, .field > .field-label, .uppercase):not(.font-display) { text-transform: none !important; }
+  :lang(ar) :is(.display, .display-md, .display-sm, .font-display) { text-transform: uppercase !important; }
   :lang(ar) body { line-height: 1.7; }
 }
 @layer components {

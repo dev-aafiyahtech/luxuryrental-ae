@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { useT } from "@/i18n/client";
+import { useLocale, useT } from "@/i18n/client";
 import { updateDraft } from "@/lib/booking/draft";
 import type { DriverDetails } from "@/lib/booking/types";
 import { updateProfile, useDocuments, type CustomerProfile } from "@/lib/customer/store";
 import { Field, describedBy } from "@/components/booking/Field";
 import { PhoneInput } from "@/components/booking/PhoneInput";
 import { Segmented } from "@/components/booking/Segmented";
-import { countries, emailOk, needsIdp, phoneError } from "@/components/booking/lib";
+import { countriesFor, emailOk, needsIdp, phoneError } from "@/components/booking/lib";
 import { Notice } from "@/components/ui";
 
 type T = (key: string, vars?: Record<string, string | number>) => string;
@@ -38,6 +38,8 @@ function profileErrors(v: Values, t: T): Partial<Record<FieldId, string>> {
 
 export function ProfileForm({ profile }: { profile: CustomerProfile }) {
   const t = useT("account");
+  const tb = useT("booking");
+  const locale = useLocale();
   const docs = useDocuments(profile.phone || undefined);
   const [v, setV] = useState<Values>(() => ({
     name: profile.name ?? "",
@@ -154,7 +156,7 @@ export function ProfileForm({ profile }: { profile: CustomerProfile }) {
             aria-invalid={licenceError ? true : undefined}
             aria-describedby={describedBy("profile-licence", licenceHint, licenceError)}
           >
-            {countries.map((c) => (
+            {countriesFor(locale, tb("driver.otherCountry")).map((c) => (
               <option key={c.code} value={c.code}>
                 {c.name}
               </option>

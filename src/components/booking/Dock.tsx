@@ -9,7 +9,8 @@ import { ArrowRight, CalendarDays, PencilLine } from "lucide-react";
 import { categories } from "@/content/brands";
 import { getCar } from "@/content/cars";
 import { rules } from "@/content/rules";
-import { useHref, useT } from "@/i18n/client";
+import { localizeCategory, localizeZones } from "@/content/localize";
+import { useHref, useLocale, useT } from "@/i18n/client";
 import { useTripDraft } from "@/lib/booking/draft";
 import { formatDay, formatRange, todayInDubai } from "@/lib/dates";
 import { BottomSheet } from "./BottomSheet";
@@ -36,6 +37,7 @@ const DOCK_OPEN_EVENT = "lr:dock:open";
  */
 export function Dock({ hidden, className }: DockProps) {
   const t = useT("booking");
+  const locale = useLocale();
   const href = useHref();
   const router = useRouter();
   const uid = useId();
@@ -80,21 +82,21 @@ export function Dock({ hidden, className }: DockProps) {
     router.push(href(`/cars${type ? `?category=${type}` : ""}`));
   };
 
-  const range = ready && trip.pickupDate && trip.returnDate ? formatRange(trip.pickupDate, trip.returnDate) : "";
-  const fromText = ready && trip.pickupDate ? `${formatDay(trip.pickupDate)} · ${trip.pickupTime}` : "—";
-  const untilText = ready && trip.returnDate ? `${formatDay(trip.returnDate)} · ${trip.returnTime}` : "—";
+  const range = ready && trip.pickupDate && trip.returnDate ? formatRange(trip.pickupDate, trip.returnDate, locale) : "";
+  const fromText = ready && trip.pickupDate ? `${formatDay(trip.pickupDate, locale)} · ${trip.pickupTime}` : "—";
+  const untilText = ready && trip.returnDate ? `${formatDay(trip.returnDate, locale)} · ${trip.returnTime}` : "—";
   const pending = ready && trip.carSlug && trip.updatedAt > 0 ? getCar(trip.carSlug) : undefined;
 
   const whereSelect = (id: string, compact?: boolean) => (
     <select id={id} className={clsx("input", compact && "min-h-11 py-2.5 text-[15px]")} value={where} onChange={(e) => setWhere(e.target.value)}>
       <option value="dso">{t("dock.collectDso")}</option>
-      {deliveryZones.map((z) => <option key={z.slug} value={z.slug}>{z.name}</option>)}
+      {localizeZones(deliveryZones, locale).map((z) => <option key={z.slug} value={z.slug}>{z.name}</option>)}
     </select>
   );
   const typeSelect = (id: string, compact?: boolean) => (
     <select id={id} className={clsx("input", compact && "min-h-11 py-2.5 text-[15px]")} value={type} onChange={(e) => setType(e.target.value)}>
       <option value="">{t("dock.anyType")}</option>
-      {categories.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
+      {categories.map((c) => <option key={c.slug} value={c.slug}>{localizeCategory(c, locale).name}</option>)}
     </select>
   );
 

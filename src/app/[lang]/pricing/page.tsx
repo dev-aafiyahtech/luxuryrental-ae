@@ -1,24 +1,45 @@
 import Link from "next/link";
+import { Fragment } from "react";
 import { carPath, cars } from "@/content/cars";
 import { getBrand } from "@/content/brands";
-import { rules, seasonFor } from "@/content/rules";
-import { site } from "@/content/site";
-import { getHref } from "@/i18n/dictionaries";
+import { seasonFor } from "@/content/rules";
+import { getHref, getLocale } from "@/i18n/dictionaries";
 import { getToday } from "@/lib/server-time";
 import { fromPrice, lowestFrom } from "@/lib/pricing";
-import { formatDayLong } from "@/lib/dates";
-import { formatAED, formatNumber } from "@/lib/format";
-import { feeGroups, ladderRows, nextSeasonChange, pricingCars, pricingMeta, seasonRows, validOffers, dayMonth } from "@/content/pages/pricing";
-import { DEFAULT_MONTH_KM, commonKmPerDay, factsUpdated, monthKmFor, monthStamp, seasonLabel, tierName } from "@/content/pages/shared";
+import { formatAED } from "@/lib/format";
+import * as pricingEn from "@/content/pages/pricing";
+import * as pricingAr from "@/content/pages/ar/pricing";
+import { commonKmPerDay, factsUpdated, monthStamp } from "@/content/pages/shared";
 import { ContentHero, CtaBand, KeyFacts, LastUpdated, OfferNotice, Section, WhatsAppButton } from "@/components/content/blocks";
 import { FactTable, CellNote } from "@/components/content/FactTable";
-import { JsonLd, breadcrumbLd, graph } from "@/components/content/JsonLd";
+import { JsonLd, absoluteUrl, breadcrumbLd, graph } from "@/components/content/JsonLd";
 import { pageMetadata } from "@/components/content/meta";
 import { Badge, ButtonLink } from "@/components/ui";
 import { Dock } from "@/components/booking/Dock";
 
+// Copy and data text come from content/pages/pricing.ts (English) or content/pages/ar/pricing.ts
+// (Arabic), picked by locale; numbers are the same in both.
+const pricingFor = (locale: string) => (locale === "ar" ? pricingAr : pricingEn);
+
 export async function generateMetadata() {
-  return pageMetadata({ title: pricingMeta.title(monthStamp(factsUpdated)), description: pricingMeta.description, path: "/pricing" });
+  const locale = await getLocale();
+  const { pricingMeta } = pricingFor(locale);
+  return pageMetadata({ title: pricingMeta.title(monthStamp(factsUpdated, locale)), description: pricingMeta.description, path: "/pricing" });
+}
+
+/** The copy mini-markup (`**bold**`, `[label](/path)`) with this page's inline styles. */
+function Inline({ text, href }: { text: string; href: (path: string) => string }) {
+  return (
+    <>
+      {text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\([^)\s]+\))/g).map((part, i) => {
+        if (!part) return null;
+        if (part.startsWith("**") && part.endsWith("**")) return <strong key={i} className="text-fg">{part.slice(2, -2)}</strong>;
+        const link = /^\[([^\]]+)\]\(([^)\s]+)\)$/.exec(part);
+        if (link) return <Link key={i} href={href(link[2])} className="text-fg">{link[1]}</Link>;
+        return <Fragment key={i}>{part}</Fragment>;
+      })}
+    </>
+  );
 }
 
 const NA = ({ label }: { label: string }) => (
@@ -29,136 +50,103 @@ const NA = ({ label }: { label: string }) => (
 );
 
 export default async function PricingPage() {
-  const [href, today] = await Promise.all([getHref(), getToday()]);
+  const [href, today, locale] = await Promise.all([getHref(), getToday(), getLocale()]);
+  const M = pricingFor(locale);
+  const P = M.pricingPage;
   const season = seasonFor(today);
-  const change = nextSeasonChange(today);
-  const list = pricingCars();
+  const change = M.nextSeasonChange(today);
+  const list = M.pricingCars();
   const selfDrive = cars.filter((c) => !c.rates.onRequest);
-  const ladder = ladderRows();
-  const offersNow = validOffers(today);
+  const ladder = M.ladderRows();
+  const offersNow = M.validOffers(today);
   const km = commonKmPerDay();
-  const jump = [
-    { id: "rates", label: "Car rates" },
-    { id: "seasons", label: "Seasons" },
-    { id: "longer", label: "Longer rentals" },
-    { id: "fees", label: "Fees" },
-    { id: "offers", label: "Offers" },
-  ];
+  const aed = (amount: number) => formatAED(amount, locale);
+  const facts = P.facts({ dailyFrom: lowestFrom(selfDrive, today), season, depositFrom: Math.min(...cars.map((c) => c.rates.deposit)), km });
+  const pageLd = P.inLanguage ? [{ "@type": "WebPage", name: P.hero.title, url: absoluteUrl(href("/pricing")), description: P.hero.lede.join(" "), inLanguage: P.inLanguage }] : [];
 
   return (
     <>
-      <JsonLd data={graph(breadcrumbLd([{ name: "Home", path: href("/") }, { name: "Pricing" }]))} />
+      <JsonLd data={graph(breadcrumbLd([{ name: P.crumbs.home, path: href("/") }, { name: P.crumbs.page }]), ...pageLd)} />
 
       <ContentHero
-        eyebrow={`Pricing · Updated ${monthStamp(factsUpdated)}`}
+        eyebrow={P.hero.eyebrow(factsUpdated)}
         num="01"
-        title="Luxury car rental prices"
-        lede={
-          <>
-            <p>Every rate, deposit and fee for all {cars.length} cars on one page.</p>
-            <p>Prices are in AED and include {site.vatRate}% VAT. The deposit is a refundable hold on your card, shown separately.</p>
-          </>
-        }
+        title={P.hero.title}
+        lede={<>{P.hero.lede.map((p) => <p key={p}>{p}</p>)}</>}
         actions={
-          <nav aria-label="On this page" className="flex flex-wrap gap-2">
-            {jump.map((j) => (
+          <nav aria-label={P.jumpLabel} className="flex flex-wrap gap-2">
+            {P.jump.map((j) => (
               <a key={j.id} href={`#${j.id}`} className="inline-flex min-h-11 items-center rounded-full border border-line px-4 text-[12px] font-semibold uppercase tracking-[0.12em] text-muted no-underline transition-colors hover:border-accent hover:text-fg">
                 {j.label}
               </a>
             ))}
           </nav>
         }
-        aside={
-          <KeyFacts
-            label="Prices at a glance"
-            items={[
-              { label: "Daily rates from", value: formatAED(lowestFrom(selfDrive, today)), note: seasonLabel(season).replace(/^./, (ch) => ch.toUpperCase()) },
-              { label: "Deposits from", value: formatAED(Math.min(...cars.map((c) => c.rates.deposit))), note: "Refundable card hold" },
-              { label: "Included", value: `${km} km / day`, note: "On most cars" },
-              { label: "VAT", value: `${site.vatRate}% included`, note: "In every price shown" },
-            ]}
-          />
-        }
+        aside={<KeyFacts label={facts.label} items={facts.items} />}
       />
 
       <Section
         id="rates"
         num="02"
-        eyebrow="Car rates"
-        title="Rates for every car"
+        eyebrow={P.rates.eyebrow}
+        title={P.rates.title}
         intro={
           <>
             <p>
-              Today, {formatDayLong(today)}, is in the <strong className="text-fg">{seasonLabel(season)}</strong>
-              {change ? <>; the {seasonLabel(change.season)} starts on {dayMonth(change.date)}</> : null}. The &ldquo;Today&rdquo; column shows the daily rate for a pickup today.
+              <Inline text={P.rates.intro(today, season, change)} href={href} />
             </p>
           </>
         }
       >
         <FactTable
           id="car-rates"
-          caption={`Daily, 7-day and 30-day rates, deposit and mileage for all ${cars.length} cars`}
+          caption={P.rates.caption}
           captionHidden
           minWidth={1180}
-          columns={[
-            { label: "Car" },
-            { label: <>Today<CellNote>Per day</CellNote></>, short: "Today", align: "end" },
-            { label: <>Standard<CellNote>Per day</CellNote></>, short: "Standard", align: "end" },
-            { label: <>Peak<CellNote>Per day</CellNote></>, short: "Peak", align: "end" },
-            { label: <>7 days<CellNote>Total</CellNote></>, short: "7 days", align: "end" },
-            { label: <>30 days<CellNote>Total</CellNote></>, short: "30 days", align: "end" },
-            { label: <>Deposit<CellNote>Card hold</CellNote></>, short: "Deposit", align: "end" },
-            { label: <>Included<CellNote>Per day</CellNote></>, short: "Included", align: "end" },
-            { label: <>Extra km<CellNote>Per km</CellNote></>, short: "Extra km", align: "end" },
-            { label: <>Chauffeur<CellNote>From / hour</CellNote></>, short: "Chauffeur", align: "end" },
-          ]}
+          columns={P.rates.columns.map(([label, note]) => (note ? { label: <>{label}<CellNote>{note}</CellNote></>, short: label, align: "end" as const } : { label }))}
           rows={list.map((car) => {
             const r = car.rates;
-            const from = r.onRequest ? <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">From</span> : null;
+            const from = r.onRequest ? <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">{P.rates.from}</span> : null;
             return {
               key: car.slug,
               cells: [
                 <Link key="n" href={href(carPath(car))} className="no-underline hover:text-accent-hover">
                   <span className="block text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">{getBrand(car.brand)?.name}</span>
                   {car.model}
-                  <CellNote>{tierName(car.tier)}{car.chauffeurFirst ? " · chauffeur first" : ""}{r.onRequest ? " · on request" : ""}</CellNote>
+                  <CellNote>{P.rates.carNote(car)}</CellNote>
                 </Link>,
-                <span key="t" className="font-semibold text-fg">{from}{formatAED(fromPrice(car, today))}</span>,
-                <span key="s">{from}{formatAED(r.daily)}</span>,
-                <span key="p">{from}{formatAED(r.peakDaily)}</span>,
-                r.weekly ? formatAED(r.weekly) : "On request",
-                r.monthly ? formatAED(r.monthly) : "Not offered",
-                formatAED(r.deposit),
-                `${formatNumber(r.kmPerDay)} km`,
-                formatAED(r.extraKm),
-                car.chauffeur ? formatAED(car.chauffeur.hourly) : <NA key="c" label="Self-drive only" />,
+                <span key="t" className="font-semibold text-fg">{from}{aed(fromPrice(car, today))}</span>,
+                <span key="s">{from}{aed(r.daily)}</span>,
+                <span key="p">{from}{aed(r.peakDaily)}</span>,
+                r.weekly ? aed(r.weekly) : P.rates.weeklyOnRequest,
+                r.monthly ? aed(r.monthly) : P.rates.monthlyNotOffered,
+                aed(r.deposit),
+                P.rates.km(r.kmPerDay),
+                aed(r.extraKm),
+                car.chauffeur ? aed(car.chauffeur.hourly) : <NA key="c" label={P.rates.selfDriveOnly} />,
               ],
             };
           })}
-          footnote={
-            <>
-              All prices in AED including {site.vatRate}% VAT. Standard rates apply in spring and autumn, peak rates from November to March; summer and the festive peak are worked out from the standard rate (see seasons below). Bugatti prices are where quotes start; we confirm the final price on WhatsApp. The 30-day rate includes {formatNumber(DEFAULT_MONTH_KM)} km{cars.filter((c) => monthKmFor(c) !== DEFAULT_MONTH_KM).map((c) => ` (${formatNumber(monthKmFor(c))} km on the ${c.model})`).join("")}. Chauffeur rates are on the <Link href={href("/chauffeur")} className="text-fg">chauffeur page</Link>.
-            </>
-          }
+          footnote={<Inline text={P.rates.footnote} href={href} />}
         />
-        <p className="fine lg:hidden">Scroll the table sideways to see every column. The car name stays in view.</p>
+        <p className="fine lg:hidden">{P.rates.scrollHint}</p>
       </Section>
 
-      <Section id="seasons" num="03" eyebrow="Seasons" title="Seasons and minimum rentals" intro={<p>The season is set by the pickup date, in Dubai time.</p>}>
+      <Section id="seasons" num="03" eyebrow={P.seasons.eyebrow} title={P.seasons.title} intro={<p>{P.seasons.intro}</p>}>
         <FactTable
           id="season-table"
-          caption="Seasons, dates and how they change the daily rate"
+          caption={P.seasons.caption}
           captionHidden
           mode="stack"
-          columns={[{ label: "Season" }, { label: "Dates" }, { label: "Daily rate" }, { label: "Also applies" }]}
-          rows={seasonRows().map((s) => ({
+          columns={P.seasons.columns.map((label) => ({ label }))}
+          rows={M.seasonRows().map((s) => ({
             key: s.season.id,
             highlight: s.season.id === season.id,
             cells: [
-              <span key="s">{s.season.name}{s.season.id === season.id && <> <Badge className="ms-2 align-middle">Now</Badge></>}</span>,
-              s.ranges.join(" and "),
+              <span key="s">{s.season.name}{s.season.id === season.id && <> <Badge className="ms-2 align-middle">{P.seasons.now}</Badge></>}</span>,
+              P.seasons.joinRanges(s.ranges),
               s.rate,
-              <span key="n" className="text-muted">{s.notes.join(" ") || "Nothing extra."}</span>,
+              <span key="n" className="text-muted">{s.notes.join(" ") || P.seasons.nothingExtra}</span>,
             ],
           }))}
         />
@@ -167,57 +155,57 @@ export default async function PricingPage() {
       <Section
         id="longer"
         num="04"
-        eyebrow="Longer rentals"
-        title="The longer you rent, the less you pay per day"
-        intro={<p>A rental day is 24 hours from handover, with {rules.graceMinutes} minutes&apos; grace at the end. The example uses the {ladder.car.name} at its standard rate of {formatAED(ladder.car.rates.daily)} a day.</p>}
+        eyebrow={P.longer.eyebrow}
+        title={P.longer.title}
+        intro={<p>{P.longer.intro(ladder.car)}</p>}
       >
         <FactTable
           id="ladder-table"
-          caption="Rental-length pricing"
+          caption={P.longer.caption}
           captionHidden
           mode="stack"
-          columns={[{ label: "Rental length" }, { label: "How it is priced" }, { label: "Example", align: "end" }, { label: "Per day", align: "end" }]}
+          columns={P.longer.columns.map((label, i) => (i >= 2 ? { label, align: "end" as const } : { label }))}
           rows={ladder.rows.map((r) => ({ key: r.key, cells: [r.length, r.how, r.example, r.perDay] }))}
-          footnote={<>A long rental never costs more than the 30-day rate. You can request up to {rules.maxOnlineDays} days online; for longer rentals, message us on WhatsApp. Bugattis are priced on request.</>}
+          footnote={<>{P.longer.footnote}</>}
         />
       </Section>
 
-      <Section id="fees" num="05" eyebrow="Fees" title="Every fee, in one place" intro={<p>Delivery fees and extras are added to your quote before you send a request. Charges during the rental are deducted from the deposit or charged to the card on file, with the receipt.</p>}>
+      <Section id="fees" num="05" eyebrow={P.fees.eyebrow} title={P.fees.title} intro={<p>{P.fees.intro}</p>}>
         <div className="grid gap-8">
-          {feeGroups().map((g) => (
+          {M.feeGroups().map((g) => (
             <FactTable
               key={g.id}
               id={g.id}
               caption={g.title}
               mode="stack"
-              columns={[{ label: "Fee" }, { label: "Amount", align: "end" }, { label: "Details" }]}
+              columns={P.fees.columns.map((label, i) => (i === 1 ? { label, align: "end" as const } : { label }))}
               rows={g.rows.map((r) => ({ key: r.key, cells: [r.fee, <span key="a" className="whitespace-nowrap font-semibold text-fg">{r.amount}</span>, <span key="d" className="text-muted">{r.detail}</span>] }))}
             />
           ))}
         </div>
         <p className="text-sm text-muted">
-          Excess, deposit and release timing are explained on <Link href={href("/requirements#insurance")} className="text-fg">rental requirements</Link>; delivery zones on the <Link href={href("/delivery")} className="text-fg">delivery page</Link>.
+          <Inline text={P.fees.note} href={href} />
         </p>
       </Section>
 
-      <Section id="offers" num="06" eyebrow="Launch offers" title="Offers" intro={<p>The quote applies one offer per booking, the one that saves you the most. Offers end on the date shown.</p>}>
+      <Section id="offers" num="06" eyebrow={P.offers.eyebrow} title={P.offers.title} intro={<p>{P.offers.intro}</p>}>
         {offersNow.length ? (
           <div className="grid gap-3">
             {offersNow.map((o) => <OfferNotice key={o.id} id={o.id} today={today} />)}
           </div>
         ) : (
-          <p className="text-muted">There are no offers running at the moment.</p>
+          <p className="text-muted">{P.offers.none}</p>
         )}
-        <LastUpdated iso={factsUpdated} extra={<span>Prices in AED including {site.vatRate}% VAT.</span>} />
+        <LastUpdated iso={factsUpdated} extra={<span>{P.offers.vat}</span>} />
       </Section>
 
       <CtaBand
-        title="See your exact price"
-        text={<p>Choose a car and your dates. The quote shows the rental, delivery and extras before you send the request, and nothing is charged on this website.</p>}
+        title={P.cta.title}
+        text={<p>{P.cta.text}</p>}
         actions={
           <>
-            <WhatsAppButton text={`Hello ${site.businessName}, I have a question about prices.`}>Ask on WhatsApp</WhatsAppButton>
-            <ButtonLink href={href("/cars")}>Browse the fleet</ButtonLink>
+            <WhatsAppButton text={P.cta.whatsappText}>{P.cta.whatsapp}</WhatsAppButton>
+            <ButtonLink href={href("/cars")}>{P.cta.fleet}</ButtonLink>
           </>
         }
       />

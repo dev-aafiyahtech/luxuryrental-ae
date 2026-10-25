@@ -21,9 +21,13 @@ export interface FleetViewProps {
   crossSell: ReactNode;
   brandLinks: { label: string; href: string }[];
   brandCount: number;
+  /** Category names in the page language, by slug (localized on the server page). */
+  categoryNames?: Record<string, string>;
+  /** Delivery zone names in the page language, by slug, for the trip bar. */
+  zoneNames?: Record<string, string>;
 }
 
-export function FleetView({ filters, onChange, today, cards, crossSell, brandLinks, brandCount }: FleetViewProps) {
+export function FleetView({ filters, onChange, today, cards, crossSell, brandLinks, brandCount, categoryNames, zoneNames }: FleetViewProps) {
   const t = useT("fleet");
   const href = useHref();
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -39,7 +43,7 @@ export function FleetView({ filters, onChange, today, cards, crossSell, brandLin
   const clear = () => onChange?.({ ...DEFAULT_FILTERS, sort: filters.sort });
 
   const activeChips = [
-    filters.category && { label: categories.find((c) => c.slug === filters.category)?.name ?? filters.category, next: { ...filters, category: undefined } },
+    filters.category && { label: categoryNames?.[filters.category] ?? categories.find((c) => c.slug === filters.category)?.name ?? filters.category, next: { ...filters, category: undefined } },
     filters.price && { label: t(`filters.${filters.price}`), next: { ...filters, price: undefined } },
     filters.chauffeur && { label: t("filters.chauffeurToggle"), next: { ...filters, chauffeur: false } },
   ].filter(Boolean) as { label: string; next: FleetFilters }[];
@@ -58,11 +62,11 @@ export function FleetView({ filters, onChange, today, cards, crossSell, brandLin
         <p className="lede">{t("fleet.lede")}</p>
       </header>
 
-      <TripBar />
+      <TripBar zoneNames={zoneNames} />
 
       {/* Desktop filter bar. A real GET form, so it works before hydration too. */}
       <form action={href("/cars")} method="get" aria-label={t("filters.label")} className="hidden border-y border-line py-5 lg:block">
-        <FilterControls layout="bar" filters={filters} onChange={onChange} brandLinks={brandLinks} chauffeurHref={href("/chauffeur")} />
+        <FilterControls layout="bar" filters={filters} onChange={onChange} brandLinks={brandLinks} chauffeurHref={href("/chauffeur")} categoryNames={categoryNames} />
         {active > 0 && (
           <div className="mt-4 flex justify-end">
             <button type="button" onClick={clear} className="btn btn-ghost btn-sm">{t("filters.clear")}</button>
@@ -132,7 +136,7 @@ export function FleetView({ filters, onChange, today, cards, crossSell, brandLin
           </>
         }
       >
-        <FilterControls layout="sheet" filters={filters} onChange={onChange} brandLinks={brandLinks} chauffeurHref={href("/chauffeur")} />
+        <FilterControls layout="sheet" filters={filters} onChange={onChange} brandLinks={brandLinks} chauffeurHref={href("/chauffeur")} categoryNames={categoryNames} />
       </FilterSheet>
     </div>
   );

@@ -3,9 +3,9 @@
 import clsx from "clsx";
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useT } from "@/i18n/client";
+import { useLocale, useT } from "@/i18n/client";
 import { addDays, dayOfWeek, formatDayLong, monthName, weekdayName } from "@/lib/dates";
-import { pickDay } from "./lib";
+import { listSep, pickDay } from "./lib";
 
 // Date-range picker following the WAI-ARIA APG date grid: Monday-first, arrow keys move by
 // day/week, Home/End to the start/end of the week, PageUp/PageDown by month (Shift: year),
@@ -36,6 +36,19 @@ function weeks(month: string): (string | null)[][] {
   return Array.from({ length: cells.length / 7 }, (_, i) => cells.slice(i * 7, i * 7 + 7));
 }
 const MONDAY_FIRST = [1, 2, 3, 4, 5, 6, 0];
+
+/**
+ * Column heading for a weekday: "Mo" in English; in Arabic the one-letter CLDR narrow form
+ * (ح ن ث ر خ ج س), as Arabic calendars print it (a two-letter slice would cut "ال").
+ */
+function weekdayHead(dow: number, locale: string): string {
+  if (locale !== "ar") return weekdayName(dow).slice(0, 2);
+  try {
+    return new Intl.DateTimeFormat("ar", { weekday: "narrow", timeZone: "UTC" }).format(new Date(Date.UTC(2026, 0, 4 + dow))); // 4 Jan 2026 was a Sunday
+  } catch {
+    return weekdayName(dow, false, locale);
+  }
+}
 
 /** First day after `from` (up to `max`) for which `busy` is true, or null. The return may fall on it, not after. */
 export function firstBusyAfter(from: string, max: string, busy: (iso: string) => boolean): string | null {
@@ -68,6 +81,7 @@ export interface DateRangePickerProps {
 
 export function DateRangePicker({ mode = "range", start, end, onChange, min, max, today, months = 1, minDays = 1, announce, label, disabledHint, unavailable, id }: DateRangePickerProps) {
   const t = useT("booking");
+  const locale = useLocale();
   const uid = useId();
   const gridRef = useRef<HTMLDivElement>(null);
   const wantFocus = useRef(false);
@@ -173,14 +187,14 @@ export function DateRangePicker({ mode = "range", start, end, onChange, min, max
             return (
               <div key={month} className="min-w-0">
                 <h3 id={headingId} aria-live="polite" className="flex h-11 items-center justify-center text-sm font-semibold tracking-[0.04em]">
-                  {monthName(m)} {y}
+                  {monthName(m, true, locale)} {y}
                 </h3>
                 <table role="grid" aria-labelledby={headingId} className="mt-2 w-full table-fixed border-collapse">
                   <thead>
                     <tr>
                       {MONDAY_FIRST.map((dow) => (
-                        <th key={dow} scope="col" abbr={weekdayName(dow, true)} className="pb-1 text-center text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
-                          {weekdayName(dow).slice(0, 2)}
+                        <th key={dow} scope="col" abbr={weekdayName(dow, true, locale)} className="pb-1 text-center text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
+                          {weekdayHead(dow, locale)}
                         </th>
                       ))}
                     </tr>
@@ -213,7 +227,7 @@ export function DateRangePicker({ mode = "range", start, end, onChange, min, max
                                 type="button"
                                 data-date={d}
                                 tabIndex={d === tabbable ? 0 : -1}
-                                aria-label={`${formatDayLong(d)}${state ? `, ${state}` : ""}`}
+                                aria-label={`${formatDayLong(d, locale)}${state ? `${listSep(locale)}${state}` : ""}`}
                                 aria-disabled={off || undefined}
                                 onClick={() => {
                                   setFocusDate(d);

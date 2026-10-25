@@ -5,14 +5,15 @@ import { Check } from "lucide-react";
 import type { Car } from "@/content/types";
 import { rules } from "@/content/rules";
 import { site } from "@/content/site";
-import { useHref, useT } from "@/i18n/client";
+import { chauffeurIncluded, localizeCar, siteFor, tierName } from "@/content/localize";
+import { useHref, useLocale, useT } from "@/i18n/client";
 import type { AgreementRecord, BookingRecord } from "@/lib/booking/types";
 import { formatDayLong } from "@/lib/dates";
-import { formatAED, formatNumber } from "@/lib/format";
-import { Rows, rich } from "@/components/booking/bits";
+import { formatAED as aed, formatNumber } from "@/lib/format";
+import { Rows, flightText, rich } from "@/components/booking/bits";
 import { QuoteTable } from "@/components/booking/QuoteTable";
 import { tripLines } from "@/components/booking/FlowShell";
-import { countryName, formatPhone, packageText } from "@/components/booking/lib";
+import { countText, countryName, formatPhone, listSep, packageText, recordQuote } from "@/components/booking/lib";
 import { SignAgreementForm, excessFor } from "./SignAgreementForm";
 import { SignatureImage } from "./SignaturePad";
 import { DocSection, longDate, longStamp } from "./bits";
@@ -23,14 +24,19 @@ const linkClass = "font-semibold text-fg underline decoration-accent/60 underlin
  * The rental agreement document: parties, vehicle, rental, charges, fees, key terms and
  * signatures. Readable on screen and printable (black on white via print: variants).
  */
-export function AgreementDocument({ b, agreement, car, canSign, onSigned }: { b: BookingRecord; agreement: AgreementRecord; car?: Car; canSign: boolean; onSigned: () => void }) {
+export function AgreementDocument({ b, agreement, car: baseCar, canSign, onSigned }: { b: BookingRecord; agreement: AgreementRecord; car?: Car; canSign: boolean; onSigned: () => void }) {
   const t = useT("agreement");
   const tb = useT("booking");
+  const locale = useLocale();
   const href = useHref();
+  const car = baseCar && localizeCar(baseCar, locale);
+  const local = siteFor(locale);
+  const formatAED = (n: number) => aed(n, locale);
   const trip = b.trip;
   const chauffeur = trip.service === "chauffeur";
   const d = trip.driver;
-  const lines = tripLines(trip, trip.service, tb);
+  const lines = tripLines(trip, trip.service, tb, locale);
+  const sep = listSep(locale);
   const tier = car ? rules.tiers[car.tier] : undefined;
   const excess = tier ? excessFor(b, tier) : 0;
   const signed = !!agreement.signedAt;
@@ -43,6 +49,7 @@ export function AgreementDocument({ b, agreement, car, canSign, onSigned }: { b:
     !chauffeur && trip.extras.additionalDrivers > 0 && (trip.extras.additionalDrivers === 1 ? t("rental.driverOne") : t("rental.drivers", { n: trip.extras.additionalDrivers })),
     trip.extras.childSeats > 0 && (trip.extras.childSeats === 1 ? t("rental.seatOne") : t("rental.seats", { n: trip.extras.childSeats })),
   ].filter(Boolean) as string[];
+  const when = (date?: string, time?: string) => (date ? <span className="tabular">{`${formatDayLong(date, locale)}${sep}${time ?? ""}`}</span> : "");
 
   const { tolls } = rules;
   const keyTerms = chauffeur
@@ -75,7 +82,7 @@ export function AgreementDocument({ b, agreement, car, canSign, onSigned }: { b:
             { label: t("doc.number"), value: <span className="font-semibold tabular tracking-[0.04em]" dir="ltr">{agreement.number}</span> },
             { label: t("doc.reference"), value: <span className="tabular tracking-[0.04em]" dir="ltr">{b.ref}</span> },
             { label: t("doc.version"), value: agreement.version },
-            { label: t("doc.issued"), value: longDate(agreement.issuedAt) },
+            { label: t("doc.issued"), value: longDate(agreement.issuedAt, locale) },
           ].map((r) => (
             <div key={r.label} className="grid content-start gap-1">
               <dt className="label">{r.label}</dt>
@@ -93,9 +100,9 @@ export function AgreementDocument({ b, agreement, car, canSign, onSigned }: { b:
             <Rows
               rows={[
                 { label: t("parties.name"), value: t("parties.ownerName", { legal: site.legalName, trade: site.businessName }) },
-                { label: t("parties.address"), value: [site.address.line1, site.address.area, site.address.city, site.address.country].join(", ") },
+                { label: t("parties.address"), value: [local.address.line1, local.address.area, local.address.city, local.address.country].join(sep) },
                 { label: t("parties.licence"), value: <span className="tabular">{t("parties.licenceValue", { number: site.tradeLicence, authority: site.licenceAuthority })}</span> },
-                { label: t("parties.rta"), value: <span className="tabular">{site.rtaPermit}</span> },
+                { label: t("parties.rta"), value: <span className="tabular" dir="ltr">{site.rtaPermit}</span> },
                 { label: t("parties.trn"), value: <span className="tabular" dir="ltr">{site.vatTrn}</span> },
               ]}
             />
@@ -107,8 +114,8 @@ export function AgreementDocument({ b, agreement, car, canSign, onSigned }: { b:
               rows={[
                 { label: t("parties.name"), value: d.name },
                 { label: t("parties.phone"), value: d.phone ? <span dir="ltr" className="whitespace-nowrap tabular">{formatPhone(d.phone)}</span> : "" },
-                { label: t("parties.email"), value: d.email ? <span className="break-all">{d.email}</span> : "" },
-                { label: t("parties.licenceCountry"), value: chauffeur ? "" : countryName(d.licenceCountry) },
+                { label: t("parties.email"), value: d.email ? <bdi dir="ltr" className="break-all">{d.email}</bdi> : "" },
+                { label: t("parties.licenceCountry"), value: chauffeur ? "" : countryName(d.licenceCountry, locale, tb("driver.otherCountry")) },
                 { label: t("parties.residency"), value: chauffeur ? "" : d.resident ? t("parties.resident") : t("parties.visitor") },
               ]}
             />
@@ -125,7 +132,7 @@ export function AgreementDocument({ b, agreement, car, canSign, onSigned }: { b:
             { label: t("vehicle.interior"), value: car?.details.interior },
             { label: t("vehicle.wheels"), value: car?.details.wheels },
             { label: t("vehicle.plate"), value: t("vehicle.plateValue") },
-            { label: t("vehicle.tier"), value: tier?.name },
+            { label: t("vehicle.tier"), value: car ? tierName(car.tier, locale) : tier?.name },
           ]}
         />
       </DocSection>
@@ -136,21 +143,21 @@ export function AgreementDocument({ b, agreement, car, canSign, onSigned }: { b:
             chauffeur
               ? [
                   { label: t("rental.service"), value: tb("reserve.chauffeur") },
-                  { label: t("rental.date"), value: trip.pickupDate ? <span className="tabular">{`${formatDayLong(trip.pickupDate)}, ${trip.pickupTime}`}</span> : "" },
-                  { label: t("rental.package"), value: packageText(trip) },
+                  { label: t("rental.date"), value: when(trip.pickupDate, trip.pickupTime) },
+                  { label: t("rental.package"), value: packageText(trip, locale) },
                   { label: t("rental.handover"), value: lines.where },
-                  { label: t("rental.flight"), value: trip.pickup.flight?.toUpperCase() },
-                  { label: t("rental.extras"), value: extras.length ? extras.join(", ") : "" },
+                  { label: t("rental.flight"), value: flightText(trip.pickup.flight) },
+                  { label: t("rental.extras"), value: extras.length ? extras.join(sep) : "" },
                 ]
               : [
                   { label: t("rental.service"), value: tb("reserve.selfDrive") },
-                  { label: t("rental.starts"), value: trip.pickupDate ? <span className="tabular">{`${formatDayLong(trip.pickupDate)}, ${trip.pickupTime}`}</span> : "" },
-                  { label: t("rental.ends"), value: trip.returnDate ? <span className="tabular">{`${formatDayLong(trip.returnDate)}, ${trip.returnTime}`}</span> : "" },
-                  { label: t("rental.length"), value: b.quote.days ? (b.quote.days === 1 ? t("rental.day") : t("rental.days", { n: b.quote.days })) : "" },
+                  { label: t("rental.starts"), value: when(trip.pickupDate, trip.pickupTime) },
+                  { label: t("rental.ends"), value: when(trip.returnDate, trip.returnTime) },
+                  { label: t("rental.length"), value: b.quote.days ? countText(tb, locale, "count.days", b.quote.days, () => (b.quote.days === 1 ? t("rental.day") : t("rental.days", { n: b.quote.days }))) : "" },
                   { label: t("rental.handover"), value: lines.where },
                   { label: t("rental.return"), value: lines.back ? lines.back.replace(`${tb("review.return")}: `, "") : t("rental.sameReturn") },
-                  { label: t("rental.flight"), value: trip.pickup.flight?.toUpperCase() },
-                  { label: t("rental.extras"), value: extras.length ? extras.join(", ") : t("rental.none") },
+                  { label: t("rental.flight"), value: flightText(trip.pickup.flight) },
+                  { label: t("rental.extras"), value: extras.length ? extras.join(sep) : t("rental.none") },
                 ]
           }
         />
@@ -159,7 +166,7 @@ export function AgreementDocument({ b, agreement, car, canSign, onSigned }: { b:
       <DocSection n={4} id="ra-charges" title={t("charges.title")} lede={chauffeur ? t("charges.ledeChauffeur") : t("charges.lede")}>
         {car && (
           <div className="print:break-inside-avoid">
-            <QuoteTable quote={b.quote} car={car} showDeposit={false} showKm={false} />
+            <QuoteTable quote={recordQuote(b, locale)} car={car} showDeposit={false} showKm={false} />
           </div>
         )}
         <Rows
@@ -171,7 +178,7 @@ export function AgreementDocument({ b, agreement, car, canSign, onSigned }: { b:
               value: !chauffeur && tier ? (trip.extras.fullCover ? t("charges.fullCoverChosen", { perDay: formatAED(tier.fullCoverPerDay), excess: formatAED(tier.fullCoverExcess) }) : t("charges.fullCoverNot", { perDay: formatAED(tier.fullCoverPerDay), excess: formatAED(tier.fullCoverExcess) })) : "",
             },
             { label: t("charges.km"), value: !chauffeur && b.quote.includedKm > 0 ? <span className="tabular">{t("charges.kmValue", { km: formatNumber(b.quote.includedKm), perDay: formatNumber(car?.rates.kmPerDay ?? 0) })}</span> : "" },
-            { label: t("charges.extraKm"), value: !chauffeur && b.quote.extraKmFee > 0 ? <span className="tabular">{t("charges.extraKmValue", { fee: b.quote.extraKmFee })}</span> : "" },
+            { label: t("charges.extraKm"), value: !chauffeur && b.quote.extraKmFee > 0 ? <span className="tabular">{t("charges.extraKmValue", { fee: formatNumber(b.quote.extraKmFee) })}</span> : "" },
           ]}
         />
       </DocSection>
@@ -181,7 +188,7 @@ export function AgreementDocument({ b, agreement, car, canSign, onSigned }: { b:
           rows={
             chauffeur
               ? [
-                  { label: t("fees.included"), value: rules.chauffeur.included },
+                  { label: t("fees.included"), value: chauffeurIncluded(locale) },
                   { label: t("fees.overtime"), value: car?.chauffeur ? t("fees.overtimeValue", { rate: formatAED(car.chauffeur.overtime), step: rules.chauffeur.overtimeStepMinutes }) : "" },
                 ]
               : [
@@ -208,7 +215,7 @@ export function AgreementDocument({ b, agreement, car, canSign, onSigned }: { b:
         <div className="grid gap-8 print:break-inside-avoid print:grid-cols-2">
           <div className="grid content-start gap-2">
             <h3 className="text-[15px] font-semibold text-fg">{t("signed.owner")}</h3>
-            <p className="text-sm text-champagne">{t("signed.ownerValue", { name: site.legalName, date: longDate(agreement.issuedAt) })}</p>
+            <p className="text-sm text-champagne">{t("signed.ownerValue", { name: site.legalName, date: longDate(agreement.issuedAt, locale) })}</p>
           </div>
           <div className="grid content-start gap-3">
             <h3 className="text-[15px] font-semibold text-fg">{chauffeur ? t("parties.customer") : t("parties.hirer")}</h3>
@@ -218,7 +225,7 @@ export function AgreementDocument({ b, agreement, car, canSign, onSigned }: { b:
                 <Rows
                   rows={[
                     { label: t("signed.by"), value: agreement.signerName },
-                    { label: t("signed.at"), value: agreement.signedAt ? <span className="tabular">{longStamp(agreement.signedAt)}</span> : "" },
+                    { label: t("signed.at"), value: agreement.signedAt ? <span className="tabular">{longStamp(agreement.signedAt, locale)}</span> : "" },
                     { label: t("signed.method"), value: t("signed.methodValue") },
                     {
                       label: t("signed.accepted"),
@@ -246,7 +253,7 @@ export function AgreementDocument({ b, agreement, car, canSign, onSigned }: { b:
                 </div>
               </>
             ) : (
-              <p className="text-sm text-muted">{t("sign.notOpen", { status: tb(`status.labels.${b.status}`).toLowerCase() })}</p>
+              <p className="text-sm text-muted">{t("sign.notOpen", { status: tb(`status.labels.${b.status}`).toLocaleLowerCase(locale) })}</p>
             )}
           </div>
         </div>

@@ -245,7 +245,7 @@ export const categoriesAr: Partial<Record<CategorySlug, { name: string; singular
   suvs: { name: "سيارات SUV الفاخرة", singular: "سيارة SUV فاخرة", description: "سيارات مرتفعة بأربعة أو خمسة مقاعد، للعائلات ورحلات المطار والرحلات اليومية إلى حتا." },
   convertibles: { name: "السيارات المكشوفة", singular: "سيارة مكشوفة", description: "سيارات بسقف مفتوح لأمسيات الشتاء على شارع جميرا." },
   "grand-tourers": { name: "سيارات GT", singular: "سيارة GT", description: "سيارات بمحرك أمامي للمسافات الطويلة، تتسع لشخصين أو أربعة." },
-  hypercars: { name: "السيارات الفائقة", singular: "سيارة فائقة", description: `قوة ${count(1500, "hp")} فأكثر. السعر عند الطلب، مع تسليم بمرافقة فريقنا.` },
+  hypercars: { name: "سيارات الهايبركار", singular: "سيارة هايبركار", description: `قوة ${count(1500, "hp")} فأكثر. السعر عند الطلب، مع تسليم بمرافقة فريقنا.` },
 };
 
 export const brandCountriesAr: Partial<Record<string, string>> = {
@@ -301,12 +301,12 @@ export const seasonsAr: Partial<Record<Season["id"], string>> = {
 export const tiersAr: Partial<Record<Tier, string>> = {
   L: "الفئة الفاخرة",
   S: "فئة السيارات الخارقة",
-  H: "فئة السيارات الفائقة",
+  H: "فئة الهايبركار",
 };
 
 export const rulesAr: { chauffeurIncluded?: string; cancellationSummary?: string } = {
   chauffeurIncluded: `السائق الخاص والوقود ورسوم سالك ودرب ومياه الشرب وشبكة Wi-Fi. انتظار مجاني لمدة ${count(rules.airportWaitFreeMinutes, "minute")} في المطارات.`,
-  cancellationSummary: "يمكنك إلغاء الطلب مجاناً قبل أن نؤكده. بعد التأكيد، نردّ أي دفعة مقدّمة بالكامل حتى 72 ساعة قبل بدء الإيجار (7 أيام للسيارات الفائقة، و24 ساعة لطلبات السائق الخاص).",
+  cancellationSummary: "يمكنك إلغاء الطلب مجاناً قبل أن نؤكده. بعد التأكيد، نردّ أي دفعة مقدّمة بالكامل حتى 72 ساعة قبل بدء الإيجار (7 أيام لسيارات الهايبركار، و24 ساعة لطلبات السائق الخاص).",
 };
 
 export const siteAr: {

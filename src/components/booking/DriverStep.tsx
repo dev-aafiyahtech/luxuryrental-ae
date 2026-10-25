@@ -3,18 +3,19 @@
 import Link from "next/link";
 import type { FormEvent } from "react";
 import { FileCheck2 } from "lucide-react";
-import { useT } from "@/i18n/client";
+import { useLocale, useT } from "@/i18n/client";
 import type { DriverDetails } from "@/lib/booking/types";
 import { Field, Section, describedBy } from "./Field";
 import { PhoneInput } from "./PhoneInput";
 import { Segmented } from "./Segmented";
 import { FlowSkeleton } from "./bits";
 import { FlowShell, NeedsCar, useErrors, useFlow } from "./FlowShell";
-import { GCC, countries, needsIdp, stepPath } from "./lib";
+import { GCC, countriesFor, needsIdp, stepPath } from "./lib";
 import { driverErrors } from "./validate";
 
 export function DriverStep() {
   const t = useT("booking");
+  const locale = useLocale();
   const { car, trip, update, hydrated, quote, service, outOfHours, go, href } = useFlow();
   const { touch, visible, check, submitted, summaryRef } = useErrors();
 
@@ -86,7 +87,7 @@ export function DriverStep() {
             />
             <Field id="driver-licence" label={t("driver.licence")} hint={licenceNote ?? (d.resident ? t("driver.residentLicence") : undefined)} error={licenceError}>
               <select id="driver-licence" className="input" value={d.licenceCountry ?? "AE"} onChange={(e) => set({ licenceCountry: e.target.value })} aria-invalid={licenceError ? true : undefined} aria-describedby={describedBy("driver-licence", licenceNote ?? d.resident, licenceError)}>
-                {countries.map((c) => <option key={c.code} value={c.code}>{c.name}</option>)}
+                {countriesFor(locale, t("driver.otherCountry")).map((c) => <option key={c.code} value={c.code}>{c.name}</option>)}
               </select>
             </Field>
             <div className="grid gap-2">

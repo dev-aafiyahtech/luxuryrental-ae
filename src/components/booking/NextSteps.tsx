@@ -4,7 +4,7 @@ import Link from "next/link";
 import clsx from "clsx";
 import { useState, type ReactNode } from "react";
 import { Check, ChevronDown, Lock } from "lucide-react";
-import { useHref, useT } from "@/i18n/client";
+import { useHref, useLocale, useT } from "@/i18n/client";
 import { agreementFor } from "@/lib/booking/store";
 import type { BookingRecord } from "@/lib/booking/types";
 import { documentProgress, requiredDocuments, useAccount, useDocuments } from "@/lib/customer/store";
@@ -21,6 +21,7 @@ type State = "done" | "todo" | "locked";
  */
 export function NextSteps({ b }: { b: BookingRecord }) {
   const t = useT("booking");
+  const locale = useLocale();
   const href = useHref();
   const driver = b.trip.driver;
   const docs = useDocuments(driver.phone);
@@ -54,7 +55,7 @@ export function NextSteps({ b }: { b: BookingRecord }) {
       id: "agreement",
       title: t("next.agreementTitle"),
       state: agreement?.signedAt ? "done" : agreement ? "todo" : "locked",
-      text: agreement?.signedAt ? t("next.agreementSigned", { when: stamp(agreement.signedAt) }) : agreement ? t("next.agreementReady") : t("next.agreementLocked"),
+      text: agreement?.signedAt ? t("next.agreementSigned", { when: stamp(agreement.signedAt, locale) }) : agreement ? t("next.agreementReady") : t("next.agreementLocked"),
       action: agreement ? (
         <Link href={href(`/booking/agreement?ref=${b.ref}`)} className={clsx("btn btn-sm", agreement.signedAt ? "btn-secondary" : "btn-primary")}>
           {agreement.signedAt ? t("next.agreementView") : t("next.agreementSign")}
@@ -65,7 +66,7 @@ export function NextSteps({ b }: { b: BookingRecord }) {
       id: "payment",
       title: b.trip.service === "chauffeur" ? t("next.payFullTitle") : t("next.payTitle"),
       state: b.status === "paid" ? "done" : canPay(b.status) ? "todo" : "locked",
-      text: b.status === "paid" ? t("next.paid") : canPay(b.status) ? t("next.payReady", { amount: formatAED(pay.amount) }) : t("next.payLocked"),
+      text: b.status === "paid" ? t("next.paid") : canPay(b.status) ? t("next.payReady", { amount: formatAED(pay.amount, locale) }) : t("next.payLocked"),
       action: canPay(b.status) ? <Link href={href(`/pay?ref=${b.ref}`)} className="btn btn-secondary btn-sm">{t("next.payButton")}</Link> : undefined,
     },
     {

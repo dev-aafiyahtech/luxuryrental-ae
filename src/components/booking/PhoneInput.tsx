@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { useT } from "@/i18n/client";
+import { useLocale, useT } from "@/i18n/client";
+import { dirOf } from "@/i18n/config";
 import { describedBy, FieldError } from "./Field";
-import { dialCodes, parsePhone, toE164 } from "./lib";
+import { dialCodes, dialName, parsePhone, toE164 } from "./lib";
 
 /**
  * Phone number as country code + national number, stored as E.164 ("+971501234567").
@@ -20,6 +21,7 @@ export function PhoneInput({ id, label, value, onChange, onBlur, error, hint }: 
   hint?: string;
 }) {
   const t = useT("booking");
+  const locale = useLocale();
   const [initial] = useState(() => parsePhone(value));
   const [iso, setIso] = useState(initial.iso);
   const [national, setNational] = useState(initial.national);
@@ -28,7 +30,8 @@ export function PhoneInput({ id, label, value, onChange, onBlur, error, hint }: 
   return (
     <div className="field">
       <label htmlFor={id}>{label}</label>
-      <div className="flex gap-2">
+      {/* Code then number, left to right in every language (as the number is written); the picker's list keeps the page direction. */}
+      <div className="flex gap-2" dir="ltr">
         <div className="relative flex-none rounded-xl has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring">
           <span aria-hidden="true" className="pointer-events-none flex min-h-12 items-center gap-1.5 rounded-xl border border-input bg-card px-3 text-[15px] font-semibold tabular">
             <span className="text-[11px] font-semibold tracking-[0.08em] text-muted">{iso}</span>
@@ -36,6 +39,7 @@ export function PhoneInput({ id, label, value, onChange, onBlur, error, hint }: 
             <ChevronDown className="h-4 w-4 text-accent" />
           </span>
           <select
+            dir={dirOf(locale)}
             aria-label={t("phone.country")}
             autoComplete="tel-country-code"
             className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
@@ -47,7 +51,7 @@ export function PhoneInput({ id, label, value, onChange, onBlur, error, hint }: 
           >
             {dialCodes.map((c) => (
               <option key={c.iso} value={c.iso}>
-                {c.name} (+{c.dial})
+                {locale === "ar" ? `${dialName(c, locale)} \u2066(+${c.dial})\u2069` : `${c.name} (+${c.dial})`}
               </option>
             ))}
           </select>

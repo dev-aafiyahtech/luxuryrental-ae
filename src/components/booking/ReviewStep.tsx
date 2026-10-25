@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { CircleAlert } from "lucide-react";
-import { cancellation } from "@/content/rules";
-import { useT } from "@/i18n/client";
+import { cancellationSummary } from "@/content/localize";
+import { useLocale, useT } from "@/i18n/client";
 import { submitBookingRequest } from "@/lib/booking/store";
 import { Notice } from "@/components/ui";
 import { Checkbox, Section } from "./Field";
@@ -13,6 +13,7 @@ import { QuoteTable } from "./QuoteTable";
 import { FlowSkeleton, Rows, WhatsAppButton, rich } from "./bits";
 import { FlowShell, NeedsCar, tripLines, useErrors, useFlow } from "./FlowShell";
 import { countryName, formatPhone, fullDraftMessage, markSent, stepPath, type StepId } from "./lib";
+import { flightText } from "./bits";
 import { consentErrors, driverErrors, tripErrors } from "./validate";
 import { useAvailability } from "@/lib/booking/availability";
 
@@ -33,6 +34,7 @@ function ReviewSection({ title, editHref, editLabel, id, children }: { title: st
 
 export function ReviewStep() {
   const t = useT("booking");
+  const locale = useLocale();
   const params = useSearchParams();
   const failMode = params.get("fail") === "1";
   const { car, trip, update, hydrated, quote, service, outOfHours, href, router } = useFlow();
@@ -65,13 +67,13 @@ export function ReviewStep() {
   const d = trip.driver;
   const selfDrive = service === "self-drive";
   const errors = [
-    ...tripErrors(trip, quote, service, t, avail.clash(trip.pickupDate, trip.returnDate, service), car.name).map((e) => ({ id: "review-trip", message: e.message })),
+    ...tripErrors(trip, quote, service, t, avail.clash(trip.pickupDate, trip.returnDate, service), car.name, locale).map((e) => ({ id: "review-trip", message: e.message })),
     ...driverErrors(trip, car, service, t).map((e) => ({ id: "review-driver", message: e.message })),
     ...consentErrors(trip, t),
   ];
   const stepHref = (s: StepId) => href(stepPath(s, car, service));
-  const { when, where, back } = tripLines(trip, service, t);
-  const waText = fullDraftMessage(trip, car, quote);
+  const { when, where, back } = tripLines(trip, service, t, locale);
+  const waText = fullDraftMessage(trip, car, quote, locale);
 
   const send = async () => {
     if (busy) return;
@@ -150,7 +152,7 @@ export function ReviewStep() {
               { label: t("review.when"), value: <span className="tabular">{when}</span> },
               { label: t("review.handover"), value: where },
               { label: t("review.return"), value: back ? back.replace(`${t("review.return")}: `, "") : "" },
-              { label: t("trip.flight"), value: trip.pickup.flight?.toUpperCase() },
+              { label: t("trip.flight"), value: flightText(trip.pickup.flight) },
             ]}
           />
         </ReviewSection>
@@ -172,7 +174,7 @@ export function ReviewStep() {
               { label: t("review.email"), value: d.email },
               ...(selfDrive
                 ? [
-                    { label: t("review.licence"), value: `${countryName(d.licenceCountry)}${d.resident ? ` · ${t("driver.residentYes")}` : ""}` },
+                    { label: t("review.licence"), value: `${countryName(d.licenceCountry, locale, t("driver.otherCountry"))}${d.resident ? ` · ${t("driver.residentYes")}` : ""}` },
                     { label: t("review.age"), value: d.ageBand === "under-25" ? t("driver.ageUnder25") : d.ageBand === "25-29" ? t("driver.age25") : t("driver.age30") },
                   ]
                 : []),
@@ -189,7 +191,7 @@ export function ReviewStep() {
 
         <section className="grid gap-3 border-t border-line pt-6" aria-labelledby="review-cancel-h">
           <h2 id="review-cancel-h" className="text-[15px] font-semibold">{t("review.cancellation")}</h2>
-          <p className="text-sm text-champagne">{cancellation.summary}</p>
+          <p className="text-sm text-champagne">{cancellationSummary(locale)}</p>
           <p className="text-sm text-muted">{t("review.fees")}</p>
         </section>
 

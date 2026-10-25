@@ -4,7 +4,7 @@ import clsx from "clsx";
 import Image from "next/image";
 import { useCallback, useEffect, useId, useRef, useState, type ChangeEvent, type DragEvent, type KeyboardEvent } from "react";
 import { Check, CircleCheck, CircleX, Clock3, FileImage, FileText, ImageUp, Trash2, Upload, X } from "lucide-react";
-import { useHref, useT } from "@/i18n/client";
+import { useHref, useLocale, useT } from "@/i18n/client";
 import {
   ACCEPTED_TYPES,
   documentFor,
@@ -56,24 +56,34 @@ type Reason = (typeof REASONS)[number];
 
 const focusRing = "has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring";
 
-function slotName(t: T, kind: DocKind, side: DocSide): string {
+function slotName(t: T, kind: DocKind, side: DocSide, locale?: string): string {
   const doc = t(`docs.kinds.${kind}`);
-  return side === "page" ? doc : t("docs.slotName", { doc, side: t(`docs.sides.${side}`).toLowerCase() });
+  return side === "page" ? doc : t("docs.slotName", { doc, side: t(`docs.sides.${side}`).toLocaleLowerCase(locale) });
+}
+
+/** Why ops rejected a file, in the viewer's language when it is a listed reason. */
+function reasonText(t: T, doc: CustomerDocument): string {
+  if (doc.reviewReason && doc.reviewReason !== "other") {
+    const key = `docs.ops.reasons.${doc.reviewReason}`;
+    const text = t(key);
+    if (text !== key) return text;
+  }
+  return doc.reviewNote ?? "";
 }
 
 /** What changed between two snapshots of one driver's documents, as sentences for screen readers. */
-function describeChanges(t: T, required: DocRequirement[], before: CustomerDocument[], after: CustomerDocument[]): string {
+function describeChanges(t: T, required: DocRequirement[], before: CustomerDocument[], after: CustomerDocument[], locale?: string): string {
   const out: string[] = [];
   for (const r of required) {
     for (const side of r.sides) {
       const a = documentFor(before, r.kind, side);
       const b = documentFor(after, r.kind, side);
-      const slot = slotName(t, r.kind, side);
+      const slot = slotName(t, r.kind, side, locale);
       if (a && !b) out.push(t("docs.say.removed", { slot }));
       else if (b && (!a || a.id !== b.id)) out.push(t("docs.say.uploaded", { slot }));
       else if (a && b && a.status !== b.status) {
         if (b.status === "verified") out.push(t("docs.say.verified", { slot }));
-        else if (b.status === "rejected") out.push(t("docs.say.rejected", { slot, reason: b.reviewNote ?? "" }).trim());
+        else if (b.status === "rejected") out.push(t("docs.say.rejected", { slot, reason: reasonText(t, b) }).trim());
         else out.push(t("docs.say.review", { slot }));
       }
     }
@@ -81,10 +91,18 @@ function describeChanges(t: T, required: DocRequirement[], before: CustomerDocum
   return out.join(" ");
 }
 
+/** The consent label with the Privacy Notice linked (the linked message, or the plain one while a translation is missing). */
+function consentText(t: T): string {
+  const linked = t("docs.consentLabelLinked");
+  if (linked !== "docs.consentLabelLinked") return linked;
+  return t("docs.consentLabel").replace("Privacy Notice", "[Privacy Notice](/legal/privacy)");
+}
+
 const hasFiles = (e: DragEvent) => Array.from(e.dataTransfer.types).includes("Files");
 
 export function DocumentsPanel({ phone, driver, mode = "customer", headingLevel = "h2", className }: DocumentsPanelProps) {
   const t = useT("account");
+  const locale = useLocale();
   const hydrated = useHydrated();
   const docs = useDocuments(phone || undefined);
   const required = requiredDocuments(driver, needsIdp);
@@ -103,7 +121,7 @@ export function DocumentsPanel({ phone, driver, mode = "customer", headingLevel 
   const say = useCallback<Say>((text) => setSaid((s) => ({ text, n: s.n + 1 })), []);
   const [seen, setSeen] = useState<{ phone: string; docs: CustomerDocument[] } | null>(null);
   if (hydrated && (seen?.phone !== phone || seen.docs !== docs)) {
-    const text = seen && seen.phone === phone ? describeChanges(t, required, seen.docs, docs) : "";
+    const text = seen && seen.phone === phone ? describeChanges(t, required, seen.docs, docs, locale) : "";
     setSeen({ phone, docs });
     if (text) setSaid((s) => ({ text, n: s.n + 1 }));
   }
@@ -166,14 +184,14 @@ export function DocumentsPanel({ phone, driver, mode = "customer", headingLevel 
           {!ops && (
             consent ? (
               <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-muted">
-                {t("docs.consentGiven", { when: stamp(consent) })}
+                {t("docs.consentGiven", { when: stamp(consent, locale) })}
                 <button type="button" className="btn btn-ghost btn-sm -ms-3 text-muted" onClick={() => void withdrawDocumentConsent(phone).then(() => say(t("docs.consentWithdrawn")))}>
                   {t("docs.consentWithdraw")}
                 </button>
               </p>
             ) : (
               <Checkbox id={`${headingId}-consent`} checked={false} onChange={(v) => v && giveDocumentConsent(phone)}>
-                <Rich text={t("docs.consentLabel").replace("Privacy Notice", "[Privacy Notice](/legal/privacy)")} href={href} />
+                <Rich text={consentText(t)} href={href} />
               </Checkbox>
             )
           )}
@@ -195,7 +213,7 @@ export function DocumentsPanel({ phone, driver, mode = "customer", headingLevel 
                   </div>
                   <ul className={clsx("m-0 grid list-none gap-3 p-0", r.sides.length > 1 && "@xl:grid-cols-2")}>
                     {r.sides.map((side) => {
-                      const slot = { kind: r.kind, side, doc: documentFor(docs, r.kind, side), phone, say, label: t(`docs.sides.${side}`), name: slotName(t, r.kind, side) };
+                      const slot = { kind: r.kind, side, doc: documentFor(docs, r.kind, side), phone, say, label: t(`docs.sides.${side}`), name: slotName(t, r.kind, side, locale) };
                       return ops ? <OpsSlot key={side} {...slot} /> : <CustomerSlot key={side} {...slot} formatsId={formatsId} />;
                     })}
                   </ul>
@@ -273,12 +291,13 @@ const slotBox = (state: SlotState, active?: boolean) =>
   clsx("grid min-w-0 content-start gap-3 rounded-xl border p-3 transition-colors duration-200", active ? "border-accent bg-elevated" : state === "missing" ? "border-dashed border-line" : "border-line bg-bg/40");
 
 function FileMeta({ name, size, when, t }: { name: string; size: number; when?: string; t: T }) {
+  const locale = useLocale();
   return (
     <>
       <p className="text-[13px] text-champagne [overflow-wrap:anywhere]">
-        <bdi>{name}</bdi> · <span className="tabular">{formatBytes(size)}</span>
+        <bdi>{name}</bdi> · <span className="tabular">{formatBytes(size, locale)}</span>
       </p>
-      {when && <p className="text-[12px] tabular text-muted">{t("docs.uploadedAt", { when: stamp(when) })}</p>}
+      {when && <p className="text-[12px] tabular text-muted">{t("docs.uploadedAt", { when: stamp(when, locale) })}</p>}
     </>
   );
 }
@@ -396,7 +415,7 @@ function CustomerSlot({ kind, side, doc, phone, say, label, name, formatsId }: S
             <DocBadge state={state} />
           </div>
           {pending ? <FileMeta name={pending.name} size={pending.size} t={t} /> : doc ? <FileMeta name={doc.fileName} size={doc.fileSize} when={doc.uploadedAt} t={t} /> : <p className="text-[13px] text-muted">{t("docs.notYet")}</p>}
-          {state === "rejected" && doc?.reviewNote && <p className="text-[13px] font-semibold text-danger">{t("docs.reason", { reason: doc.reviewNote })}</p>}
+          {state === "rejected" && doc && reasonText(t, doc) && <p className="text-[13px] font-semibold text-danger">{t("docs.reason", { reason: reasonText(t, doc) })}</p>}
           <FieldError id={errorId}>{error ? t(`docs.errors.${error}`) : undefined}</FieldError>
         </div>
       </div>
@@ -451,12 +470,12 @@ function OpsSlot({ doc, phone, say, label, name }: SlotProps) {
     if (rejecting) firstReasonRef.current?.focus();
   }, [rejecting]);
 
-  const review = async (status: "verified" | "rejected", note?: string) => {
+  const review = async (status: "verified" | "rejected", note?: string, reasonId?: Reason) => {
     if (!doc || busy) return;
     setBusy(status);
     setFailed(false);
     try {
-      await reviewDocument(phone, doc.id, status, note);
+      await reviewDocument(phone, doc.id, status, note, reasonId);
       if (status === "rejected") {
         setRejecting(false);
         rejectRef.current?.focus();
@@ -491,7 +510,7 @@ function OpsSlot({ doc, phone, say, label, name }: SlotProps) {
       otherRef.current?.focus();
       return;
     }
-    void review("rejected", note);
+    void review("rejected", note, reason);
   };
   const onKeyDown = (e: KeyboardEvent<HTMLFieldSetElement>) => {
     if (e.key === "Escape") {
@@ -513,7 +532,7 @@ function OpsSlot({ doc, phone, say, label, name }: SlotProps) {
             <DocBadge state={state} />
           </div>
           {doc ? <FileMeta name={doc.fileName} size={doc.fileSize} when={doc.uploadedAt} t={t} /> : <p className="text-[13px] text-muted">{t("docs.notYet")}</p>}
-          {doc?.status === "rejected" && doc.reviewNote && <p className="text-[13px] font-semibold text-danger">{t("docs.reason", { reason: doc.reviewNote })}</p>}
+          {doc?.status === "rejected" && reasonText(t, doc) && <p className="text-[13px] font-semibold text-danger">{t("docs.reason", { reason: reasonText(t, doc) })}</p>}
           <FieldError id={`${uid}-error`}>{failed ? t("docs.errors.failed") : undefined}</FieldError>
         </div>
       </div>

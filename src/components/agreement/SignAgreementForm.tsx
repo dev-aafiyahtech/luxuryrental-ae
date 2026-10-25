@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
-import { useHref, useT } from "@/i18n/client";
+import { useHref, useLocale, useT } from "@/i18n/client";
 import { signAgreement } from "@/lib/booking/store";
 import type { BookingRecord } from "@/lib/booking/types";
 import { formatAED } from "@/lib/format";
@@ -23,6 +23,7 @@ export function excessFor(b: BookingRecord, tier: { excess: number; fullCoverExc
  */
 export function SignAgreementForm({ b, excess, onSigned }: { b: BookingRecord; excess: number; onSigned: () => void }) {
   const t = useT("agreement");
+  const locale = useLocale();
   const href = useHref();
   const [name, setName] = useState("");
   const [terms, setTerms] = useState(false);
@@ -76,10 +77,10 @@ export function SignAgreementForm({ b, excess, onSigned }: { b: BookingRecord; e
           {rich(t("sign.terms"), { terms: termsLink })}
         </Checkbox>
         <Checkbox id="sign-deposit" checked={deposit} onChange={setDeposit} onBlur={() => touch("sign-deposit")} error={visible(errors, "sign-deposit")} required>
-          {b.quote.deposit > 0 ? t("sign.deposit", { amount: formatAED(b.quote.deposit) }) : t("sign.depositNone")}
+          {b.quote.deposit > 0 ? t("sign.deposit", { amount: formatAED(b.quote.deposit, locale) }) : t("sign.depositNone")}
         </Checkbox>
         <Checkbox id="sign-damage" checked={damage} onChange={setDamage} onBlur={() => touch("sign-damage")} error={visible(errors, "sign-damage")} required>
-          {chauffeur ? t("sign.damageChauffeur") : t(fullCover ? "sign.damageFullCover" : "sign.damage", { amount: formatAED(excess) })}
+          {chauffeur ? t("sign.damageChauffeur") : t(fullCover ? "sign.damageFullCover" : "sign.damage", { amount: formatAED(excess, locale) })}
         </Checkbox>
       </fieldset>
       <SignaturePad id="sign-signature" label={t("sign.signature")} name={name} onChange={setSignature} error={visible(errors, "sign-signature")} />
