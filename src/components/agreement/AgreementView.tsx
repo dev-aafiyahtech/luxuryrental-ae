@@ -90,7 +90,6 @@ function NotIssued({ b }: { b: BookingRecord }) {
  */
 export function AgreementView() {
   const t = useT("agreement");
-  const tb = useT("booking");
   const locale = useLocale();
   const href = useHref();
   const params = useSearchParams();
@@ -124,7 +123,6 @@ export function AgreementView() {
         </div>
       </div>
 
-      <Notice tone="info" className="print:border print:p-3">{t("demo")}</Notice>
 
       {agreement.signedAt && (
         <div ref={bannerRef} tabIndex={-1} className="notice notice-success outline-none focus-visible:outline-2 focus-visible:outline-ring print:hidden">
@@ -165,7 +163,7 @@ export function AgreementView() {
       <p className="fine flex items-center gap-2 print:hidden">
         <FileSignature className="h-4 w-4 flex-none" aria-hidden="true" />
         <span>
-          <bdi dir="ltr">{agreement.number}</bdi> · {t("doc.version")} {versionText(agreement.version, tb("badge.demo"))}
+          <bdi dir="ltr">{agreement.number}</bdi> · {t("doc.version")} {versionText(agreement.version)}
         </span>
       </p>
     </div>

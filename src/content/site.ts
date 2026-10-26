@@ -1,7 +1,6 @@
 // Site-wide settings (the future Sanity `siteSettings` document). The company details
 // (legal name, office, licence, permit, TRN) are assumed sample values for the demo until
 // the client sends the real ones (plan §9, question 11; docs/brief/assumptions.md).
-// While `sampleDetails` is true, the footer and About page say they are samples.
 
 /**
  * Canonical address for links, the sitemap and share images. Until luxuryrentals.ae is on the
@@ -41,11 +40,12 @@ export const site = {
   vatTrn: "100123456700003", // sample
   vatRate: 5,
   socials: [] as { name: string; url: string }[], // hidden until real handles exist
-  /** Company details above are samples; the footer and About page say so. */
-  sampleDetails: true,
   /** Dubai consumer protection, named in the complaints process. */
   consumerProtection: { name: "Dubai Economy and Tourism Consumer Protection", url: "https://consumerrights.ae", phone: "600 545 555" },
-  /** Demo mode: nothing is booked or charged; the banner and mock payments are on. */
+  /**
+   * Before launch: bookings, accounts and payments run in the browser (no backend yet) and
+   * search engines are kept out (robots.txt and noindex). Nothing on the page says so.
+   */
   demo: true,
 } as const;
 

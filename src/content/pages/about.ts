@@ -62,7 +62,6 @@ export const aboutPage = {
     trust: [`Prices include ${site.vatRate}% VAT`, "Based in Dubai Silicon Oasis", "Comprehensive insurance included", "Requests confirmed on WhatsApp"],
     companyEyebrow: "Company details",
     companyTitle: "Who you are renting from",
-    sampleNote: "Demo: the legal entity, licence, permit and TRN are sample values until the licence documents are confirmed.",
     ctaTitle: "Find your car",
     contactUs: "Contact us",
   },

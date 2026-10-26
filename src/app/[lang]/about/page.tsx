@@ -101,7 +101,6 @@ export default async function AboutPage() {
                 </div>
               ))}
             </dl>
-            {site.sampleDetails && <p className="fine">{P.ui.sampleNote}</p>}
           </div>
           <DeliveryMap id="about-map" focus="dso" />
         </div>

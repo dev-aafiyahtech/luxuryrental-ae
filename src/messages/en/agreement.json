@@ -9,7 +9,7 @@
     "label": "Reference",
     "button": "Open agreement",
     "error": "Enter a reference like LR-7K3QZM.",
-    "notFound": "We couldn't find {ref} in this browser. In the demo, requests are stored on the device that sent them.",
+    "notFound": "We couldn't find {ref} on this device. Open the link on the device you used to send the request.",
     "status": "Check a request instead"
   },
   "pending": {
@@ -23,7 +23,6 @@
     "back": "Back to your booking",
     "print": "Print or save as PDF"
   },
-  "demo": "Demo: the signature stays in this browser. On the live site the signed PDF is emailed to you.",
   "doc": {
     "title": "Rental agreement",
     "number": "Agreement number",
@@ -49,7 +48,6 @@
     "licenceValue": "{number}, {authority}",
     "rta": "RTA rental permit",
     "trn": "VAT TRN",
-    "sample": "Sample company details for the demo. The real licence, permit and TRN replace them on the live site.",
     "hirer": "Hirer (main driver)",
     "customer": "Customer",
     "phone": "Phone",
@@ -320,7 +318,7 @@
       "odometerHint": "At handover: {km} km",
       "fuel": "Fuel level",
       "photos": "Photos taken",
-      "photosHint": "Demo: only the number of photos is stored.",
+      "photosHint": "Photos taken during the check.",
       "notes": "Notes",
       "damage": "Damage",
       "damageHint": "Marks from the handover check are carried over. Remove any that were repaired.",

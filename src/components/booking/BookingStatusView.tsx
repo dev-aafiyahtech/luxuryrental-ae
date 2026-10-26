@@ -87,7 +87,7 @@ function ReceiptCard({ b }: { b: BookingRecord }) {
       {p ? (
         <Rows
           rows={[
-            { label: t("status.receiptRef"), value: <span className="font-semibold tabular" dir="ltr">{p.reference}</span> },
+            { label: t("status.receiptRef"), value: <span className="font-semibold tabular" dir="ltr">{p.reference.replace(/^DEMO-/, "PAY-")}</span> },
             { label: t("status.kind"), value: t(`status.kinds.${p.kind}`) },
             { label: t("status.amount"), value: <span className="font-semibold tabular">{formatAED(p.amount, locale)}</span> },
             { label: t("status.paidAt"), value: stamp(p.paidAt, locale) },

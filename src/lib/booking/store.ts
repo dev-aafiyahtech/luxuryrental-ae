@@ -112,7 +112,7 @@ export async function recordDemoPayment(ref: string, amount: number, kind: "adva
   const updated: BookingRecord = {
     ...current,
     status: "paid",
-    payment: { amount, kind, reference: `DEMO-${current.ref.slice(3)}`, paidAt, method: "demo-card" },
+    payment: { amount, kind, reference: `PAY-${current.ref.slice(3)}`, paidAt, method: "demo-card" },
     events: [...current.events, { at: paidAt, status: "paid", by: "system", note: "Demo payment, nothing charged", code: "demoPayment" }],
   };
   write(list.map((b) => (b.ref === ref ? updated : b)));
@@ -121,7 +121,7 @@ export async function recordDemoPayment(ref: string, amount: number, kind: "adva
 
 /* ---------- rental agreement and condition reports (simulated e-signature) ---------- */
 
-export const AGREEMENT_VERSION = "1.0 (demo)";
+export const AGREEMENT_VERSION = "1.0";
 /** Statuses in which the agreement exists and can be signed. */
 export const agreementOpen = (s: BookingStatus) => s === "confirmed" || s === "awaiting_payment" || s === "paid";
 

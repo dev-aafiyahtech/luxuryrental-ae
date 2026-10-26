@@ -8,7 +8,7 @@ const english = [
   "/cars/type/supercars", "/cars/type/hypercars", "/chauffeur", "/delivery", "/delivery/dubai-airport-dxb", "/delivery/dubai-silicon-oasis",
   "/pricing", "/requirements", "/about", "/faq", "/contact", "/legal/terms-of-rental", "/legal/cancellation", "/legal/privacy",
   "/legal/cookies", "/legal/terms-of-use", "/legal/accessibility", "/book/trip?car=ferrari-296-gts", "/book/extras", "/book/driver",
-  "/book/review", "/book/confirmed", "/booking", "/booking/agreement", "/account", "/pay", "/demo/ops", "/no-such-page",
+  "/book/review", "/book/confirmed", "/booking", "/booking/agreement", "/account", "/pay", "/ops", "/no-such-page",
 ];
 // Arabic (RTL): every English route under /ar, or a subset with AUDIT_AR=some.
 const arabic = english.filter((r) => process.env.AUDIT_AR !== "some" || ["/", "/cars", "/cars/lamborghini/revuelto", "/book/trip?car=ferrari-296-gts", "/legal/terms-of-rental", "/no-such-page"].includes(r)).map((r) => `/ar${r === "/" ? "" : r}`);

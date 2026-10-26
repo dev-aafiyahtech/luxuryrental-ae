@@ -3,12 +3,6 @@
     "title": "Luxury Car Rental in Dubai, Delivered | LuxuryRentals.ae",
     "description": "16 cars from Ferrari, Lamborghini, Rolls-Royce, Bugatti and more, delivered across Dubai including DXB. Request online, confirm on WhatsApp."
   },
-  "demo": {
-    "bar": "Demo site: bookings and payments are simulated. Nothing is booked or charged.",
-    "ops": "Ops view",
-    "reset": "Reset demo",
-    "badge": "Demo"
-  },
   "nav": {
     "label": "Main",
     "fleet": "Fleet",
@@ -47,8 +41,8 @@
     "trademarks": "Ferrari, Lamborghini, Rolls-Royce, Bugatti, McLaren, Bentley, Aston Martin and Maserati are trademarks of their owners. Luxuryrentals is not affiliated with or endorsed by them.",
     "licence": "Trade licence {licence} · RTA permit {rta} · VAT TRN {trn}",
     "rights": "© 2026 {name}. All rights reserved.",
-    "sample": "Demo: the company name, licence, permit and TRN shown are sample values.",
-    "whatsapp": "WhatsApp"
+    "whatsapp": "WhatsApp",
+    "team": "Team desk"
   },
   "car": {
     "from": "From",

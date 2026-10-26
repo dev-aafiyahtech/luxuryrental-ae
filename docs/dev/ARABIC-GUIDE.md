@@ -43,16 +43,15 @@ The site runs in English at `/` and Arabic at `/ar`. The Arabic is a demo transl
 | WhatsApp | واتساب |
 | our team / ops | فريقنا |
 | Illustrative AI image | صورة توضيحية مُنشأة بالذكاء الاصطناعي |
-| demo | نسخة تجريبية |
 | account / sign in / one-time code | الحساب / تسجيل الدخول / رمز لمرة واحدة |
 | rental agreement / vehicle check | عقد الإيجار / فحص السيارة |
 
 ### Content rules in Arabic
 
 - Never say a car is booked or reserved (محجوز، تم الحجز) before our team confirms; say طلب.
-- Nothing is charged on the website; in the demo, payments are simulated (دفع تجريبي، دون أي رسوم).
+- Nothing is charged on the website. No demo, sample or simulated labels anywhere (26 Oct 2026): avoid تجريبي، محاكاة، نموذجي.
 - No invented reviews, ratings, customer counts or founding years.
-- Legal pages carry the note: «ترجمة لأغراض النسخة التجريبية. يراجع محامٍ في الإمارات النص النهائي قبل الإطلاق.»
+- Legal pages carry no review note on the page; the lawyer's review of the final text is tracked in the docs, before launch.
 
 ## Right to left
 

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { CircleAlert, FlaskConical } from "lucide-react";
+import { CircleAlert, LockKeyhole } from "lucide-react";
 import { useHref, useLocale, useT } from "@/i18n/client";
 import { useBooking } from "@/lib/booking/draft";
 import { recordDemoPayment } from "@/lib/booking/store";
@@ -15,8 +15,9 @@ import { useHydrated } from "./hooks";
 import { canPay, paymentFor } from "./lib";
 
 /**
- * Mock checkout (plan D-09, 05 C-12). No card fields and no card logos: two buttons simulate
- * the payment provider's result. Success records a DEMO- payment and returns to the status page.
+ * Checkout step (plan D-09, 05 C-12). No card fields and no card logos: until the payment
+ * provider is connected, "Pay securely" records the payment and returns to the status page.
+ * `?fail=1` makes the first attempt fail, to show the error state.
  */
 export function PayView() {
   const t = useT("booking");
@@ -27,26 +28,16 @@ export function PayView() {
   const ref = (params.get("ref") ?? "").toUpperCase();
   const hydrated = useHydrated();
   const b = useBooking(ref);
-  const [busy, setBusy] = useState<"" | "ok" | "fail">("");
+  const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [failNext, setFailNext] = useState(() => params.get("fail") === "1");
   const failRef = useRef<HTMLDivElement>(null);
 
   if (!hydrated) return <FlowSkeleton />;
 
-  const banner = (
-    <div role="note" className="flex items-start gap-3 rounded-2xl border-2 border-warning/70 bg-card p-5">
-      <FlaskConical className="mt-0.5 h-6 w-6 flex-none text-warning" aria-hidden="true" />
-      <div className="grid gap-1">
-        <p className="text-lg font-semibold text-fg">{t("pay.banner")}</p>
-        <p className="text-sm text-champagne">{t("pay.bannerText")}</p>
-      </div>
-    </div>
-  );
-
   if (!b) {
     return (
       <div className="container-narrow grid gap-6 pb-24 pt-10">
-        {banner}
         <h1 className="display-md">{t("status.lookupTitle")}</h1>
         <Notice tone="warning" title={t("pay.notFound")} />
         <Link href={href("/booking")} className="btn btn-secondary w-fit">{t("status.lookupTitle")}</Link>
@@ -58,30 +49,29 @@ export function PayView() {
   const lines = tripLines(b.trip, b.trip.service, t, locale);
   const back = href(`/booking?ref=${b.ref}`);
 
-  const simulate = async (ok: boolean) => {
+  const payNow = async () => {
     if (busy) return;
     setFailed(false);
-    if (!ok) {
-      setBusy("fail");
+    setBusy(true);
+    if (failNext) {
       await new Promise((r) => setTimeout(r, 900));
-      setBusy("");
+      setFailNext(false);
+      setBusy(false);
       setFailed(true);
       requestAnimationFrame(() => failRef.current?.focus());
       return;
     }
-    setBusy("ok");
     try {
       await recordDemoPayment(b.ref, pay.amount, pay.kind);
       router.push(back);
     } catch {
-      setBusy("");
+      setBusy(false);
       setFailed(true);
     }
   };
 
   return (
     <div className="container-narrow grid gap-8 pb-24 pt-10 md:pt-14">
-      {banner}
       <header className="grid gap-3">
         <div className="flex flex-wrap items-center gap-3">
           <span className="font-semibold tabular tracking-[0.06em]" dir="ltr">{b.ref}</span>
@@ -117,17 +107,11 @@ export function PayView() {
               <p>{t("pay.failed")}</p>
             </div>
           )}
-          <div className="grid gap-3 sm:grid-cols-2">
-            <button type="button" className="btn btn-primary" onClick={() => void simulate(true)} aria-busy={busy === "ok" || undefined} aria-disabled={!!busy || undefined}>
-              {busy === "ok" && <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-e-transparent" aria-hidden="true" />}
-              {busy === "ok" ? t("pay.processing") : t("pay.success")}
-            </button>
-            <button type="button" className="btn btn-secondary" onClick={() => void simulate(false)} aria-busy={busy === "fail" || undefined} aria-disabled={!!busy || undefined}>
-              {busy === "fail" && <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-e-transparent" aria-hidden="true" />}
-              {t("pay.fail")}
-            </button>
-          </div>
-          <p className="sr-only" aria-live="polite">{busy === "ok" ? t("pay.processing") : ""}</p>
+          <button type="button" className="btn btn-primary w-full sm:w-fit" onClick={() => void payNow()} aria-busy={busy || undefined} aria-disabled={busy || undefined}>
+            {busy ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-e-transparent" aria-hidden="true" /> : <LockKeyhole className="h-4 w-4" aria-hidden="true" />}
+            {busy ? t("pay.processing") : t("pay.success")}
+          </button>
+          <p className="sr-only" aria-live="polite">{busy ? t("pay.processing") : ""}</p>
           <Link href={back} className="w-fit text-sm font-semibold text-muted underline underline-offset-4 hover:text-fg">{t("pay.back")}</Link>
         </section>
       )}

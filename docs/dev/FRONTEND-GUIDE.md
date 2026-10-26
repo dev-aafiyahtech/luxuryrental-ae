@@ -69,7 +69,8 @@ If you need a change in one of these, keep it minimal and additive, and say so i
 
 ## Content rules (plan D-08, D-09, D-21, D-22)
 
-- Say **"request"**, never "booked" or "reserved", until ops confirm. Nothing is charged on the live site. In the demo, the mock payment page shows a clear "Demo, no charge" banner and collects **no card fields**.
+- Say **"request"**, never "booked" or "reserved", until ops confirm. Nothing is charged on the live site, and the payment page collects **no card fields**.
+- **No demo labels** (Zubair, 26 Oct 2026): the site is shown to the client as the live version, so nothing on the page says demo, sample or simulated, in either language. Flows still run in the browser until the backend exists; the team desk is at `/ops` (footer link "Team desk").
 - No fake reviews, ratings, customer counts, founding years or AI "team" photos.
 - Don't claim "Salik included" (Salik is charged per crossing + AED 1), "confirm within 15 minutes", rooftop handover or DXB T3 valet. Use `site.replyPromise`.
 - Brand names as text only: no manufacturer logos.

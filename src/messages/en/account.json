@@ -23,14 +23,12 @@
       "documents": "Upload your licence and ID once, before handover.",
       "agreements": "Sign your rental agreement online once we confirm."
     },
-    "demo": "Demo: no code is sent. Your account and document details stay in this browser.",
     "signedOut": "You're signed out.",
     "deleted": "Your account has been deleted from this device."
   },
   "code": {
     "title": "Enter your code",
     "text": "Enter the 6-digit code for {contact}.",
-    "demo": "Demo: your code is {code}. On the live site it arrives on WhatsApp or by email.",
     "label": "6-digit code",
     "hint": "The code works for 10 minutes.",
     "verify": "Sign in",
@@ -42,7 +40,9 @@
       "format": "Enter the 6 digits of your code.",
       "wrong": "That code doesn't match. Check it and try again.",
       "expired": "This code has expired. Send a new one."
-    }
+    },
+    "from": "Luxuryrentals",
+    "message": "Your LuxuryRentals.ae sign-in code is {code}. It expires in 10 minutes."
   },
   "errors": {
     "name": "Enter your full name.",
@@ -96,8 +96,6 @@
     "consentGiven": "You agreed to the document check on {when}.",
     "consentWithdraw": "Withdraw and delete my documents",
     "consentWithdrawn": "Consent withdrawn. Your documents were deleted.",
-    "demo": "Demo: files stay on this device and are never sent. Only the file name and size are kept.",
-    "live": "On the live site, files go to private, encrypted storage and are deleted after your rental.",
     "progress": "{uploaded} of {total} uploaded · {verified} verified",
     "progressRejected": "{n} to upload again",
     "progressRejectedOps": "{n} rejected",

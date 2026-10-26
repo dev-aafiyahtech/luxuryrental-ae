@@ -6,8 +6,8 @@
     "review": "Review your request",
     "confirmed": "Request received",
     "status": "Your booking request",
-    "pay": "Demo payment",
-    "ops": "Ops desk (demo)",
+    "pay": "Payment",
+    "ops": "Team desk",
     "description": "Request a luxury car in Dubai. Nothing is charged online: we confirm on WhatsApp."
   },
   "steps": {
@@ -333,8 +333,7 @@
     "retry": "Try again",
     "sendWhatsApp": "Send on WhatsApp instead",
     "nudge": "Still deciding? You can send these details to us on WhatsApp and finish there.",
-    "missing": "Some details are missing. Fix them before sending:",
-    "demoFail": "Demo: this page will simulate a network error on the first try."
+    "missing": "Some details are missing. Fix them before sending:"
   },
   "confirmed": {
     "eyebrow": "Request sent",
@@ -360,8 +359,6 @@
     "docsCta": "Upload documents now",
     "t3": "Pay and drive",
     "t3Text": "Pay the advance by secure link or at handover. The deposit is held on your card at handover.",
-    "demoHint": "Demo: open the ops view to confirm this request as the Luxuryrentals team.",
-    "openOps": "Open the ops view",
     "unknown": "We can't show the details of this request on this device, but your reference is still valid.",
     "noRef": "No reference given.",
     "summary": "Request summary",
@@ -370,7 +367,12 @@
   "availability": {
     "busyBooking": "The {car} is already booked {range}.",
     "busyBlock": "The {car} isn't available {range}: {reason}.",
-    "reasons": { "maintenance": "it's in for service", "owner": "it's with the owner", "event": "it's booked for an event", "other": "it's off the fleet" },
+    "reasons": {
+      "maintenance": "it's in for service",
+      "owner": "it's with the owner",
+      "event": "it's booked for an event",
+      "other": "it's off the fleet"
+    },
     "useNext": "Use the next free dates: {range}",
     "none": "No free dates for this length in the next year. Message us on WhatsApp.",
     "hint": "Crossed-out days are already booked."
@@ -378,7 +380,11 @@
   "next": {
     "title": "Before your rental",
     "count": "{done} of {total} done",
-    "state": { "done": "done", "todo": "to do", "locked": "not yet available" },
+    "state": {
+      "done": "done",
+      "todo": "to do",
+      "locked": "not yet available"
+    },
     "docsTitle": "Upload the driver's documents",
     "docsNone": "Optional, but it makes the handover quicker. We check them before the day.",
     "docsProgress": "{uploaded} of {total} uploaded, {verified} checked by our team.",
@@ -414,7 +420,7 @@
     "lookupLabel": "Booking reference",
     "lookupButton": "Find request",
     "lookupError": "Enter a reference like LR-7K3QZM.",
-    "notFound": "We couldn't find {ref} on this device. In this demo, requests are stored in your browser only.",
+    "notFound": "We couldn't find {ref} on this device. Open the link on the device you used to send the request, or message us on WhatsApp.",
     "reference": "Reference",
     "timeline": "History",
     "details": "Details",
@@ -441,8 +447,8 @@
       "cancelled": "This request has been cancelled.",
       "expired": "This request expired before it was confirmed."
     },
-    "pay": "Pay advance (demo)",
-    "payFull": "Pay now (demo)",
+    "pay": "Pay advance",
+    "payFull": "Pay now",
     "cancel": "Cancel request",
     "cancelBooking": "Cancel booking",
     "cancelTitle": "Cancel {ref}?",
@@ -463,7 +469,7 @@
     },
     "method": "Method",
     "methods": {
-      "demo-card": "Demo payment, nothing charged",
+      "demo-card": "Online payment",
       "handover": "Paid at handover"
     },
     "balance": "Balance due at handover",
@@ -472,9 +478,9 @@
     "live": "Updates live when our team changes the status.",
     "events": {
       "requestSent": "Request sent from the website",
-      "opsEmailed": "Ops emailed (simulated)",
+      "opsEmailed": "Our team was notified",
       "customerCancelled": "Cancelled by the customer on the website",
-      "demoPayment": "Demo payment, nothing charged",
+      "demoPayment": "Online payment received",
       "agreementSigned": "Rental agreement {number} e-signed",
       "handoverCheckRecorded": "Handover check recorded: {km} km, fuel {fuel}/8, damage marks: {marks}",
       "returnCheckRecorded": "Return check recorded: {km} km, fuel {fuel}/8, damage marks: {marks}",
@@ -483,8 +489,6 @@
     }
   },
   "pay": {
-    "banner": "Demo payment: no card details are collected and nothing is charged.",
-    "bannerText": "On the live site, payment happens on our payment provider's secure page after we confirm your booking.",
     "title": "Pay your advance",
     "titleFull": "Pay for your chauffeur booking",
     "amountDue": "Due now",
@@ -492,30 +496,29 @@
     "fullNote": "Chauffeur bookings are paid in full.",
     "balance": "Balance at handover",
     "deposit": "Refundable deposit, held on your card at handover",
-    "success": "Simulate successful payment",
-    "fail": "Simulate failed payment",
-    "processing": "Processing (demo)…",
-    "failed": "Payment failed (simulated). Nothing was charged. You can try again.",
+    "success": "Pay securely",
+    "processing": "Processing payment…",
+    "failed": "The payment didn't go through and nothing was charged. Please try again.",
     "notPayable": "This request isn't waiting for payment.",
     "notPayableText": "Payment opens once Luxuryrentals confirms your booking. Current status: {status}.",
     "back": "Back to your request",
     "notFound": "We couldn't find this request on this device."
   },
   "ops": {
-    "eyebrow": "Demo only",
+    "eyebrow": "Team desk",
     "title": "Ops desk",
-    "lede": "This page simulates the Luxuryrentals team's side. In production, ops get an email for every new request with one-click Confirm and Decline links, and later an ops console like this one. Changes here update the customer's status page live, in any tab.",
+    "lede": "Confirm or decline requests, send payment links, record the handover and return checks, and manage car availability. The customer's status page updates instantly.",
     "count": "{n} requests",
     "countOne": "1 request",
     "filter": "Filter by status",
     "all": "All",
     "empty": "No requests yet.",
     "emptyFiltered": "No requests with this status.",
-    "emptyHint": "Send a request from any car page, or create a sample one.",
-    "sample": "Create a sample request",
-    "reset": "Reset demo data",
-    "resetTitle": "Delete every demo request?",
-    "resetText": "This clears all demo requests, accounts and document records stored in this browser. It can't be undone.",
+    "emptyHint": "Send a request from any car page, or create a test request.",
+    "sample": "Create a test request",
+    "reset": "Clear all data",
+    "resetTitle": "Delete every request?",
+    "resetText": "This clears all requests, accounts and document records stored in this browser. It can't be undone.",
     "clashHint": "Confirm is off until the clash is solved: offer other dates or another car.",
     "blocks": {
       "title": "Availability blocks",
@@ -532,12 +535,24 @@
       "saved": "{car} blocked {range}.",
       "removed": "Block removed.",
       "errorDates": "Choose a start today or later, and an end on or after the start.",
-      "reasons": { "maintenance": "Service or repair", "owner": "Owner use", "event": "Event or offline booking", "other": "Other" },
-      "seedNotes": { "service": "Scheduled service", "wedding": "Wedding booked by phone" }
+      "reasons": {
+        "maintenance": "Service or repair",
+        "owner": "Owner use",
+        "event": "Event or offline booking",
+        "other": "Other"
+      },
+      "seedNotes": {
+        "service": "Scheduled service",
+        "wedding": "Wedding booked by phone"
+      }
     },
-    "docs": { "title": "Driver's documents", "none": "None uploaded yet", "progress": "{uploaded} of {total} uploaded · {verified} verified" },
+    "docs": {
+      "title": "Driver's documents",
+      "none": "None uploaded yet",
+      "progress": "{uploaded} of {total} uploaded · {verified} verified"
+    },
     "resetConfirm": "Delete all",
-    "resetDone": "Demo data cleared.",
+    "resetDone": "All data cleared.",
     "cancel": "Cancel",
     "customer": "Customer",
     "phone": "Phone",
@@ -553,9 +568,9 @@
       "cancel": "Cancel"
     },
     "notes": {
-      "confirmed": "Confirmed by ops (demo desk)",
+      "confirmed": "Confirmed by our team",
       "declined": "Declined by ops: not available on these dates",
-      "awaiting_payment": "Payment link sent to the customer (simulated)",
+      "awaiting_payment": "Payment link sent to the customer",
       "paid": "Marked paid at handover",
       "cancelled": "Cancelled by ops",
       "expired": "Expired"
@@ -568,21 +583,39 @@
     "emailSubjectText": "New request {ref}: {car}, {when}",
     "emailIntro": "A new booking request came in from the website. Reply to the customer on WhatsApp, then confirm or decline.",
     "emailActions": "One-click actions (signed links, single use)",
-    "emailNote": "In production these links open a confirmation page; the change happens only when you press the button there.",
+    "emailNote": "These links open a confirmation page; nothing changes until you press the button there.",
     "openCustomer": "Customer's status page",
     "consentAck": "Terms acknowledged",
     "consentMarketing": "Marketing",
     "done": "Updated {ref}: {status}.",
     "failed": "Couldn't update {ref}: {error}"
   },
-  "badge": {
-    "demo": "Demo"
-  },
   "count": {
     "note": "Counted nouns by CLDR plural category; {n} is the number. English uses only one and other. Arabic uses all six: zero (0), one (1), two (2), few (3–10), many (11–99), other (100+).",
-    "days": { "zero": "{n} days", "one": "1 day", "two": "{n} days", "few": "{n} days", "many": "{n} days", "other": "{n} days" },
-    "hours": { "zero": "{n} hours", "one": "1 hour", "two": "{n} hours", "few": "{n} hours", "many": "{n} hours", "other": "{n} hours" },
-    "requests": { "zero": "{n} requests", "one": "1 request", "two": "{n} requests", "few": "{n} requests", "many": "{n} requests", "other": "{n} requests" }
+    "days": {
+      "zero": "{n} days",
+      "one": "1 day",
+      "two": "{n} days",
+      "few": "{n} days",
+      "many": "{n} days",
+      "other": "{n} days"
+    },
+    "hours": {
+      "zero": "{n} hours",
+      "one": "1 hour",
+      "two": "{n} hours",
+      "few": "{n} hours",
+      "many": "{n} hours",
+      "other": "{n} hours"
+    },
+    "requests": {
+      "zero": "{n} requests",
+      "one": "1 request",
+      "two": "{n} requests",
+      "few": "{n} requests",
+      "many": "{n} requests",
+      "other": "{n} requests"
+    }
   },
   "ics": {
     "summary": "{car} (request {ref}, not yet confirmed)",

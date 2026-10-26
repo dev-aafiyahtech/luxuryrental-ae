@@ -177,11 +177,6 @@ export function ConfirmedView() {
         <Notice tone="info">{t("confirmed.unknown")}</Notice>
       )}
 
-      {site.demo && (
-        <Notice tone="info" title={t("confirmed.demoHint")}>
-          <Link href={href("/demo/ops")} className="font-semibold text-fg underline underline-offset-4">{t("confirmed.openOps")}</Link>
-        </Notice>
-      )}
     </div>
   );
 }

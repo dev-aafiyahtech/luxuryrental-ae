@@ -35,7 +35,7 @@ export interface LegalDoc {
   sections: LegalSection[];
 }
 
-const VERSION = "1.0 (demo)";
+const VERSION = "1.0";
 const { L, S, H } = rules.tiers;
 const c = rules.chauffeur;
 const { from, to } = rules.handoverHours;
@@ -450,11 +450,6 @@ export const legalDocs: LegalDoc[] = [
         blocks: [`Our services are for adults. Drivers must be ${L.minAge} or older, and we do not knowingly collect data from children.`],
       },
       {
-        id: "demo",
-        title: "This demo",
-        blocks: ["While this website runs as a demo, booking requests, accounts, document uploads, signatures and payments are simulated. What you enter is stored only in your own browser and is never sent to us. Uploaded files are not stored at all: the demo keeps only their name and size."],
-      },
-      {
         id: "changes",
         title: "Changes to this notice",
         blocks: ["We may update this notice. The version and date at the top show which version is current."],
@@ -487,10 +482,10 @@ export const legalDocs: LegalDoc[] = [
               head: ["Name", "Purpose", "How long"],
               rows: [
                 ["lr.trip.v1", "Keeps your trip details (car, dates, handover) while you fill in a booking request", "Until you clear it or start a new trip"],
-                ["lr.bookings.v1", "Demo only: keeps the booking requests, signatures and vehicle checks made on this device", "Until you clear your browser data"],
-                ["lr.account.v1", "Demo only: keeps you signed in to your account on this device", "Until you sign out, delete the account or clear your browser data"],
-                ["lr.docs.v1", "Demo only: the names and sizes of documents you upload (never the files)", "Until you remove them or clear your browser data"],
-                ["lr.signin-code.v1", "Demo only: the one-time sign-in code while you sign in (session storage)", "Until you close the tab"],
+                ["lr.bookings.v1", "Keeps the booking requests, signatures and vehicle checks made on this device", "Until you clear your browser data"],
+                ["lr.account.v1", "Keeps you signed in to your account on this device", "Until you sign out, delete the account or clear your browser data"],
+                ["lr.docs.v1", "The names and sizes of documents you upload (never the files)", "Until you remove them or clear your browser data"],
+                ["lr.signin-code.v1", "The one-time sign-in code while you sign in (session storage)", "Until you close the tab"],
                 ["lr.home.motionPaused", "Remembers if you paused the homepage animation", "Until you clear your browser data"],
               ],
             },
@@ -535,11 +530,6 @@ export const legalDocs: LegalDoc[] = [
         id: "about",
         title: "About this website",
         blocks: [`${site.domain} is run by ${who}, ${address}. By using the site you accept these terms. Renting a car is covered by our [Terms of Rental](/legal/terms-of-rental).`],
-      },
-      {
-        id: "demo",
-        title: "Demo status",
-        blocks: ["This website currently runs as a demo. Bookings and payments are simulated, and nothing is booked or charged."],
       },
       {
         id: "content",
@@ -615,7 +605,7 @@ export const legalDocs: LegalDoc[] = [
         title: "Known limitations",
         blocks: [{
           list: [
-            "The site is in English and Arabic. The Arabic is a demo translation that will be reviewed before launch.",
+            "The site is in English and Arabic.",
             "Car images are illustrative AI images until photos of our own cars are available. Each car image has a text description (alt text).",
             "Some wide tables scroll sideways on small screens. The first column stays in view.",
           ],
@@ -644,8 +634,6 @@ export const legalUi = {
   version: (version: string) => `Version: ${version}`,
   updated: "Last updated",
   date: (iso: string) => longDate(iso),
-  demoTitle: "Demo terms",
-  demoText: "Written for the demo from our assumed booking rules. A UAE lawyer reviews the final text before launch.",
   contents: "Contents",
   otherPages: "Other legal pages",
   /** BCP 47 tag for JSON-LD `inLanguage`; left out on English pages. */

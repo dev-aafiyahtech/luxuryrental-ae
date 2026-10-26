@@ -30,19 +30,19 @@ npm run dev        # then open http://localhost:3000
 
 Checks: `npx tsc --noEmit`, `npx eslint src`, `npx next build`, `node qa/scripts/i18n-keys.mjs` (Arabic strings match the English keys), and with the dev server running `node qa/scripts/audit.mjs` (every English and Arabic route at 390 and 1440 px). How the code is organised and the rules for changing it: [docs/dev/FRONTEND-GUIDE.md](docs/dev/FRONTEND-GUIDE.md).
 
-**What's simulated.** Booking requests, ops actions, payments, accounts, document uploads and e-signatures are stored in the browser (`src/lib/booking/store.ts`, `src/lib/customer/store.ts`), so everything works without a server, but each browser has its own data. Uploaded files are never stored or sent: only their name and size are kept. Every page shows a demo bar. The WhatsApp buttons open a real chat with +971 52 965 2722. Car pictures are AI-generated illustrations, labelled as such, until photos of the real cars arrive.
+**What's simulated.** Booking requests, ops actions, payments, accounts, document uploads and e-signatures are stored in the browser (`src/lib/booking/store.ts`, `src/lib/customer/store.ts`), so everything works without a server, but each browser has its own data. Uploaded files are never stored or sent: only their name and size are kept. Nothing on the site says demo or sample (Zubair, 26 Oct 2026): it is presented as the live site. The WhatsApp buttons open a real chat with +971 52 965 2722. Car pictures are AI-generated illustrations, labelled as such, until photos of the real cars arrive.
 
 **Demo walk-through**
 1. Home: scroll the four chapters (night skyline, Velocity Tunnel, Kinetic Sculpture with the top-5 tabs, Reserve). "Pause motion" sits in the chapter rail.
 2. Fleet (`/cars`): filter by type, price or chauffeur; open a brand or a car.
 3. Car page: pick "This weekend" in the reserve card, then **Reserve**. The request takes four steps (trip, extras, driver, review), then **Send booking request**.
 4. Confirmation: reference number, **Confirm on WhatsApp**, add to calendar, **Track this request**.
-5. Open **Ops view** (top bar) in a second tab and press **Confirm**. The customer's status page updates live.
-6. On the status page, **Pay advance (demo)**: try a failed, then a successful demo payment. No card details are collected.
+5. Open **Team desk** (footer, Company column, or `/ops`) in a second tab and press **Confirm**. The customer's status page updates live.
+6. On the status page, **Pay advance**, then **Pay securely**. No card details are collected and nothing is charged; add `&fail=1` to the payment page address to show a failed payment first.
 7. Before the rental: on the status page, upload the driver's documents, then open the **rental agreement** and sign it with a finger, mouse or typed name.
-8. In the ops view, verify or reject the documents and **record the handover check** (km, fuel, damage marks on the car diagram). Back on the agreement page, the customer signs the vehicle check.
+8. On the team desk, verify or reject the documents and **record the handover check** (km, fuel, damage marks on the car diagram). Back on the agreement page, the customer signs the vehicle check.
 9. **Your account** (person icon in the header): sign in with the one-time code shown on screen to see every request, document and agreement in one place, and edit the driver profile.
-10. Availability: the Revuelto is in for service and the Phantom is out for an event on sample dates; their calendars cross those days out, and a clashing request offers the next free dates. In the ops view, **Car availability** blocks or frees any car.
+10. Availability: the Revuelto is in for service and the Phantom is out for an event on sample dates; their calendars cross those days out, and a clashing request offers the next free dates. On the team desk, **Car availability** blocks or frees any car.
 11. Arabic: the **العربية** switch in the header (or `/ar`) shows the same site right to left, with Arabic dates, prices and plurals.
 12. Also try: the Phantom (chauffeur first), a Bugatti (price on request), `/book/review?fail=1` (send error and retry), the dock's "Edit trip" on a phone, and sharing a car page link (each car has its own preview image).
 

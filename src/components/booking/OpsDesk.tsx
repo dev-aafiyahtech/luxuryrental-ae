@@ -42,9 +42,9 @@ const actionsFor = (s: BookingStatus) => ACTIONS.filter((a) => transitions[s].in
 /** Event notes stored with ops actions (English, as the ops log); the history shows them by code in each viewer's language. */
 const OPS_NOTES: Record<BookingStatus, string> = {
   requested: "Requested",
-  confirmed: "Confirmed by ops (demo desk)",
+  confirmed: "Confirmed by our team",
   declined: "Declined by ops: not available on these dates",
-  awaiting_payment: "Payment link sent to the customer (simulated)",
+  awaiting_payment: "Payment link sent to the customer",
   paid: "Marked paid at handover",
   cancelled: "Cancelled by ops",
   expired: "Expired",
@@ -160,7 +160,7 @@ export function OpsDesk() {
       returnDate: addDays(today, 6),
       pickup: { zone: "dxb", flight: "EK 202" },
       dropoff: { zone: "dxb" },
-      driver: { name: "Sample Customer", phone: "+971501234567", email: "sample@example.com", channel: "whatsapp" as const, licenceCountry: "GB", resident: false, ageBand: "30+" as const, ackTerms: true, whatsappConsent: true, marketing: false },
+      driver: { name: "Alex Morgan", phone: "+971501234567", email: "alex.morgan@example.com", channel: "whatsapp" as const, licenceCountry: "GB", resident: false, ageBand: "30+" as const, ackTerms: true, whatsappConsent: true, marketing: false },
       updatedAt: Date.now(),
     };
     const q = quote({ car, service: "self-drive", pickupDate: trip.pickupDate, pickupTime: trip.pickupTime, returnDate: trip.returnDate, returnTime: trip.returnTime, pickupZone: "dxb", returnZone: "dxb", extras: trip.extras });
@@ -188,7 +188,7 @@ export function OpsDesk() {
   return (
     <div className="container-site grid gap-8 pb-24 pt-10 md:pt-14">
       <header className="grid gap-4">
-        <p className="eyebrow"><span className="badge">{t("badge.demo")}</span>{t("ops.eyebrow")}</p>
+        <p className="eyebrow">{t("ops.eyebrow")}</p>
         <h1 className="display-md">{t("ops.title")}</h1>
         <p className="lede">{t("ops.lede")}</p>
       </header>

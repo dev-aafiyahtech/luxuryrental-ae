@@ -2,7 +2,7 @@
 
 import clsx from "clsx";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { FileCheck2, ListChecks, PenLine } from "lucide-react";
+import { FileCheck2, ListChecks, Mail, PenLine } from "lucide-react";
 import { useT } from "@/i18n/client";
 import { useTripDraft } from "@/lib/booking/draft";
 import { requestSignInCode, verifySignInCode } from "@/lib/customer/store";
@@ -12,6 +12,7 @@ import { Segmented } from "@/components/booking/Segmented";
 import { rich } from "@/components/booking/bits";
 import { emailOk, formatPhone, phoneError } from "@/components/booking/lib";
 import { Notice } from "@/components/ui";
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 
 type Method = "phone" | "email";
 type Sent = Awaited<ReturnType<typeof requestSignInCode>>;
@@ -206,16 +207,24 @@ export function SignInForm({ notice, focusHeading, onSignedIn }: { notice?: stri
                 })}
               </p>
             </div>
-            <div id="signin-demo-code">
-              <Notice tone="info">
-                {rich(t("code.demo"), {
-                  code: (
-                    <strong dir="ltr" className="tabular tracking-[0.12em] text-fg">
-                      {sent?.demoCode}
-                    </strong>
-                  ),
-                })}
-              </Notice>
+            {/* The code arrives as a message; until messaging is connected it is shown here, styled
+                as the incoming WhatsApp or email notification. */}
+            <div id="signin-demo-code" role="status" className="flex items-start gap-3 rounded-2xl border border-line bg-bg/50 p-4">
+              <span className="grid h-9 w-9 flex-none place-items-center rounded-full border border-line text-fg" aria-hidden="true">
+                {sent?.channel === "email" ? <Mail className="h-4 w-4" /> : <WhatsAppIcon className="h-4 w-4" />}
+              </span>
+              <div className="grid gap-0.5 text-sm leading-snug">
+                <p className="font-semibold text-fg">{t("code.from")}</p>
+                <p className="text-champagne">
+                  {rich(t("code.message"), {
+                    code: (
+                      <strong dir="ltr" className="tabular tracking-[0.12em] text-fg">
+                        {sent?.demoCode}
+                      </strong>
+                    ),
+                  })}
+                </p>
+              </div>
             </div>
             <form noValidate onSubmit={verify} className="grid gap-5">
               <Field id="signin-code" label={t("code.label")} hint={codeHint} error={codeError}>
@@ -273,7 +282,6 @@ export function SignInForm({ notice, focusHeading, onSignedIn }: { notice?: stri
             </li>
           ))}
         </ul>
-        <p className="fine">{t("signIn.demo")}</p>
       </section>
     </div>
   );

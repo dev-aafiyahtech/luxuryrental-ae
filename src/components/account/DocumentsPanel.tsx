@@ -174,11 +174,6 @@ export function DocumentsPanel({ phone, driver, mode = "customer", headingLevel 
             </div>
           </div>
 
-          <Notice tone="info">
-            <p>{t("docs.demo")}</p>
-            {!ops && <p className="mt-1">{t("docs.live")}</p>}
-          </Notice>
-
           {!ops && <p id={formatsId} className="field-hint -mt-1">{t("docs.formats")}</p>}
 
           {!ops && (

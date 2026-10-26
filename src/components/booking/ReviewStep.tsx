@@ -7,7 +7,6 @@ import { CircleAlert } from "lucide-react";
 import { cancellationSummary } from "@/content/localize";
 import { useLocale, useT } from "@/i18n/client";
 import { submitBookingRequest } from "@/lib/booking/store";
-import { Notice } from "@/components/ui";
 import { Checkbox, Section } from "./Field";
 import { QuoteTable } from "./QuoteTable";
 import { FlowSkeleton, Rows, WhatsAppButton, rich } from "./bits";
@@ -115,7 +114,6 @@ export function ReviewStep() {
       showErrors={submitted}
       summaryRef={summaryRef}
       outOfHours={outOfHours}
-      intro={failMode && <Notice tone="info">{t("review.demoFail")}</Notice>}
       after={
         nudge && !failed ? (
           <div className="notice notice-info" role="status">

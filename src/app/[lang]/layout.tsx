@@ -8,7 +8,6 @@ import { I18nProvider } from "@/i18n/client";
 import { site } from "@/content/site";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { DemoBar } from "@/components/layout/DemoBar";
 import "../globals.css";
 
 const syncopate = Syncopate({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-syncopate", display: "swap" });
@@ -54,7 +53,6 @@ export default async function RootLayout({ children }: LayoutProps<"/[lang]">) {
           {t("nav.skip")}
         </a>
         <I18nProvider locale={locale} messages={messages}>
-          <DemoBar />
           <Header />
           <main id="main" tabIndex={-1} className="relative z-[var(--z-content)] outline-none">
             {children}

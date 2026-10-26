@@ -10,10 +10,10 @@ import { plain } from "@/content/pages/shared";
 import { Rich } from "@/components/content/Rich";
 import { JsonLd, absoluteUrl, breadcrumbLd, graph } from "@/components/content/JsonLd";
 import { pageMetadata } from "@/components/content/meta";
-import { Breadcrumbs, Notice } from "@/components/ui";
+import { Breadcrumbs } from "@/components/ui";
 
 // Long-form legal template (workstream 06: H1, version, "Last updated", table of contents,
-// 70ch column at 17px, no dock, no scene). A short "Demo terms" note until the reviewed text arrives.
+// 70ch column at 17px, no dock, no scene).
 // English and Arabic documents share slugs and section ids; the locale picks the module.
 
 const legalFor = (locale: string) => (locale === "ar" ? legalAr : legalEn);
@@ -112,9 +112,6 @@ async function LegalContent({ params }: { params: PageProps<"/[lang]/legal/[slug
             <span>{ui.version(doc.version)}</span>
             <span>{ui.updated} <time dateTime={doc.updated}>{ui.date(doc.updated)}</time></span>
           </p>
-          <Notice tone="info" title={ui.demoTitle}>
-            {ui.demoText}
-          </Notice>
           <p className="text-[17px] leading-relaxed text-champagne">{doc.summary}</p>
         </header>
 

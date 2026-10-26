@@ -9,7 +9,7 @@ import { defaultLocale, localeHref, locales } from "@/i18n/config";
 
 // Every public page in every locale (English unprefixed, Arabic under /ar), each entry listing
 // its language alternates and x-default (English).
-// Booking, status, payment and demo pages are left out: they are per-visitor.
+// Booking, status, payment and team pages are left out: they are per-visitor.
 export default function sitemap(): MetadataRoute.Sitemap {
   const url = (locale: string, path: string) => {
     const p = localeHref(locale, path);

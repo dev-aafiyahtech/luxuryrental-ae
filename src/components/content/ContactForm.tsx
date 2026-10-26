@@ -3,17 +3,16 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { CircleCheck } from "lucide-react";
 import { Button } from "@/components/ui";
+import { whatsappHref } from "@/lib/whatsapp";
 import { useLocale } from "@/i18n/client";
 import { contentUiFor, type ContentUi } from "@/content/pages/ui";
 
-// Contact form for the demo. It validates, shows a busy state, then confirms. Nothing is
-// sent or stored: on the live site this posts to an API route that emails the ops inbox.
+// Contact form. It validates, then opens WhatsApp with the message filled in, so the visitor
+// sends it to our number themselves (later, an API route can email the ops inbox as well).
 // Labels come from content/pages/ui.ts in the visitor's language.
 
 type Field = "name" | "mobile" | "message";
 type Errors = Partial<Record<Field, string>>;
-
-const SEND_MS = 1100;
 
 function validate(v: Record<Field, string>, t: ContentUi["contactForm"]): Errors {
   const errors: Errors = {};
@@ -30,16 +29,12 @@ export function ContactForm() {
   const id = useId();
   const [values, setValues] = useState<Record<Field, string>>({ name: "", mobile: "", message: "" });
   const [errors, setErrors] = useState<Errors>({});
-  const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
-  const timer = useRef<number | undefined>(undefined);
   const nameRef = useRef<HTMLInputElement>(null);
   const mobileRef = useRef<HTMLInputElement>(null);
   const messageRef = useRef<HTMLTextAreaElement>(null);
   const statusRef = useRef<HTMLDivElement>(null);
 
-  // Clear the pending "send" if the page unmounts or is hidden by <Activity>.
-  useEffect(() => () => window.clearTimeout(timer.current), []);
   useEffect(() => {
     if (sent) statusRef.current?.focus();
   }, [sent]);
@@ -51,7 +46,6 @@ export function ContactForm() {
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
-    if (busy) return;
     const next = validate(values, t);
     setErrors(next);
     const first = (["name", "mobile", "message"] as Field[]).find((f) => next[f]);
@@ -60,12 +54,11 @@ export function ContactForm() {
       target?.focus();
       return;
     }
-    setBusy(true);
-    timer.current = window.setTimeout(() => {
-      setBusy(false);
-      setSent(true);
-      setValues({ name: "", mobile: "", message: "" });
-    }, SEND_MS);
+    // Opened here, inside the submit event, so browsers don't treat it as a pop-up.
+    const text = [t.waHeading, `${t.name}: ${values.name.trim()}`, `${t.mobile}: ${values.mobile.trim()}`, "", values.message.trim()].join("\n");
+    window.open(whatsappHref(text), "_blank", "noopener");
+    setSent(true);
+    setValues({ name: "", mobile: "", message: "" });
   }
 
   if (sent) {
@@ -113,10 +106,9 @@ export function ContactForm() {
       </div>
 
       <div className="flex flex-wrap items-center gap-4">
-        <Button type="submit" busy={busy}>{busy ? t.sending : t.send}</Button>
-        <p className="fine">{t.demo}</p>
+        <Button type="submit">{t.send}</Button>
+        <p className="fine">{t.note}</p>
       </div>
-      <p className="sr-only" aria-live="polite">{busy ? t.sendingStatus : ""}</p>
     </form>
   );
 }

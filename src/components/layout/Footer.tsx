@@ -13,7 +13,7 @@ export async function Footer() {
   const cols = [
     { title: t("footer.fleet"), links: [...brands.map((b) => ({ label: b.name, href: `/cars/${b.slug}` })), ...categories.map((c) => ({ label: localizeCategory(c, locale).name, href: `/cars/type/${c.slug}` }))] },
     { title: t("footer.services"), links: [{ label: t("nav.chauffeur"), href: "/chauffeur" }, { label: t("nav.delivery"), href: "/delivery" }, { label: t("footer.airport"), href: "/delivery/dubai-airport-dxb" }, { label: t("nav.pricing"), href: "/pricing" }, { label: t("footer.requirements"), href: "/requirements" }] },
-    { title: t("footer.company"), links: [{ label: t("footer.about"), href: "/about" }, { label: t("nav.faq"), href: "/faq" }, { label: t("nav.contact"), href: "/contact" }] },
+    { title: t("footer.company"), links: [{ label: t("footer.about"), href: "/about" }, { label: t("nav.faq"), href: "/faq" }, { label: t("nav.contact"), href: "/contact" }, { label: t("footer.team"), href: "/ops" }] },
     { title: t("footer.legal"), links: [{ label: t("footer.terms"), href: "/legal/terms-of-rental" }, { label: t("footer.cancellation"), href: "/legal/cancellation" }, { label: t("footer.privacy"), href: "/legal/privacy" }, { label: t("footer.cookies"), href: "/legal/cookies" }, { label: t("footer.termsOfUse"), href: "/legal/terms-of-use" }, { label: t("footer.accessibility"), href: "/legal/accessibility" }] },
   ];
 
@@ -50,8 +50,7 @@ export async function Footer() {
           <p>{t("footer.vat")} {t("footer.images")}</p>
           <p>{t("footer.trademarks")}</p>
           <p>{t("footer.licence", { licence: site.tradeLicence, rta: site.rtaPermit, trn: site.vatTrn })}</p>
-          <p>{t("footer.rights", { name: site.legalName })}</p>
-          {site.sampleDetails && <p>{t("footer.sample")}</p>}
+          <p>{t("footer.rights", { name: site.legalName.replace(/\.$/, "") })}</p>
         </div>
       </div>
     </footer>

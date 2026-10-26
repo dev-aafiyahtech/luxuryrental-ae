@@ -85,7 +85,7 @@ export function AgreementDocument({ b, agreement, car: baseCar, canSign, onSigne
           {[
             { label: t("doc.number"), value: <span className="font-semibold tabular tracking-[0.04em]" dir="ltr">{agreement.number}</span> },
             { label: t("doc.reference"), value: <span className="tabular tracking-[0.04em]" dir="ltr">{b.ref}</span> },
-            { label: t("doc.version"), value: versionText(agreement.version, tb("badge.demo")) },
+            { label: t("doc.version"), value: versionText(agreement.version) },
             { label: t("doc.issued"), value: longDate(agreement.issuedAt, locale) },
           ].map((r) => (
             <div key={r.label} className="grid content-start gap-1">
@@ -110,7 +110,6 @@ export function AgreementDocument({ b, agreement, car: baseCar, canSign, onSigne
                 { label: t("parties.trn"), value: <span className="tabular" dir="ltr">{site.vatTrn}</span> },
               ]}
             />
-            {site.sampleDetails && <p className="fine">{t("parties.sample")}</p>}
           </div>
           <div className="grid content-start gap-2">
             <h3 className="text-[15px] font-semibold text-fg">{chauffeur ? t("parties.customer") : t("parties.hirer")}</h3>
