@@ -323,7 +323,8 @@ export const siteAr: {
   licenceAuthority?: string;
 } = {
   hours: "يومياً من 09:00 إلى 22:00",
-  replyPromise: "نردّ عبر واتساب، عادةً خلال ساعة واحدة، من 09:00 إلى 22:00.",
+  // No-break spaces keep the hours on one line.
+  replyPromise: "نردّ عبر واتساب، عادةً خلال ساعة واحدة، من 09:00\u00A0إلى\u00A022:00.",
   address: {
     line1: "المكتب 1208، مبنى مقر واحة دبي للسيليكون",
     area: "واحة دبي للسيليكون",

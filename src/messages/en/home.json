@@ -1,46 +1,46 @@
 {
   "meta": {
     "title": "Luxury Car Rental in Dubai, Delivered",
-    "description": "Supercars, luxury SUVs and chauffeur cars from Lamborghini, Ferrari, Rolls-Royce, Bugatti and more, delivered across Dubai including DXB and DWC. Request online, confirm on WhatsApp."
+    "description": "Rent a Lamborghini, Ferrari or Bugatti in Dubai, or a Rolls-Royce with a chauffeur. Delivered to your hotel, villa or DXB. Prices include VAT."
   },
   "rail": {
     "label": "Chapters",
     "skyline": "Skyline",
-    "fleet": "Fleet",
-    "sculpture": "Sculpture",
-    "reserve": "Reserve",
+    "fleet": "Ways to rent",
+    "sculpture": "Featured",
+    "reserve": "Request",
     "pause": "Pause motion",
     "play": "Play motion"
   },
   "sky": {
-    "eyebrow": "Burj by Night",
-    "title": "Dubai after dark",
-    "lede": "Supercars, luxury SUVs and chauffeur cars, delivered to your door anywhere in Dubai. Comprehensive insurance included.",
+    "eyebrow": "Luxury car rental in Dubai",
+    "title": "Supercars, after dark",
+    "lede": "Drive a Lamborghini, Ferrari or Bugatti, or be driven in a Rolls-Royce. We bring it to your door, and nothing is charged before we confirm.",
     "check": "Check availability",
-    "skip": "Skip intro",
+    "skip": "See prices",
     "noteEyebrow": "Door-to-door handover",
-    "noteTitle": "Your car comes to you",
-    "noteBody": "Delivery to hotels, villas and DXB or DWC arrivals. Keys handed over in person, with late handovers by arrangement.",
+    "noteTitle": "Hotel, villa or arrivals",
+    "noteBody": "Someone from our team meets you with the car and walks round it with you. At the end, we collect it from wherever you finish.",
     "cue": "Scroll to descend"
   },
   "tunnel": {
-    "eyebrow": "Velocity Tunnel",
+    "eyebrow": "Three ways to rent",
     "title": "Choose your speed",
-    "lede": "Three ways to drive Dubai. Every car is delivered clean, insured and ready to drive.",
+    "lede": "Today's lowest rates, VAT included. Open a card to see every car in it.",
     "supercars": {
       "kicker": "Supercars",
-      "title": "Mid-engine coupés and spiders",
-      "body": "Lamborghini, Ferrari, McLaren and Maserati, for the Jumeirah coast road and the climb up Jebel Jais."
+      "title": "Mid-engine, V6 to V12",
+      "body": "Lamborghini, Ferrari, McLaren and Maserati, for Jumeirah Beach Road and the climb up Jebel Jais."
     },
     "suvs": {
       "kicker": "Luxury SUVs",
       "title": "Room for four or five",
-      "body": "Hatta day trips, family airport runs and dinner out in Al Qudra."
+      "body": "Rolls-Royce, Bentley, Lamborghini, Ferrari and Aston Martin, for family airport runs and the drive to Hatta."
     },
     "chauffeur": {
       "kicker": "Chauffeur",
-      "title": "Driven, by appointment",
-      "body": "Airport transfers, city hours and evening events in a Rolls-Royce or Bentley, with a professional chauffeur."
+      "title": "The rear seat is yours",
+      "body": "Airport transfers, weddings and business days in a Rolls-Royce or Bentley, by the hour or the day."
     },
     "from": "From",
     "perDay": "/ day",
@@ -49,33 +49,33 @@
     "featured": "See the featured cars"
   },
   "sculpture": {
-    "eyebrow": "Kinetic Sculpture",
+    "eyebrow": "Featured cars",
     "title": "Every part on display",
-    "lede": "Keep scrolling to take the car apart, part by part. Then watch it come back together.",
+    "lede": "Keep scrolling to take the car apart, from engine to wheels, and watch it rebuild.",
     "tabs": "Featured cars",
-    "schematic": "The kinetic view is a schematic.",
-    "see": "See this car",
+    "schematic": "The 3D view is a schematic.",
+    "see": "See prices and dates",
     "powertrain": "Powertrain",
     "performance": "Performance",
     "cabin": "Cabin",
     "drive": "Drive"
   },
   "reserve": {
-    "eyebrow": "Reserve",
+    "eyebrow": "Send a request",
     "title": "Ready when you land",
-    "lede": "Send a request now and we bring the car to your door. {reply} Nothing is charged on this website.",
-    "trustLabel": "What's included",
+    "lede": "Choose your dates and where we should meet you, then send the request. {reply}",
+    "trustLabel": "Key facts",
     "trust": {
       "insurance": "Comprehensive insurance",
-      "vat": "VAT included, no hidden fees",
-      "delivery": "Delivered across Dubai"
+      "vat": "VAT included, every fee listed",
+      "delivery": "Delivery anywhere in Dubai"
     },
     "cardEyebrow": "Your request"
   },
   "fleet": {
     "eyebrow": "The fleet",
     "title": "{cars} cars, {brands} marques",
-    "lede": "Every car we rent, grouped by marque. Prices are per day and include 5% VAT.",
+    "lede": "Daily rates include VAT. Each car's page lists its deposit, kilometres and minimum age.",
     "all": "Browse and filter the fleet",
     "brand": "All {brand} cars",
     "prev": "Previous cars",
@@ -91,12 +91,12 @@
         "body": "Choose from {cars} cars and tell us where to bring it: your hotel, your villa or the arrivals hall at DXB or DWC."
       },
       "request": {
-        "title": "Send a request, nothing is charged",
-        "body": "Add your details and send the request. Nothing is charged on this website."
+        "title": "Send a request",
+        "body": "Add your details and where your licence was issued, then send it. Nothing is charged on this website."
       },
       "confirm": {
-        "title": "Confirm on WhatsApp",
-        "body": "{reply} Once we confirm, pay at handover or by secure link."
+        "title": "We confirm on WhatsApp",
+        "body": "{reply} After we confirm, you pay at handover or by secure link."
       }
     },
     "cta": "Start a request"
@@ -104,7 +104,7 @@
   "delivery": {
     "eyebrow": "Delivery",
     "title": "Delivered across Dubai",
-    "lede": "We're based in Dubai Silicon Oasis and bring the car to you, wherever you're staying.",
+    "lede": "Choose the handover place in your request. Any delivery fee shows in your quote before you send it.",
     "base": {
       "title": "Our office",
       "body": "Collect and return at Dubai Silicon Oasis at no charge."
@@ -129,20 +129,20 @@
     "all": "Read all FAQs",
     "age": {
       "q": "How old do I need to be?",
-      "a": "{age} or older for most cars, with a licence held for at least {years} years ({supercarYears} years for supercars). Bugatti drivers must be {hyperAge} or older with {hyperYears} years' driving."
+      "a": "{age} or older for most cars, with a full licence held for at least {years} years ({supercarYears} years for supercars). For a Bugatti, you need to be {hyperAge} or older with a licence held for {hyperYears} years. Chauffeur bookings have no age rule for passengers."
     },
     "deposit": {
       "q": "Is there a deposit?",
-      "a": "Yes. A refundable hold of {from} to {to} is placed on your card at handover, depending on the car, and shown separately from the price. We release it {days} days after the rental ends.",
-      "hyper": "Bugatti: from {amount}, released after {days} days."
+      "a": "Yes. A refundable hold of {from} to {to}, depending on the car, goes on a credit card in the main driver's name at handover. We release it {days} days after you return the car, less any tolls or fines.",
+      "hyper": "For a Bugatti, the hold starts at {amount} and is released after {days} days."
     },
     "airport": {
-      "q": "Can you deliver to the airport?",
-      "a": "Yes. We meet you in the arrivals hall at DXB or DWC for {fee} each way, airport parking included, and we track your flight in case it's late."
+      "q": "Can you meet me at the airport?",
+      "a": "Yes, at DXB or DWC, for {fee} each way including airport parking. Add your flight number to the request and we track the flight, then meet you in the arrivals hall."
     },
     "included": {
       "q": "What does the daily rate include?",
-      "a": "5% VAT, comprehensive insurance and {kmFrom} to {kmTo} km a day, depending on the car. Salik tolls are passed on at AED 4 to AED 6 per crossing, plus AED {salik} each."
+      "a": "VAT, comprehensive insurance and {kmFrom} to {kmTo} km a day (less on the Bugattis). Insurance claims carry an excess, which optional Full Cover lowers. Salik tolls are extra, at the published rate per crossing plus an AED {salik} admin fee."
     }
   },
   "stage": {
