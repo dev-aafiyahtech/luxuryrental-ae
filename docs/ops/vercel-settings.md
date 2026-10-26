@@ -2,7 +2,7 @@
 
 Settings that can't live in code, recorded here so the project can be rebuilt (plan workstream 02, §2). Settings in code: `vercel.json` (framework, function region `fra1`) and `package.json` `engines` (Node 24).
 
-**Status (26 Oct 2026):** demo phase. Connected by Zubair; live at https://luxuryrental-ae.vercel.app. Every push to `main` deploys to production, every other branch gets a preview.
+**Status (26 Oct 2026):** demo phase. Live at https://www.luxuryrentals.ae (also https://luxuryrental-ae.vercel.app). Every push to `main` deploys to production, every other branch gets a preview.
 
 ## Project
 
@@ -22,7 +22,7 @@ Settings that can't live in code, recorded here so the project can be rebuilt (p
 
 | Environment | Source | URL | Protection |
 |---|---|---|---|
-| Production | `main` | https://luxuryrental-ae.vercel.app (until the domain is connected) | Public. Crawlers are kept out by `robots.txt` and `noindex` while `site.demo` is true |
+| Production | `main` | https://www.luxuryrentals.ae (canonical) · https://luxuryrental-ae.vercel.app | Public. Crawlers are kept out by `robots.txt` and `noindex` while `site.demo` is true |
 | Preview | every branch push and PR | `luxuryrental-ae-git-<branch>-devaafiyahtech-5951.vercel.app` | Standard Protection (Vercel Authentication), checked 26 Oct 2026. Viewers sign in to Vercel, or use a shareable link from Settings → Deployment Protection |
 
 ## Environment variables
@@ -31,9 +31,9 @@ None in the demo phase. The demo needs no secrets: bookings, ops and payments ar
 
 ## Domains
 
-Not connected yet. `www.luxuryrentals.ae` will be canonical, with the apex `luxuryrentals.ae` redirecting to it (plan workstream 02, §3).
+Connected 26 Oct 2026. `www.luxuryrentals.ae` is canonical; the apex `luxuryrentals.ae` and plain `http://` redirect to it with a 308. DNS is at the registrar (Tasjeel, `ns3/ns4.tasjeel.ae`): `@` A `216.198.79.1`, `www` CNAME `7fcc50154c31684c.vercel-dns-017.com`. The MX record (Tasjeel) is unchanged. The SSL certificate is Let's Encrypt, issued and renewed by Vercel.
 
-**Connecting luxuryrentals.ae** (needs access to the domain's DNS at its .ae registrar):
+**How it was connected** (repeat these steps for any other domain):
 
 1. Vercel → project `luxuryrental-ae` → **Settings → Domains → Add Domain**. Enter `www.luxuryrentals.ae`. When Vercel offers it, choose to also add `luxuryrentals.ae` and **redirect it to www**.
 2. Vercel then lists the DNS records each domain needs. Copy the exact values it shows; they look like:

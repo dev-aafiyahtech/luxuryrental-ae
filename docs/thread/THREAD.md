@@ -521,3 +521,8 @@ Got it. I've saved your answers to the project, and I'll wait for your next inst
 > Its live here. Please go ahead. In parallel .. provide me steps to connect the actual domain to this project
 
 *Claude checked the live site and found two production-only problems: the car share images failed with a server error (file reads during the render count as uncached I/O under Cache Components; fixed by reading fonts at module level, caching the per-car work with "use cache" and tracing the files into the function), and links and share images pointed at www.luxuryrentals.ae before that domain existed (the site address now follows Vercel's production address until the domain is connected). Share-image URLs are also served at their /en path instead of redirecting. The Vercel settings and the domain steps are in docs/ops/vercel-settings.md.*
+
+**Zubair:**
+> I have made the changes as suggested. Please check the screenshot
+
+*Claude checked the public DNS (Google and Cloudflare): the apex A record and the www CNAME matched Vercel's values, and the email MX record at Tasjeel was untouched. Once Vercel re-checked the domains it issued a Let's Encrypt certificate, and luxuryrentals.ae went live at https://www.luxuryrentals.ae, with the apex and http redirecting to it. A redeploy switched links, the sitemap and share images to the new domain.*
