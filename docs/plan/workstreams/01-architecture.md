@@ -9,7 +9,7 @@
 > - Rate ladder and categories come from [04 Fleet and pricing](04-fleet-pricing.md). Launch publishes the peak rate card; seasonal automation stays in Phase 2.
 > - Data retention follows [05 §5](05-booking-rules-compliance.md#5-data-handling-plan-for-booking-requests).
 
-**Status:** Proposed, 23 Oct 2026 · **Scope:** production build of luxuryrental.ae on Vercel · **Inputs:** `docs/brief/requirements-answers.md` (binding), `docs/tech/production-stack.md`, `docs/design-system/luxuryrental-ae/MASTER.md`, `prototype/index.html`.
+**Status:** Proposed, 23 Oct 2026 · **Scope:** production build of luxuryrentals.ae on Vercel · **Inputs:** `docs/brief/requirements-answers.md` (binding), `docs/tech/production-stack.md`, `docs/design-system/luxuryrental-ae/MASTER.md`, `prototype/index.html`.
 
 This section replaces the glTF/Blender parts of `production-stack.md`. Every car visual comes from AI-generated images (transparent cutouts, depth maps, part masks). The skyline and tunnel stay procedural WebGL.
 

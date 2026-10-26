@@ -1,4 +1,4 @@
-# LuxuryRental.ae
+# LuxuryRentals.ae
 
 The world's most beautiful, futuristic luxury car rental website for **Luxuryrentals**, Dubai Silicon Oasis, Dubai.
 
@@ -110,7 +110,7 @@ tools/
 | 23 Oct 2026 | Client answers captured: 16 cars from 8 brands, pick a top 5, estimate pricing, WhatsApp bookings, no 3D budget (use AI images), simulate payments, English first with Arabic planned |
 | 23 Oct 2026 | Repo moved to GitHub (`dev-aafiyahtech/luxuryrental-ae`); Vercel confirmed for production |
 | 23 Oct 2026 | Project plan v1 drafted: image-sampled particle cars instead of 3D, booking requests handed to WhatsApp, Vercel Pro + Sanity + Neon (Frankfurt), launch 26 Nov, cinematic 17 Dec. Awaiting Zubair's approval and the answers in plan §9 |
-| 23 Oct 2026 | Plan answers: wordmark "LuxuryRental.ae"; AI images for all 16 cars; Bugatti partner confirmed; top 5 and launch prices approved; WhatsApp +971 52 965 2722; Zubair owns Vercel; DNS access later. Zubair is reviewing the plan |
+| 23 Oct 2026 | Plan answers: wordmark "LuxuryRentals.ae"; AI images for all 16 cars; Bugatti partner confirmed; top 5 and launch prices approved; WhatsApp +971 52 965 2722; Zubair owns Vercel; DNS access later. Zubair is reviewing the plan |
 | 23 Oct 2026 | Plan approved. First objective: a front-end-only working demo with every flow simulated; backend and production later |
 | 23 Oct 2026 | Front-end demo built: Next.js 16.4, cinematic homepage ported from the prototype, 16 car pages, booking flow with simulated ops desk and payment, content and draft legal pages, logo "Corner" (LR. monogram, gold .ae) |
 | 23 Oct 2026 | Palette changed from black and gold to Sea Moss `#2C5252` (background and brand), Antique Gold `#EBDAB0` (calls to action) and Alabaster `#F4EADE` (type). Tokens, components, the WebGL night scene and the whole logo pack recoloured; every text pair re-checked for contrast |
@@ -119,6 +119,7 @@ tools/
 | 24 Oct 2026 | AI images for all 16 cars received (Google Drive) and imported: hero, side, card, interior and extra views, labelled "Illustrative AI image" |
 | 25 Oct 2026 | Demo completed in Arabic (`/ar`, right to left, demo translation to be reviewed), with simulated car availability (no double bookings), per-car share images and particle cars sampled from the AI images on the homepage |
 | 25 Oct 2026 | Logo accent (".ae" and the monogram square) deepened to Burnished Gold `#D6AE4F` so it stands apart from the Alabaster letters; buttons stay Antique Gold. Demo branch merged into `main` |
+| 26 Oct 2026 | Brand corrected to **LuxuryRentals.ae** (Zubair): wordmark redrawn with the S, domain and emails now luxuryrentals.ae. The desktop text menu now starts at 1280 px so the logo keeps its full size on smaller laptops |
 
 ## Open items
 

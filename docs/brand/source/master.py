@@ -31,7 +31,7 @@ body = [
     f'<g id="favicon-16-cut" transform="translate(3100 1300) scale(20)">{fav}</g>',
     f'<g id="favicon-32-cut" transform="translate(3600 1300) scale(10)">{fav32}</g>',
 ]
-svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4600 2500"><title>LuxuryRental.ae logo master</title>'
+svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4600 2500"><title>LuxuryRentals.ae logo master</title>'
        f'<rect width="4600" height="2500" fill="#244747"/>{"".join(body)}</svg>')
 out = sys.argv[1]
 open(out, "w").write(svg)

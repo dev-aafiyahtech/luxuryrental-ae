@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* LuxuryRental.ae design tokens (docs/design-system/luxuryrental-ae/MASTER.md).
+/* LuxuryRentals.ae design tokens (docs/design-system/luxuryrental-ae/MASTER.md).
    Palette (23 Oct 2026): Sea Moss #2C5252 (background and brand), Antique Gold #EBDAB0
    (calls to action), Alabaster #F4EADE (type and space). Surfaces sit slightly deeper than
    the background. Every text pair is contrast-checked (qa/scripts/contrast.py).

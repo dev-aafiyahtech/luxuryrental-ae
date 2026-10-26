@@ -64,7 +64,7 @@ function EmailPreview({ b, onAction, pending }: { b: BookingRecord; onAction: (t
     <div className="grid gap-5">
       <Rows
         rows={[
-          { label: t("ops.emailFrom"), value: <bdi dir="ltr">{`Luxuryrental.ae website <no-reply@${site.domain}>`}</bdi> },
+          { label: t("ops.emailFrom"), value: <bdi dir="ltr">{`LuxuryRentals.ae website <no-reply@${site.domain}>`}</bdi> },
           { label: t("ops.emailTo"), value: <bdi dir="ltr">{site.email}</bdi> },
           { label: t("ops.emailSubject"), value: t("ops.emailSubjectText", { ref: isolateFor(locale)(b.ref), car: isolateFor(locale)(b.carName), when: lines.when }) },
         ]}

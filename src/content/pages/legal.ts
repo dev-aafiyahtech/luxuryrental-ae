@@ -529,7 +529,7 @@ export const legalDocs: LegalDoc[] = [
     version: VERSION,
     updated: legalUpdated,
     summary: `The rules for using ${site.domain}. Renting a car is covered separately by our Terms of Rental and the rental agreement.`,
-    meta: { title: "Website Terms of Use", description: "Terms for using the LuxuryRental.ae website: content and prices, illustrative images, trademarks, acceptable use and links." },
+    meta: { title: "Website Terms of Use", description: "Terms for using the LuxuryRentals.ae website: content and prices, illustrative images, trademarks, acceptable use and links." },
     sections: [
       {
         id: "about",

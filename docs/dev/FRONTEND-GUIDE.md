@@ -1,6 +1,6 @@
 # Frontend guide (demo phase)
 
-How the LuxuryRental.ae front end is built. Read this before changing code. The first objective is a **working demo**: every page and flow runs in the browser, with bookings and payments simulated. Backend and production work come later (plan §3).
+How the LuxuryRentals.ae front end is built. Read this before changing code. The first objective is a **working demo**: every page and flow runs in the browser, with bookings and payments simulated. Backend and production work come later (plan §3).
 
 ## Run it
 

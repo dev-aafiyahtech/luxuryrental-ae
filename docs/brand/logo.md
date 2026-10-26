@@ -1,8 +1,8 @@
-# LuxuryRental.ae logo: usage sheet
+# LuxuryRentals.ae logo: usage sheet
 
-Version 1.2, 25 Oct 2026 (deeper Burnished Gold accent, approved by Zubair; 1.1 recoloured the logo to the Sea Moss palette). Direction "Corner". The wordmark text "LuxuryRental.ae" was approved by the client (plan-answers Q1). The trade name "Luxuryrentals" stays in legal text only.
+Version 1.3, 26 Oct 2026 (wordmark corrected to "LuxuryRentals.ae" by Zubair; 1.2 deepened the accent to Burnished Gold; 1.1 recoloured the logo to the Sea Moss palette). Direction "Corner". The wordmark is the domain, LuxuryRentals.ae (plan-answers Q1, corrected 26 Oct 2026). The trade name "Luxuryrentals" stays in legal text only.
 
-<img src="../../public/brand/logo-horizontal.svg" alt="LuxuryRental.ae horizontal logo, Alabaster and Burnished Gold on Sea Moss" width="560">
+<img src="../../public/brand/logo-horizontal.svg" alt="LuxuryRentals.ae horizontal logo, Alabaster and Burnished Gold on Sea Moss" width="560">
 
 **The idea.** The domain is the brand, so the gold accent is the domain ending: **.ae**. The monogram repeats that full stop. An **L** holds a smaller **R** in its corner, and a gold square closes the corner where the L's foot stops: "LR.". All letters are Syncopate Bold outlines (SIL OFL 1.1, modified), so the logo matches the site's headline face. It uses no wings, shields, animals, tridents, crowns, laurels or car shapes.
 
@@ -50,7 +50,7 @@ import { Logo } from "@/components/brand/Logo";
 <Logo className="w-40 text-fg" />  // a className replaces the default size classes
 ```
 
-The component renders inline outlined SVG with `role="img"` and the accessible name "LuxuryRental.ae". It never mirrors in RTL. An Arabic lockup is reserved for Phase 2. It will sit beside the Latin lockup, not replace it.
+The component renders inline outlined SVG with `role="img"` and the accessible name "LuxuryRentals.ae". It never mirrors in RTL. An Arabic lockup is reserved for Phase 2. It will sit beside the Latin lockup, not replace it.
 
 ## Don'ts
 

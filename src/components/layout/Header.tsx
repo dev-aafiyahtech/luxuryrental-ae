@@ -31,7 +31,7 @@ export async function Header() {
         <Link href={href("/")} className="inline-flex min-h-11 items-center no-underline" aria-label={t("nav.homeLabel", { brand: site.brandName })}>
           <Logo />
         </Link>
-        <nav aria-label={t("nav.label")} className="hidden items-center gap-1 lg:flex">
+        <nav aria-label={t("nav.label")} className="hidden items-center gap-1 xl:flex">
           {nav.map((item) => (
             <Link key={item.href} href={item.href} className="inline-flex min-h-11 items-center px-3.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted no-underline transition-colors hover:text-fg">
               {item.label}

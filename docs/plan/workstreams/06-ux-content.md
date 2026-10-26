@@ -226,7 +226,7 @@ Badge style: 12px uppercase label in gold, with a 1px gold outline at 40% opacit
 
 ## 6.6 Content inventory
 
-**Placeholders:** business name **Luxuryrentals** · address `Office [000], [Building], Dubai Silicon Oasis, Dubai, UAE` · phone `+971 4 000 0000` · WhatsApp `+971 50 000 0000` (wa.me format `971500000000`) · email `bookings@luxuryrental.ae` · hours `Daily 09:00–23:00 GST` · trade licence `[TL-000000]` · RTA permit `[RTA-000000]` · VAT TRN `[TRN-000000000000000]`. All of these live in one Sanity `siteSettings` document, so a single edit updates the header, footer, schema and WhatsApp links. A launch check fails the build while any value still contains `000`.
+**Placeholders:** business name **Luxuryrentals** · address `Office [000], [Building], Dubai Silicon Oasis, Dubai, UAE` · phone `+971 4 000 0000` · WhatsApp `+971 50 000 0000` (wa.me format `971500000000`) · email `bookings@luxuryrentals.ae` · hours `Daily 09:00–23:00 GST` · trade licence `[TL-000000]` · RTA permit `[RTA-000000]` · VAT TRN `[TRN-000000000000000]`. All of these live in one Sanity `siteSettings` document, so a single edit updates the header, footer, schema and WhatsApp links. A launch check fails the build while any value still contains `000`.
 
 | Content | Qty | Producer | Notes |
 |---|---|---|---|

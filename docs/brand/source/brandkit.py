@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""LuxuryRental.ae logo kit: editable source.
+"""LuxuryRentals.ae logo kit: editable source.
 
 Builds every vector variant of the logo from Syncopate Bold (SIL OFL 1.1) outlines.
 All geometry is in font units (FU: 2048 em, cap height 1374, y-up, baseline 0) until
@@ -23,7 +23,7 @@ LOGO_GOLD = "#D6AE4F" # Burnished Gold: the logo accent only (".ae" and the mono
 GOLD_HI = "#F6EBCF"   # accent hover, metallic highlight only
 IVORY = "#F4EADE"     # Alabaster: foreground
 INK = "#2C5252"       # Sea Moss: background
-TITLE = "LuxuryRental.ae"
+TITLE = "LuxuryRentals.ae"
 
 CAP = 1374
 U = 100 / CAP  # FU -> logo units (cap height = 100)
@@ -89,11 +89,11 @@ def finish(mark):
 # Syncopate Bold capitals + unicase ".ae" in gold. The full stop is part of the accent,
 # so ".ae" reads as the domain and echoes the gold square in the monogram.
 TRACK = 190          # FU, ~0.09 em: Syncopate is already very wide
-SPACE = 610          # FU, word space between LUXURY and RENTAL
+SPACE = 610          # FU, word space between LUXURY and RENTALS
 KERN = {
     "LU": -70, "UX": -10, "XU": -10, "UR": -20, "RY": -110,
     "RE": -20, "EN": -30, "NT": -60, "TA": -170, "AL": -30,
-    "L.": -150, ".a": -95, "ae": -45,
+    "LS": -70, "S.": -40, ".a": -95, "ae": -45,
 }
 
 
@@ -113,11 +113,11 @@ def set_runs(runs):
 
 
 def wordmark():
-    return set_runs([("LUXURY RENTAL", "fg"), (".ae", "ac")])
+    return set_runs([("LUXURY RENTALS", "fg"), (".ae", "ac")])
 
 
 def wordmark_lines():
-    return set_runs([("LUXURY", "fg")]), set_runs([("RENTAL", "fg"), (".ae", "ac")])
+    return set_runs([("LUXURY", "fg")]), set_runs([("RENTALS", "fg"), (".ae", "ac")])
 
 
 # --------------------------------------------------------------------------- monogram

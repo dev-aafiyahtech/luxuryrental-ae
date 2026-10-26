@@ -31,7 +31,7 @@ None in the demo phase. The demo needs no secrets: bookings, ops and payments ar
 
 ## Domains
 
-Not connected yet. `www.luxuryrental.ae` will be canonical with the apex redirecting to it (plan workstream 02, §3). Needs DNS access.
+Not connected yet. `www.luxuryrentals.ae` will be canonical with the apex redirecting to it (plan workstream 02, §3). Needs DNS access.
 
 ## Connecting the project
 

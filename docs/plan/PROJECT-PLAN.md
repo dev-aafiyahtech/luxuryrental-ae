@@ -1,4 +1,4 @@
-# LuxuryRental.ae: Project Plan
+# LuxuryRentals.ae: Project Plan
 
 **Version 1 · 23 Oct 2026 (Asia/Dubai) · Approver: Zubair (Adz Tech Solutions) · Status: for approval**
 
@@ -38,7 +38,7 @@ Business targets such as requests per week and WhatsApp conversion are set after
 
 | Phase | When | In scope |
 |-------|------|----------|
-| **M0: Set-up** | 26–30 Oct | Decisions ([§9](#9-decisions-needed-from-zubair)), client-owned accounts, repo scaffold and CI, design-system update for image-based cars, logo concepts, the "golden car" look-dev. Optional: a holding page on luxuryrental.ae with the logo, "Launching soon" and a WhatsApp button, as soon as DNS access arrives |
+| **M0: Set-up** | 26–30 Oct | Decisions ([§9](#9-decisions-needed-from-zubair)), client-owned accounts, repo scaffold and CI, design-system update for image-based cars, logo concepts, the "golden car" look-dev. Optional: a holding page on luxuryrentals.ae with the logo, "Launching soon" and a WhatsApp button, as soon as DNS access arrives |
 | **M1: Launch** | Go-live **Thu 26 Nov** | Home (4 chapters as stills), fleet, 8 brand pages, 16 car pages, 5 category pages, chauffeur, delivery (+ DXB and DSO pages), pricing, requirements, about, FAQ, contact, legal pages. 4-step booking request, ops email with one-click Confirm/Decline, WhatsApp hand-off. Pricing engine. Mock payment adapter (no card form on the live site). Sanity CMS. Technical SEO and JSON-LD. Security, monitoring, backups. 16 AI image sets |
 | **M2: Cinematic** | Flag on **Thu 17 Dec** | WebGL stage: Burj by Night skyline, Velocity Tunnel, Kinetic Sculpture with image-sampled particles, headlight finale, device tiers, real-device performance pass, per-car OG images |
 | **Phase 2** | Jan–Feb 2027 | Payment gateway (hosted checkout, deposit pre-auth, refunds) and a staging environment. Ops console with availability blocks to stop double bookings. GA4 + Meta Pixel with consent. Google Business Profile, Bing Places, directories. Seasonal rates automated before peak ends on 31 Mar. Real photo shoot of the top 5. Car "Views" strip. Secure document upload. Area delivery pages and guides |
@@ -59,8 +59,8 @@ The plan follows the `launch` skill's "Simple, Lovable, Complete" gate. M1 does 
 | D-03 | Public pages are **prerendered and refreshed on demand** by a signed CMS webhook. Prices are never served stale. The booking dock is a real form that works before JavaScript | CDN speed for every visitor; booking is never blocked by heavy code |
 | D-04 | **Sanity (free plan)** for content. The Studio is hosted at `luxuryrentals.sanity.studio`, not embedded in the site. **No personal data in Sanity** | Best image pipeline, editors need no developer, keeps the site bundle small. Free datasets are public |
 | D-05 | **Booking data in Neon Postgres (Frankfurt)** via the Vercel Marketplace, with functions in `fra1` | Neon has no Gulf region, and Vercel's Dubai region (`dxb1`) is reported unavailable. Standard Postgres can move to a UAE host later by changing the connection string. **UAE lawyer sign-off on EU storage is a launch gate** |
-| D-06 | **Email via Resend** from `bookings@luxuryrental.ae`. **DNS stays at the .ae registrar**: we add records and don't move nameservers | Keeps any existing email and DNSSEC safe and independent of the Vercel account |
-| D-07 | Canonical host is **`www.luxuryrental.ae`**; the bare domain 308-redirects to it | Vercel's recommended setup. The SEO section preferred the bare domain; either works, but the choice must be fixed before Search Console submission |
+| D-06 | **Email via Resend** from `bookings@luxuryrentals.ae`. **DNS stays at the .ae registrar**: we add records and don't move nameservers | Keeps any existing email and DNSSEC safe and independent of the Vercel account |
+| D-07 | Canonical host is **`www.luxuryrentals.ae`**; the bare domain 308-redirects to it | Vercel's recommended setup. The SEO section preferred the bare domain; either works, but the choice must be fixed before Search Console submission |
 
 **Booking, pricing and payments**
 
@@ -197,11 +197,11 @@ The same agents and skills that wrote this plan carry out the build. Zubair appr
 
 The specialist sections raised about 70 questions. These are the ones that block work, in order. The full lists are at the end of each section.
 
-> **23 Oct 2026:** Zubair answered questions 1–7. See [plan-answers.md](../brief/plan-answers.md): wordmark "LuxuryRental.ae", AI images for all 16 cars (all in the fleet), Bugatti confirmed, top 5 and prices approved, WhatsApp +971 52 965 2722, Zubair owns Vercel, DNS access later (needed by Fri 20 Nov).
+> **23 Oct 2026:** Zubair answered questions 1–7. See [plan-answers.md](../brief/plan-answers.md): wordmark "LuxuryRentals.ae", AI images for all 16 cars (all in the fleet), Bugatti confirmed, top 5 and prices approved, WhatsApp +971 52 965 2722, Zubair owns Vercel, DNS access later (needed by Fri 20 Nov).
 
 **This week (by Fri 30 Oct): these block the build**
 
-1. **Logo name:** should the wordmark read "Luxuryrentals" (trade name) or "LuxuryRental.ae" (domain)? Default: Luxuryrentals, with the domain beneath. Also, do you own luxuryrentals.ae?
+1. **Logo name:** should the wordmark read "Luxuryrentals" (trade name) or "LuxuryRentals.ae" (domain)? Default: Luxuryrentals, with the domain beneath. Also, do you own luxuryrentals.ae?
 2. **Fleet:** are all 16 cars physically in the fleet now? For each car: model year, paint, wheels and interior. Five phone photos per car are needed as image references.
 3. **Bugatti:** is there a partner owner, and can the car be insured for rental? If not, show "coming soon" and use the Purosangue as hero slot 3.
 4. **Top 5 and prices:** approve the top 5 and the launch rate card in [04](workstreams/04-fleet-pricing.md#7-recommended-rates-estimates). Launch would use peak rates.

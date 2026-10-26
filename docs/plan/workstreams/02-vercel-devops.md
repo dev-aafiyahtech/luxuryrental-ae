@@ -7,7 +7,7 @@
 > - Data retention follows [05 §5](05-booking-rules-compliance.md#5-data-handling-plan-for-booking-requests), not a flat 24 months.
 > - The Dubai-region findings are reported, not confirmed by Vercel; re-check at kickoff. The Frankfurt decision holds either way, because Neon has no Gulf region.
 
-LuxuryRental.ae production plan, section 2. Draft, 23 Oct 2026. Assumed stack (being finalised by the architect): one Next.js App Router app in `dev-aafiyahtech/luxuryrental-ae`, Sanity for content, Postgres from the Vercel Marketplace (Neon assumed below), Resend for transactional email. Payments are simulated and the site is English first.
+LuxuryRentals.ae production plan, section 2. Draft, 23 Oct 2026. Assumed stack (being finalised by the architect): one Next.js App Router app in `dev-aafiyahtech/luxuryrental-ae`, Sanity for content, Postgres from the Vercel Marketplace (Neon assumed below), Resend for transactional email. Payments are simulated and the site is English first.
 **[V]** means checked on the vendor's own page on 23 Oct 2026. **[U]** means unverified: an estimate or a third-party source, to be confirmed before anyone relies on it. Prices are USD excluding VAT (1 USD = 3.6725 AED). The sizing assumes 20k visits/month at launch, about 70% of them on mobile **[U]**.
 
 ## 1. Vercel plan
@@ -39,7 +39,7 @@ There is one project, `luxuryrental-ae`: Next.js preset, Node 24 LTS pinned in `
 
 | Environment | Source | URL | Data | Protection |
 |---|---|---|---|---|
-| Production | `main` | www.luxuryrental.ae | Neon `main` branch; Sanity `production` dataset | Public |
+| Production | `main` | www.luxuryrentals.ae | Neon `main` branch; Sanity `production` dataset | Public |
 | Preview | every PR or branch push | `luxuryrental-ae-git-<branch>-<team>.vercel.app` | One Neon branch per preview (Marketplace preview branching, cleanup on, free cap 10 branches [V]); Sanity `production` + draft mode | Standard Protection with Vercel Authentication, free on all plans [V]. Viewers sign in, or use a shareable link |
 | Development | local `next dev` | localhost | Neon `dev` branch via `vercel env pull` | n/a |
 
@@ -72,9 +72,9 @@ Frankfurt is fast enough here. Public pages are static/ISR and served from Verce
 - Mitigations: collect the minimum (no licence or passport uploads at MVP; documents are checked at handover); an explicit consent checkbox that says the data is stored in the EU; a privacy policy naming the processors (Vercel, Neon, Resend, Sentry); 24-month retention enforced by a purge job; PII scrubbing in Sentry.
 - **Sign-off from UAE counsel is a launch gate.**
 
-## 3. Domain and DNS (luxuryrental.ae)
+## 3. Domain and DNS (luxuryrentals.ae)
 
-- **The canonical host is `https://www.luxuryrental.ae`; the apex 308-redirects to www** (set as a Vercel domain redirect). Vercel recommends www on a CNAME: a CNAME lets Vercel steer traffic for DDoS protection and performance, while an A record pins a fixed IP [V]. Chrome hides "www", and printed material can still say luxuryrental.ae. If the client prefers the apex, switch before submitting to Search Console.
+- **The canonical host is `https://www.luxuryrentals.ae`; the apex 308-redirects to www** (set as a Vercel domain redirect). Vercel recommends www on a CNAME: a CNAME lets Vercel steer traffic for DDoS protection and performance, while an A record pins a fixed IP [V]. Chrome hides "www", and printed material can still say luxuryrentals.ae. If the client prefers the apex, switch before submitting to Search Console.
 - **DNS stays at the client's .ae registrar; we add A and CNAME records instead of moving to Vercel nameservers.** That avoids a nameserver change through the .ae registry, and it keeps DNS and email independent of the Vercel team and its billing. It also keeps DNSSEC available: Vercel nameservers only work with DNSSEC turned off at the registrar [U]. Fall back to `ns1/ns2.vercel-dns.com` only if the registrar's DNS editor can't hold a long DKIM TXT record.
 - **SSL.** Vercel issues and renews certificates for both hosts once DNS resolves. Send HSTS `max-age=63072000; includeSubDomains`. Add `preload` in Phase 2, after a month of stable HTTPS.
 
@@ -84,19 +84,19 @@ Frankfurt is fast enough here. Public pages are static/ISR and served from Verce
 | `www` | CNAME | The project-specific `…vercel-dns-0xx.com` value from the domain card [V] | The site |
 | `send` | MX 10 | `feedback-smtp.<region>.amazonses.com` (copy from Resend) | Resend bounce / return-path domain |
 | `send` | TXT | `v=spf1 include:amazonses.com ~all` (copy from Resend) | SPF for the return path, aligned with the root domain |
-| `resend._domainkey` | TXT | DKIM key from Resend | DKIM signing with `d=luxuryrental.ae` |
+| `resend._domainkey` | TXT | DKIM key from Resend | DKIM signing with `d=luxuryrentals.ae` |
 | `_dmarc` | TXT | `v=DMARC1; p=none; rua=mailto:<report address>; adkim=r; aspf=r` | Monitor first. `p=quarantine` at launch + 14 days, `p=reject` at + 45 days |
 | `@` | MX / TXT | The existing mailbox provider's records, left untouched | Only if mailboxes already exist |
 | `@` | CAA | If any CAA record exists, it must allow `letsencrypt.org` [U] | Certificate issuance |
 
-**Email.** Send as `Luxuryrentals <bookings@luxuryrental.ae>`, with Reply-To set to the ops inbox, from Resend's EU region to sit near `fra1` [U]. The email is sent after the response, using Next.js `after()`, so email latency never delays the booking confirmation. If the domain has no mailboxes, DMARC `rua` reports go to a free report service, because a report address on another domain needs an authorisation record there.
+**Email.** Send as `Luxuryrentals <bookings@luxuryrentals.ae>`, with Reply-To set to the ops inbox, from Resend's EU region to sit near `fra1` [U]. The email is sent after the response, using Next.js `after()`, so email latency never delays the booking confirmation. If the domain has no mailboxes, DMARC `rua` reports go to a free report service, because a report address on another domain needs an authorisation record there.
 
 **Cut-over.** There's no live site, so the only thing that can break is email that already exists.
 1. Three days before: get registrar access. Record the registrant (it must be the client's legal entity) and the expiry date, turn on auto-renew and the transfer lock, and export the zone (`dig` for NS/MX/TXT/DS, plus screenshots).
-2. Add `www.luxuryrental.ae` and `luxuryrental.ae` to the Vercel project, set the redirect, and copy the exact record values Vercel shows.
+2. Add `www.luxuryrentals.ae` and `luxuryrentals.ae` to the Vercel project, set the redirect, and copy the exact record values Vercel shows.
 3. Add the Resend records, verify the domain in Resend, and score a test email on mail-tester (target ≥ 9/10) [U].
 4. Add the A and CNAME records with TTL 300, then wait until Vercel shows "Valid Configuration" with certificates issued (minutes to a few hours).
-5. Smoke test: `curl -sI https://luxuryrental.ae` should return a 308 to `https://www.luxuryrental.ae/`, which returns 200 with an HSTS header. Then submit a test booking.
+5. Smoke test: `curl -sI https://luxuryrentals.ae` should return a 308 to `https://www.luxuryrentals.ae/`, which returns 200 with an HSTS header. Then submit a test booking.
 6. After 48 h, raise the TTLs to 3600 and verify the domain in Search Console with a DNS TXT record.
 
 ## 4. CI on GitHub Actions + Vercel
@@ -128,7 +128,7 @@ The Playwright suite reuses `qa/scripts/shoot.mjs`:
 
 - **Plan: Sanity Free.** It gives 20 seats, 2 datasets (**public only**), 10k documents, 1M API CDN requests and 100 GB of bandwidth [V]. In a public dataset, anyone with the project ID can read published content. That's fine for the fleet, prices and copy. PII, cost prices and internal notes never go into Sanity.
 - **Caching.** Public pages are static, and every Sanity fetch carries cache tags (`car`, `car:<slug>`, `offer`, `settings`). Pages also revalidate every hour, so a missed webhook fixes itself.
-- **On-demand revalidation.** A Sanity GROQ webhook fires on create, update and delete for `_type in ["car","brand","offer","page","settings"]`, with projection `{_type, "slug": slug.current}`, and calls `POST https://www.luxuryrental.ae/api/revalidate`. The handler checks the `sanity-webhook-signature` HMAC against `SANITY_REVALIDATE_SECRET` (using `parseBody` from next-sanity), calls `revalidateTag` for the type and slug, and returns 401 on a bad signature. The webhook is production-only; previews always read fresh content. Target: a CMS edit is live in under 60 s. Failed deliveries show in Sanity's webhook log, and handler errors go to Sentry.
+- **On-demand revalidation.** A Sanity GROQ webhook fires on create, update and delete for `_type in ["car","brand","offer","page","settings"]`, with projection `{_type, "slug": slug.current}`, and calls `POST https://www.luxuryrentals.ae/api/revalidate`. The handler checks the `sanity-webhook-signature` HMAC against `SANITY_REVALIDATE_SECRET` (using `parseBody` from next-sanity), calls `revalidateTag` for the type and slug, and returns 401 on a bad signature. The webhook is production-only; previews always read fresh content. Target: a CMS edit is live in under 60 s. Failed deliveries show in Sanity's webhook log, and handler errors go to Sentry.
 - **Draft mode.** `/api/draft-mode/enable` uses next-sanity's `defineEnableDraftMode` with the Viewer token. Editors preview the real site through Sanity's Presentation tool, with click-to-edit, so they don't need Vercel accounts. **The Studio is hosted at `luxuryrentals.sanity.studio`** (free), which keeps Studio JavaScript out of the site bundle. The CSP's `frame-ancestors` allows that origin, and Sanity's CORS list includes the production domain and the `*.vercel.app` previews (with credentials).
 - **Editors.** Zubair and the ops staff use free Sanity seats. Fleet changes need neither a developer nor a deploy.
 
@@ -272,7 +272,7 @@ Sentry and Better Stack alert the developer and the ops inbox by email. A bookin
 1. Who owns the Vercel team, and whose card pays? (Proposal: Luxuryrentals' legal entity, with Zubair as Owner.)
 2. How many people will push code? One person means $20/month; two means $40/month.
 3. Who is the registrar? Also: the registrant entity, expiry date, DNSSEC status and current DNS host. Can we get access now instead of at the production push?
-4. Does luxuryrental.ae have mailboxes today? Which inbox receives booking notifications and DMARC reports?
+4. Does luxuryrentals.ae have mailboxes today? Which inbox receives booking notifications and DMARC reports?
 5. Canonical host: www (recommended) or the apex?
 6. Which database will the architect choose: Neon Frankfurt (the default) or a Mumbai option? This decides the function region.
 7. Legal: is EU storage of booking PII acceptable? What retention period, and what approved consent wording?

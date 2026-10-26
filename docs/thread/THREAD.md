@@ -498,3 +498,12 @@ Got it. I've saved your answers to the project, and I'll wait for your next inst
 > 3. i will provide later
 
 *Claude changed the logo accent (the ".ae" and the monogram's gold square) from Antique Gold `#EBDAB0` to Burnished Gold `#D6AE4F`, which stands apart from the Alabaster letters (1.8:1 against them, up from 1.2:1) and keeps 4.1:1 on Sea Moss. Buttons and the single-colour gold files stay Antique Gold. The whole logo pack (SVGs, favicon, app icons, avatar, share template, the inline React logo and the master artboard) was regenerated from the brand-kit source, after checking that the unchanged source reproduced every existing file exactly. Then it merged the demo branch into `main`. Vercel waits for Zubair.*
+
+---
+
+## 19. Brand name: LuxuryRentals.ae
+
+**Zubair:**
+> Its "luxuryrentals" not luxuryrental
+
+*Claude renamed the brand to LuxuryRentals.ae everywhere it is shown: the logo (wordmark redrawn from the brand-kit source with the S and new spacing for "LS" and "S."), page titles, the app manifest, share images, the site settings, emails (bookings@, privacy@, ops@luxuryrentals.ae), the domain (luxuryrentals.ae) and the current docs. The trade name "Luxuryrentals" in legal text was already right. Past records (this thread, the plan answers, the prototype) keep the old spelling, with a correction note in the plan answers. While checking the header, it found the logo was being squeezed to under 100 px on 1024–1279 px screens since the language switch was added, so the desktop text menu now starts at 1280 px and smaller laptops use the menu button. The GitHub repository is still named `luxuryrental-ae`; renaming it is Zubair's call.*

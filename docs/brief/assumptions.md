@@ -16,9 +16,9 @@ The demo marks these as **sample values** in the footer and on the About page wh
 | Licensing authority | Dubai Department of Economy and Tourism (DET) | DET, or DSO/DIEZ if free-zone licensed |
 | RTA rental permit | 123456 (sample) | Permit number |
 | VAT TRN | 100123456700003 (sample) | TRN |
-| Booking email | bookings@luxuryrental.ae | Real inbox |
-| Privacy email | privacy@luxuryrental.ae | Real inbox, or the booking inbox |
-| Ops alerts | ops@luxuryrental.ae | Who receives request emails and alerts (plan §9 Q16) |
+| Booking email | bookings@luxuryrentals.ae | Real inbox |
+| Privacy email | privacy@luxuryrentals.ae | Real inbox, or the booking inbox |
+| Ops alerts | ops@luxuryrentals.ae | Who receives request emails and alerts (plan §9 Q16) |
 | Hours and reply promise | Daily 09:00–22:00; "usually within 1 hour" | Staffed hours and the promise ops can keep (Q5) |
 | Consumer protection | Dubai Economy and Tourism Consumer Protection, consumerrights.ae, 600 545 555 | Lawyer to confirm |
 

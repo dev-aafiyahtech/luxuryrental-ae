@@ -35,7 +35,7 @@ The client's answers are in [requirements-answers.md](requirements-answers.md).
 - [ ] Languages: English and Arabic planned; others? Who translates or checks the Arabic?
 
 ## Access and accounts
-- [ ] Access to the registrar account for luxuryrental.ae
+- [ ] Access to the registrar account for luxuryrentals.ae
 - [ ] Existing site address, if any, so search rankings carry over
 - [ ] Google Analytics, Meta Pixel, Google Business Profile and WhatsApp Business accounts
 - [ ] Who should get logins to update the fleet and prices

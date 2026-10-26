@@ -4,7 +4,7 @@ import { alternatesFor, ogLocaleFor } from "@/i18n/metadata";
 import { site } from "@/content/site";
 
 // Metadata for the content pages (workstream 07 §7.2 templates). The root layout adds
-// " | LuxuryRental.ae" through its title template. `path` is the unprefixed path ("/pricing");
+// " | LuxuryRentals.ae" through its title template. `path` is the unprefixed path ("/pricing");
 // the canonical URL follows the page's locale, with hreflang alternates for every locale.
 export async function pageMetadata({ title, description, path }: { title: string; description: string; path: string }): Promise<Metadata> {
   const locale = await getLocale();

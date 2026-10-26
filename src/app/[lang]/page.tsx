@@ -16,7 +16,7 @@ import { HomeDock } from "@/components/home/Islands";
 
 export async function generateMetadata(): Promise<Metadata> {
   const [t, locale] = await Promise.all([getT("home"), getLocale()]);
-  // The layout's "%s | LuxuryRental.ae" template doesn't reach a page in its own segment.
+  // The layout's "%s | LuxuryRentals.ae" template doesn't reach a page in its own segment.
   return { title: { absolute: `${t("meta.title")} | ${site.brandName}` }, description: t("meta.description"), alternates: alternatesFor(locale, "/") };
 }
 

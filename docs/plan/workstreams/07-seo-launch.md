@@ -3,10 +3,10 @@
 > Part of the [project plan](../PROJECT-PLAN.md). Drafted on 23 Oct 2026 by the **SEO Specialist** agent. Where this section and the plan's [decisions](../PROJECT-PLAN.md#4-decisions) differ, the plan wins.
 >
 > **Overrides for this section:**
-> - The canonical host is `www.luxuryrental.ae` (D-07), so the apex URLs in the examples become www.
+> - The canonical host is `www.luxuryrentals.ae` (D-07), so the apex URLs in the examples become www.
 > - URL patterns follow D-14 (`/cars/{brand}/{model}`, `/cars/{brand}`, `/cars/type/{category}`); update the JSON-LD example to match. The fleet car is the Urus SE, not the Urus S.
 
-Prepared 23 Oct 2026 for LuxuryRental.ae (Luxuryrentals, Dubai Silicon Oasis). The domain is new, so there are no legacy URLs and no reviews. English launches first and Arabic follows. **No search volumes are quoted here.** Wherever a figure would go, the text says "check in a keyword tool": Google Keyword Planner (location UAE, English/Arabic) or the Ahrefs/Semrush UAE database. Prices, specs and NAP below are samples or placeholders until the client confirms them.
+Prepared 23 Oct 2026 for LuxuryRentals.ae (Luxuryrentals, Dubai Silicon Oasis). The domain is new, so there are no legacy URLs and no reviews. English launches first and Arabic follows. **No search volumes are quoted here.** Wherever a figure would go, the text says "check in a keyword tool": Google Keyword Planner (location UAE, English/Arabic) or the Ahrefs/Semrush UAE database. Prices, specs and NAP below are samples or placeholders until the client confirms them.
 
 **SERP snapshot (web research, Oct 2026).** Model and "luxury" queries are led by marketplaces (OneClickDrive lists many owners' cars per model) and by multi-area operators that already run area pages, including one for Dubai Silicon Oasis (Octane). Published Urus day rates range from roughly AED 700 to 3,800 across sources. The head term is a 6–12 month goal. Model, chauffeur and DSO long-tail terms are the realistic first wins.
 
@@ -27,7 +27,7 @@ Each URL owns one primary cluster. Its terms may appear in body copy elsewhere, 
 | 7b | Areas | luxury car rental Dubai Marina / Downtown Dubai / Palm Jumeirah / Business Bay; Al Maktoum airport (DWC) | Transactional, local | `/delivery/{area}` | Phase 2 |
 | 8 | Price | luxury car rental Dubai price, how much to rent a Lamborghini in Dubai, monthly supercar rental Dubai | Commercial/info | `/pricing` (per-model price stays on the car page) | MVP |
 | 9 | Requirements | documents to rent a car in Dubai as a tourist, age to rent a supercar in Dubai, IDP Dubai, Salik rental car, deposit | Informational | `/requirements` | MVP |
-| 10 | Navigational | luxuryrentals, luxuryrental.ae, luxuryrentals DSO | Navigational | `/` | MVP |
+| 10 | Navigational | luxuryrentals, luxuryrentals.ae, luxuryrentals DSO | Navigational | `/` | MVP |
 | 11 | Experience | supercar drive routes Dubai, Hatta road trip, Jebel Jais drive, supercar photo spots Dubai | Informational | `/guides/{slug}` | Phase 2 |
 
 **Arabic (Phase 3).** Validate every term with a native Gulf-Arabic speaker and a keyword tool, testing both تأجير and ايجار and both فاخرة and فخمة. Proposed mapping: تأجير سيارات فاخرة دبي and ايجار سيارات فخمة في دبي → `/ar`; تأجير سيارات رياضية دبي → `/ar/categories/supercars`; تأجير لامبورغيني دبي → `/ar/brands/lamborghini`; تأجير رولز رويس مع سائق دبي and سيارة مع سائق دبي → `/ar/chauffeur`; تأجير سيارات مطار دبي → `/ar/delivery/dubai-airport-dxb`.
@@ -36,7 +36,7 @@ Each URL owns one primary cluster. Its terms may appear in body copy elsewhere, 
 
 ## 7.2 URLs, metadata templates and internal linking
 
-**URL rules.** Use the apex `https://luxuryrental.ae`, with `www` redirecting to it via 308 (set in Vercel). Slugs are lowercase and hyphenated, with no trailing slash and no years or colours. Car slugs use the model family (`/cars/lamborghini-urus`), so a trim swap keeps the URL. Filter states on `/cars` canonicalise to `/cars`; brand and category pages are the crawlable versions. There is **no `/categories/chauffeur`**: the fleet's "Chauffeur" filter links to `/chauffeur`, so two pages never compete. A retired car 301s to its successor or to its brand page (set by a `redirectTo` field in Sanity), never a 404. Arabic mirrors the English slugs under `/ar/`, since Latin slugs stay readable in WhatsApp shares.
+**URL rules.** Use the apex `https://luxuryrentals.ae`, with `www` redirecting to it via 308 (set in Vercel). Slugs are lowercase and hyphenated, with no trailing slash and no years or colours. Car slugs use the model family (`/cars/lamborghini-urus`), so a trim swap keeps the URL. Filter states on `/cars` canonicalise to `/cars`; brand and category pages are the crawlable versions. There is **no `/categories/chauffeur`**: the fleet's "Chauffeur" filter links to `/chauffeur`, so two pages never compete. A retired car 301s to its successor or to its brand page (set by a `redirectTo` field in Sanity), never a 404. Arabic mirrors the English slugs under `/ar/`, since Latin slugs stay readable in WhatsApp shares.
 
 | Page type | Title template (≤ ~60 chars) | Meta description template | H1 |
 |-----------|-------------------------------|---------------------------|----|
@@ -64,7 +64,7 @@ Change the "(Updated {Mon YYYY})" stamp only when the content changes. `metadata
 
 ## 7.3 Technical SEO (Next.js App Router on Vercel)
 
-**Rendering and metadata.** Every public route is statically generated from Sanity (`generateStaticParams`), and a Sanity publish webhook triggers `revalidateTag`. Car name, price, specs, FAQs and CTAs are in the initial HTML; check with `curl` and GSC URL Inspection, not only a browser. The root `layout.tsx` sets `metadataBase: new URL('https://luxuryrental.ae')` and `title.template: '%s | Luxuryrentals'`. Each route's `generateMetadata()` reads the same Sanity document as the page and sets a self-referencing absolute `alternates.canonical`, `openGraph`, and `twitter.card: 'summary_large_image'`.
+**Rendering and metadata.** Every public route is statically generated from Sanity (`generateStaticParams`), and a Sanity publish webhook triggers `revalidateTag`. Car name, price, specs, FAQs and CTAs are in the initial HTML; check with `curl` and GSC URL Inspection, not only a browser. The root `layout.tsx` sets `metadataBase: new URL('https://luxuryrentals.ae')` and `title.template: '%s | Luxuryrentals'`. Each route's `generateMetadata()` reads the same Sanity document as the page and sets a self-referencing absolute `alternates.canonical`, `openGraph`, and `twitter.card: 'summary_large_image'`.
 
 **robots.txt (`app/robots.ts`).** In production, allow everything except `/api/` and the simulated checkout routes, and declare the sitemap. When `VERCEL_ENV !== 'production'`, serve `Disallow: /`. Vercel also sends `X-Robots-Tag: noindex` on previews; keep both guards. Explicitly allow `OAI-SearchBot`, `ChatGPT-User`, `PerplexityBot`, `Claude-SearchBot` and `Bingbot`. The training crawlers (`GPTBot`, `ClaudeBot`, `Google-Extended`, `CCBot`) are the client's call, and the recommendation is to allow them. Blocking `Google-Extended` does not remove the site from AI Overviews. Check that Vercel Firewall and bot protection don't challenge any of these bots.
 
@@ -88,7 +88,7 @@ Change the "(Updated {Mon YYYY})" stamp only when the content changes. `metadata
 - **Real photos:** swap them in as soon as possible. GBP needs them, they do better in image search, and they build trust.
 
 **Structured data.** Rendered from Sanity in server components, with `<` escaped as `<`. Every value must match the visible text.
-- **Site-wide `@graph`:** `Organization`, `WebSite` and `AutoRental` (a LocalBusiness subtype, `@id` `https://luxuryrental.ae/#business`). Fields: name, logo, DSO `PostalAddress` (placeholder until final), `geo`, `telephone`, WhatsApp `contactPoint`, opening hours, `areaServed`, `priceRange`, and `sameAs` (Instagram, TikTok, and GBP once live).
+- **Site-wide `@graph`:** `Organization`, `WebSite` and `AutoRental` (a LocalBusiness subtype, `@id` `https://luxuryrentals.ae/#business`). Fields: name, logo, DSO `PostalAddress` (placeholder until final), `geo`, `telephone`, WhatsApp `contactPoint`, opening hours, `areaServed`, `priceRange`, and `sameAs` (Instagram, TikTok, and GBP once live).
 - **No ratings yet:** no `aggregateRating` or `review` until real reviews exist. Even then, self-serving reviews on your own site earn no stars.
 - **Per page type:** car pages get `Car` with an `Offer` (`businessFunction` LeaseOut, `UnitPriceSpecification` with `unitCode: DAY`). `/chauffeur` gets `Service` with an hourly offer (`HUR`). Every page except home gets `BreadcrumbList`. `/faq` and `/requirements` get `FAQPage`.
 - **Expectations:** Google has no rental-car rich result, and it retired Vehicle listing markup in June 2025. FAQ rich results reportedly ended on 7 May 2026. The markup's value is entity clarity for Google, Bing and AI engines.
@@ -98,12 +98,12 @@ Car page example (`/cars/lamborghini-urus`). The specs are Lamborghini's publish
 ```json
 { "@context": "https://schema.org", "@graph": [
   { "@type": "BreadcrumbList", "itemListElement": [
-    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://luxuryrental.ae/" },
-    { "@type": "ListItem", "position": 2, "name": "Fleet", "item": "https://luxuryrental.ae/cars" },
-    { "@type": "ListItem", "position": 3, "name": "Lamborghini", "item": "https://luxuryrental.ae/brands/lamborghini" },
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://luxuryrentals.ae/" },
+    { "@type": "ListItem", "position": 2, "name": "Fleet", "item": "https://luxuryrentals.ae/cars" },
+    { "@type": "ListItem", "position": 3, "name": "Lamborghini", "item": "https://luxuryrentals.ae/brands/lamborghini" },
     { "@type": "ListItem", "position": 4, "name": "Lamborghini Urus S" } ] },
-  { "@type": "Car", "@id": "https://luxuryrental.ae/cars/lamborghini-urus#car",
-    "name": "Lamborghini Urus S", "url": "https://luxuryrental.ae/cars/lamborghini-urus",
+  { "@type": "Car", "@id": "https://luxuryrentals.ae/cars/lamborghini-urus#car",
+    "name": "Lamborghini Urus S", "url": "https://luxuryrentals.ae/cars/lamborghini-urus",
     "image": "https://cdn.sanity.io/images/{projectId}/production/{hash}-2400x1600.jpg/lamborghini-urus-front-three-quarter.jpg",
     "description": "Rent the Lamborghini Urus S in Dubai, delivered to your hotel, home or DXB.",
     "brand": { "@type": "Brand", "name": "Lamborghini" }, "model": "Urus S", "bodyType": "SUV",
@@ -113,14 +113,14 @@ Car page example (`/cars/lamborghini-urus`). The specs are Lamborghini's publish
       "enginePower": { "@type": "QuantitativeValue", "value": 490, "unitCode": "KWT" } },
     "accelerationTime": { "@type": "QuantitativeValue", "value": 3.5, "unitCode": "SEC", "description": "0-100 km/h" },
     "speed": { "@type": "QuantitativeValue", "maxValue": 305, "unitCode": "KMH" },
-    "offers": { "@type": "Offer", "url": "https://luxuryrental.ae/cars/lamborghini-urus",
+    "offers": { "@type": "Offer", "url": "https://luxuryrentals.ae/cars/lamborghini-urus",
       "businessFunction": "http://purl.org/goodrelations/v1#LeaseOut",
       "price": 3500, "priceCurrency": "AED",
       "priceSpecification": { "@type": "UnitPriceSpecification", "price": 3500, "priceCurrency": "AED",
         "unitCode": "DAY", "valueAddedTaxIncluded": true },
       "availability": "https://schema.org/InStock",
       "areaServed": { "@type": "City", "name": "Dubai" },
-      "offeredBy": { "@id": "https://luxuryrental.ae/#business" } } } ] }
+      "offeredBy": { "@id": "https://luxuryrentals.ae/#business" } } } ] }
 ```
 
 ## 7.4 AI search and answer engines (ChatGPT, Perplexity, Google AI Overviews)
@@ -180,7 +180,7 @@ Price, requirements and airport questions are **not** guides. They belong to `/p
 | WhatsApp clicks by car and page type | GA4 event `whatsapp_click` | Primary conversion |
 | Bookings by source | Prefilled WhatsApp text with a ref code (e.g. `Ref: URUS-IG`), plus the ops log | Works from day 0, before GA4 |
 | Indexed vs submitted URLs | GSC Pages | Target: all sitemap URLs indexed by day 30 |
-| Branded vs non-branded clicks | GSC, brand regex `luxuryrental\.ae\|luxuryrentals` | Keep it strict; "luxury rentals" is generic |
+| Branded vs non-branded clicks | GSC, brand regex `luxuryrentals` | Keep it strict; "luxury rentals" is generic |
 | Positions, model + Dubai and chauffeur queries | GSC (rank tracker optional) | Weekly; call a trend only after 4+ weeks |
 | CWV p75 on mobile | Speed Insights, then CrUX | LCP < 2.5 s, INP < 200 ms, CLS < 0.1 |
 | GBP calls, website clicks, directions | GBP Performance | After verification |
@@ -225,7 +225,7 @@ Totals: MVP 13.75 · Phase 2 18.5 · Phase 3 4, plus 1 per quarter.
 **Risks**
 - **Estimated prices go live.** They then spread through JSON-LD, OG images and AI answers. Mitigation: client sign-off before launch, "from" wording, and one price field in Sanity.
 - **AI-generated car images.** Risks are misrepresentation complaints, removal from GBP and weak image search. Mitigation: the disclosure line, the IPTC tag, real photos in Phase 2, and no AI images on GBP.
-- **Generic brand name.** "Luxuryrentals" blurs into "luxury rentals", so navigational searches can land on other businesses. Mitigation: always pair "Luxuryrentals · LuxuryRental.ae", plus `sameAs` and GBP.
+- **Generic brand name.** "Luxuryrentals" blurs into "luxury rentals", so navigational searches can land on other businesses. Mitigation: always pair "Luxuryrentals · LuxuryRentals.ae", plus `sameAs` and GBP.
 - **Zero reviews.** Competitors with many reviews will hold the local pack early. Lean on the long tail, social and marketplaces.
 - **WebGL homepage.** INP or LCP can regress, or text can stay hidden until JS runs. Mitigation: CI budgets and SSR checks on every deploy.
 - **Doorway and duplicate content.** Templated area pages look like doorway pages, and manufacturer text on car pages is duplicate content. Mitigation: unique facts on every page.

@@ -19,7 +19,7 @@ import arFleet from "@/messages/ar/fleet.json";
 // in Noto Kufi Arabic (OFL, assets/fonts) and placed as images; the layout mirrors, the car
 // picture and the wordmark don't. Brand and model names stay in Latin script, in Syncopate.
 
-export const alt = "A car available to rent in Dubai from LuxuryRental.ae";
+export const alt = "A car available to rent in Dubai from LuxuryRentals.ae";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -61,7 +61,7 @@ export default async function Image({ params }: { params: Promise<{ lang: string
   const t = (key: string, vars?: Record<string, string | number>) => translate(ar ? messages.ar : messages.en, key, vars);
   const car = getCarByPath(brand, model);
   const [[bold, regular], logoSrc, hero] = await Promise.all([fonts, logo, cardSrc(car ? carMedia[car.slug]?.card : undefined)]);
-  const name = car?.model ?? "LuxuryRental.ae";
+  const name = car?.model ?? "LuxuryRentals.ae";
   const make = car ? getBrand(car.brand)?.name ?? "" : "";
   const price = car ? t(car.rates.onRequest ? "og.priceOnRequest" : "og.price", { price: formatAED(car.rates.daily, lang) }) : "";
 
@@ -81,7 +81,7 @@ export default async function Image({ params }: { params: Promise<{ lang: string
         {hero && <img src={hero} width={840} height={630} alt="" style={{ position: "absolute", top: 0, [side]: 0, width: 840, height: 630 }} />}
         <div style={{ position: "absolute", top: 0, bottom: 0, [edge]: 360, width: 220, display: "flex", background: `linear-gradient(${ar ? 270 : 90}deg, #1d3c3c 0%, rgba(29,60,60,0) 100%)` }} />
         <div style={{ position: "absolute", top: 52, [edge]: 60, display: "flex" }}>
-          <img src={logoSrc} width={330} height={28} alt="" />
+          <img src={logoSrc} width={356} height={28} alt="" />
         </div>
         <div style={{ position: "absolute", [edge]: 60, bottom: 64, display: "flex", flexDirection: "column", alignItems: ar ? "flex-end" : "flex-start", width: 420 }}>
           <div style={{ fontSize: 22, letterSpacing: 6, color: "#ebdab0", fontWeight: 400 }}>{make.toUpperCase()}</div>

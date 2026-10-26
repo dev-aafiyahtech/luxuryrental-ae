@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "LuxuryRental.ae",
-    short_name: "LuxuryRental",
+    name: "LuxuryRentals.ae",
+    short_name: "LuxuryRentals",
     description: "Luxury car rental in Dubai, delivered.",
     start_url: "/",
     display: "standalone",

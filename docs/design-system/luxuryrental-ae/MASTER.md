@@ -1,11 +1,11 @@
-# LuxuryRental.ae — Design System Master File
+# LuxuryRentals.ae — Design System Master File
 
 > **LOGIC:** When building a specific page, first check `design-system/luxuryrental-ae/pages/[page-name].md`.
 > If that file exists, its rules **override** this Master file. If not, follow the rules below.
 
 ---
 
-**Project:** LuxuryRental.ae — the world's most beautiful, futuristic luxury car rental website
+**Project:** LuxuryRentals.ae — the world's most beautiful, futuristic luxury car rental website
 **Generated:** 2026-10-22 with UI/UX Pro Max (`--design-system`, Variance 7 · Motion 9 · Density 3), then adapted for a dark, futuristic direction
 **Category:** Luxury/Premium Brand × Automotive
 **Stack:** Next.js · React Three Fiber · GSAP + Lenis · Sanity · Vercel
@@ -321,5 +321,5 @@ Flip.from(state, { duration: 0.6, ease: 'expo.inOut', absolute: true, zIndex: 10
 
 ## Change Log
 
-- **2026-10-23**: First homepage prototype published (private artifact "LuxuryRental.ae Prototype", https://claude.ai/artifact/A9w1rnorC61uzhPxaMGs6f). It covers all four chapters, the glass booking dock, the reservation card, a reduced-motion version and a mobile layout. The car is a procedural particle sculpture standing in for real 3D car models. Cars, prices and specs are samples.
+- **2026-10-23**: First homepage prototype published (private artifact "LuxuryRentals.ae Prototype", https://claude.ai/artifact/A9w1rnorC61uzhPxaMGs6f). It covers all four chapters, the glass booking dock, the reservation card, a reduced-motion version and a mobile layout. The car is a procedural particle sculpture standing in for real 3D car models. Cars, prices and specs are samples.
 - **2026-10-22** — Generated with UI/UX Pro Max (variance 7, motion 9, density 3). Adapted to dark mode (contrast verified). Shortlist finalised: Burj by Night, Velocity Tunnel, Kinetic Sculpture. Silent Thunder removed.

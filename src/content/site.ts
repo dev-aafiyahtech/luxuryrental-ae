@@ -4,17 +4,17 @@
 // While `sampleDetails` is true, the footer and About page say they are samples.
 
 export const site = {
-  brandName: "LuxuryRental.ae", // wordmark, approved 23 Oct 2026
+  brandName: "LuxuryRentals.ae", // wordmark and domain (corrected from "LuxuryRental.ae" by Zubair, 26 Oct 2026)
   businessName: "Luxuryrentals", // trade name: legal text, footer, Google Business
   legalName: "Luxuryrentals Car Rental L.L.C.", // assumed
-  domain: "luxuryrental.ae",
-  url: "https://www.luxuryrental.ae",
+  domain: "luxuryrentals.ae",
+  url: "https://www.luxuryrentals.ae",
   whatsapp: "971529652722", // wa.me format
   whatsappDisplay: "+971 52 965 2722",
   phone: "+971 52 965 2722",
-  email: "bookings@luxuryrental.ae",
-  privacyEmail: "privacy@luxuryrental.ae",
-  opsEmail: "ops@luxuryrental.ae", // ops alerts and request emails (assumed)
+  email: "bookings@luxuryrentals.ae",
+  privacyEmail: "privacy@luxuryrentals.ae",
+  opsEmail: "ops@luxuryrentals.ae", // ops alerts and request emails (assumed)
   address: {
     line1: "Office 1208, Silicon Oasis HQ", // assumed
     area: "Dubai Silicon Oasis",

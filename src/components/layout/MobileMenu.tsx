@@ -19,7 +19,7 @@ export function MobileMenu({ nav, groups, labels, reserveHref, account }: { nav:
 
   return (
     <>
-      <button type="button" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-line text-fg lg:hidden" aria-label={labels.menu} aria-haspopup="dialog" onClick={() => ref.current?.showModal()}>
+      <button type="button" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-line text-fg xl:hidden" aria-label={labels.menu} aria-haspopup="dialog" onClick={() => ref.current?.showModal()}>
         <Menu className="h-5 w-5" aria-hidden="true" />
       </button>
       <dialog ref={ref} className="m-0 h-dvh max-h-none w-full max-w-none bg-bg/95 p-0 text-fg backdrop:bg-bg/60 [&:not([open])]:hidden" aria-label={labels.menu} onClick={(e) => { if (e.target === e.currentTarget) e.currentTarget.close(); }}>
