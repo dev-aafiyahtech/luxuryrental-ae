@@ -7,6 +7,10 @@ export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const first = pathname.split("/")[1] ?? "";
 
+  // Share images and icons are addressed by their internal /en path in page metadata; serve
+  // them there rather than redirect, so link previews fetch them in one request.
+  if (first === defaultLocale && /\/(opengraph-image|twitter-image|icon|apple-icon)(-\w+)?$/.test(pathname)) return NextResponse.next();
+
   if (first === defaultLocale) {
     const rest = pathname.slice(defaultLocale.length + 1) || "/";
     return NextResponse.redirect(new URL(`${rest}${search}`, request.url), 308);

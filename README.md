@@ -19,6 +19,8 @@ Sea Moss `#2C5252`, Antique Gold `#EBDAB0` and Alabaster `#F4EADE` (changed from
 
 ## Run the demo
 
+**Live demo:** https://luxuryrental-ae.vercel.app (Vercel, deploys from `main`; English at `/`, Arabic at `/ar`).
+
 Needs Node.js 20.9 or later (Vercel builds with Node 24, pinned in `package.json`; older versions only print an engine warning).
 
 ```bash

@@ -3,12 +3,22 @@
 // the client sends the real ones (plan §9, question 11; docs/brief/assumptions.md).
 // While `sampleDetails` is true, the footer and About page say they are samples.
 
+/**
+ * Canonical address for links, the sitemap and share images. Until luxuryrentals.ae is on the
+ * Vercel project, this is the project's live address (e.g. luxuryrental-ae.vercel.app), so link
+ * previews work; once the domain is connected, it is the www host. Locally: the www host.
+ */
+function siteUrl() {
+  const host = process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  return !host || host.endsWith("luxuryrentals.ae") ? "https://www.luxuryrentals.ae" : `https://${host}`;
+}
+
 export const site = {
   brandName: "LuxuryRentals.ae", // wordmark and domain (corrected from "LuxuryRental.ae" by Zubair, 26 Oct 2026)
   businessName: "Luxuryrentals", // trade name: legal text, footer, Google Business
   legalName: "Luxuryrentals Car Rental L.L.C.", // assumed
   domain: "luxuryrentals.ae",
-  url: "https://www.luxuryrentals.ae",
+  url: siteUrl(),
   whatsapp: "971529652722", // wa.me format
   whatsappDisplay: "+971 52 965 2722",
   phone: "+971 52 965 2722",

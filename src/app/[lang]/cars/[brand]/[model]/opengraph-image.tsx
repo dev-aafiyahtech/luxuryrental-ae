@@ -27,17 +27,22 @@ export async function generateStaticParams() {
   return cars.map((c) => ({ brand: c.brand, model: c.modelSlug }));
 }
 
-const fonts = Promise.all([
+// Files are read once at module level, and the per-car work below is cached ("use cache"):
+// with Cache Components, file reads during the render itself count as uncached IO and make
+// the route fail in production (it worked in dev). next.config.ts traces these files into
+// the function.
+const [bold, regular] = await Promise.all([
   readFile(join(process.cwd(), "assets/fonts/Syncopate-Bold.ttf")),
   readFile(join(process.cwd(), "assets/fonts/Syncopate-Regular.ttf")),
 ]);
 const ARABIC_FONT = join(process.cwd(), "assets/fonts/NotoKufiArabic-Bold.ttf");
-const logo = readFile(join(process.cwd(), "public/brand/logo-horizontal-white.svg"), "base64").then((b) => `data:image/svg+xml;base64,${b}`);
+const logoSrc = `data:image/svg+xml;base64,${await readFile(join(process.cwd(), "public/brand/logo-horizontal-white.svg"), "base64")}`;
 
 const messages = { en: enFleet, ar: withFallback(enFleet, arFleet) };
 
 /** The 4:3 card image (whole car, studio continued above and below) as a JPEG data URL: the renderer doesn't read WebP. */
 async function cardSrc(path?: string): Promise<string | null> {
+  "use cache";
   if (!path) return null;
   const jpg = await sharp(join(process.cwd(), "public", path)).resize(840, 630, { fit: "cover" }).jpeg({ quality: 84 }).toBuffer();
   return `data:image/jpeg;base64,${jpg.toString("base64")}`;
@@ -47,6 +52,7 @@ const escapeMarkup = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;
 
 /** One line of Arabic text, shaped by Pango, as a transparent PNG data URL with its size in px. */
 async function arabicLine(text: string, px: number, color: string) {
+  "use cache";
   const { data, info } = await sharp({
     text: { text: `<span foreground="${color}">${escapeMarkup(text)}</span>`, font: `Noto Kufi Arabic Bold ${px}`, fontfile: ARABIC_FONT, rgba: true, dpi: 72 },
   })
@@ -60,7 +66,7 @@ export default async function Image({ params }: { params: Promise<{ lang: string
   const ar = lang === "ar";
   const t = (key: string, vars?: Record<string, string | number>) => translate(ar ? messages.ar : messages.en, key, vars);
   const car = getCarByPath(brand, model);
-  const [[bold, regular], logoSrc, hero] = await Promise.all([fonts, logo, cardSrc(car ? carMedia[car.slug]?.card : undefined)]);
+  const hero = await cardSrc(car ? carMedia[car.slug]?.card : undefined);
   const name = car?.model ?? "LuxuryRentals.ae";
   const make = car ? getBrand(car.brand)?.name ?? "" : "";
   const price = car ? t(car.rates.onRequest ? "og.priceOnRequest" : "og.price", { price: formatAED(car.rates.daily, lang) }) : "";
