@@ -164,3 +164,134 @@ Other cars, for the data owner:
 - `node qa/scripts/i18n-keys.mjs`: "Keys and placeholders match." The Arabic file is unchanged; another agent updates it from the changed-key list above.
 - `npx tsc --noEmit`: passes.
 - Screenshots of every chapter and section at 390×844 and 1440×900, taken with Chromium (SwiftShader WebGL) against the shared dev server, before and after the change. Each run measured line breaks for every headline and body paragraph, element overflow, page-level horizontal overflow and console errors. Final run: 0 px overflow, 0 console errors, no single word on the last line of any headline or paragraph from this file. The only one-word last line left on the page is the car name "GranTurismo / Trofeo" in the fleet strip, which comes from car data.
+
+## Round 2 (client feedback, 26 Oct)
+
+Zubair raised four points. This round used the copywriting, copy-editing and cro skills.
+
+**Result:** 7 keys changed in `src/messages/en/home.json`. There is no component change. `fleet.title` no longer uses `{cars}` or `{brands}` (see R2.4).
+
+### R2.1 Hero headline (`sky.title`)
+
+**Diagnosis.** "Supercars, after dark" names the product, but the second half is mood only. It doesn't say what the visitor gets, and "after dark" can read as night-only rental. Once the test branch puts a recognisable Burj Khalifa in the scene, the picture is about Dubai and arriving there more than about the night.
+
+**Constraint.** The component puts the first word on line 1 and the rest on line 2. At 1440 px the second line holds about 10 characters of Syncopate (measured in the page), so "Dubai, by supercar" breaks to three lines there.
+
+| Option | Lines at 390 / 1440 | Reader can picture it | Can be proved | Hard for a competitor to copy | Notes |
+|---|---|---|---|---|---|
+| **A. Supercars, on arrival** (shipped) | 2 / 2 | Yes: you arrive, the car is there | Yes: delivery anywhere in Dubai, meet-and-greet at DXB and DWC | Partly: the phrase is ours, the service isn't unique | Works with the night skyline and with the Burj Khalifa |
+| B. Land, then drive | 2 / 2 | Strongly | Yes | Yes | Leaves out residents and chauffeur guests; "LAND," alone on line 1 reads oddly |
+| C. Supercars in Dubai | 2 / 2 | Weakly | Yes | No | Best for search, but plain, and it repeats the eyebrow's "in Dubai" |
+
+Also considered: "Dubai, by supercar" (three lines at 1440 px), "Drive the night" (mood only, and it excludes chauffeur guests), and the current "Supercars, after dark".
+
+**Why A.**
+- It gives the product and the promise in three words, and the lede directly below explains it: *We bring it to your door*.
+- "On arrival" echoes a phrase every UAE visitor knows ("visa on arrival").
+- It is true for residents too, because the car arrives wherever they are.
+- It names no landmark and no time of day, so it works with either scene.
+- It bookends the request chapter's title, "Ready when you land", which repeats the promise beside the request form. That echo is deliberate.
+
+### R2.2 The panel after the hero (`sky.noteEyebrow`, `sky.noteTitle`, `sky.noteBody`)
+
+**What the visitor has at this moment.** They have read the eyebrow, the headline, the lede and two buttons. They then scroll through about two screens of animation with no text: the city, a car forming from gold dust, and the car landing on a rooftop helipad. The panel appears beside the landed car, and chapter 2 (ways to rent and today's prices) follows one screen later.
+
+**What they should learn here.** By now the hero has answered "what is it?" and "do they bring it to me?". Two questions remain:
+- *What does it cost?* Chapter 2 answers this one screen later.
+- *Can I trust a company with no reviews yet?* Nothing on screen answers this until the trust row and FAQ, far below.
+
+The panel has no button, and it sits at the payoff of the animation. Its job is one trust point that the picture beside it already shows.
+
+**Why the round 1 panel didn't make sense:**
+- "Door-to-door handover" is trade jargon.
+- The title listed three places (hotel, villa, arrivals), and none of them is what's on screen, a rooftop.
+- The body described a procedure.
+- All of it repeated the delivery section further down and the hero lede ("We bring it to your door").
+
+It read like a line from an ops manual dropped into the middle of the film.
+
+**Does it earn its place?** Only if it says something new that the picture illustrates. Without it, two screens of animation carry no message between the promise and the prices. Removing it would mean editing `Chapters.tsx` and the GSAP timeline in `HomeExperience.tsx`, which targets `[data-sky-b]`, and the animation's payoff would lose its meaning. **Decision: keep the panel and give it a new job. No component change.**
+
+**The new message is the specific-car promise:**
+- Each model in the fleet is a single car, and a request names that car.
+- The cancellation terms (`faq.ts`, "What if you cannot provide my car?") already set the remedy: a full refund or a comparable or better car, at no extra cost.
+- It is the strongest trust point we can prove today, and rental sites that book "or similar" can't make it.
+- It is what the scene shows: one particular car arriving.
+
+**Checks:**
+- It names no landmark, so it works with the Burj Al Arab helipad on the test branch.
+- It does not suggest a rooftop handover (content rule).
+- It repeats no delivery detail.
+
+**Flow now:**
+1. Hero: what it is, the promise, and that nothing is charged before we confirm.
+2. Panel: the car that arrives is the one you asked for.
+3. Chapter 2: the three ways to rent and today's prices.
+
+### R2.3 Chapter 3 (`sculpture.title`, `sculpture.lede`)
+
+**Diagnosis.** The title described the animation ("Every part on display") and the lede told people to scroll. Neither said why the section exists: to choose between the featured cars and compare their key specs. With reduced motion the scroll instruction was also untrue (round 1, §5 item 8). Copy now resolves that.
+
+| Option | Lines at 390 / 1440 | Notes |
+|---|---|---|
+| **Compare the specs** (shipped) | 2 / 2 | States the purpose; under the eyebrow *Featured cars* it reads as "compare the featured cars' specs" without repeating "cars" |
+| The cars, up close | 2 / 2 | Clear, but repeats "cars" from the eyebrow and doesn't mention comparing |
+| Which one is yours? | 2 / 2 | Invites the choice, but leaves the specs to the lede |
+
+**Lede:** *Choose a car to see its engine, power, acceleration and seats.* It names what each car's panel and 3D labels show (Powertrain, Performance, Cabin). "0–100 time" was dropped because it broke across lines as "0–100 / time".
+
+**Scroll effect: not mentioned.** On desktop the section is a long sticky scroll, so visitors are already scrolling when the car comes apart and the labels appear. Copy that depends on motion is wrong under reduced motion.
+
+**Other `sculpture.*` strings, all kept:**
+- eyebrow *Featured cars*
+- tab-list label *Featured cars*
+- *The 3D view is a schematic.*
+- *See prices and dates* (the natural next step after comparing)
+- the spec labels Powertrain / Performance / Cabin / Drive, which match the 3D labels
+
+The tagline issue in §6 ("The final Chiron") still stands.
+
+### R2.4 Fleet headline (`fleet.title`)
+
+**Diagnosis.** "16 cars, 8 marques" is a count. "Marques" is enthusiast jargon, and the line doesn't say why the section matters. The section shows every car, grouped by brand, each with today's daily rate (Bugattis show "On request · from").
+
+| Option | Placeholders | Lines at 390 / 1440 | Notes |
+|---|---|---|---|
+| **Every car, every price** (shipped) | none | 2 / 2 | Says what's below and states the brand's point of view: prices in the open, VAT included (About page) |
+| {cars} cars, known in detail | `{cars}` | 2 / 2 | Borrows the About page's line. "Known in detail" is soft and hard to prove |
+| Every car we rent | none | 2 / 1 | Plain and accurate, but a competitor could write it |
+
+The count still appears on the page ("Choose from {cars} cars" in How it works).
+
+**Placeholder change.** `fleet.title` drops **both** `{cars}` and `{brands}`.
+- `AfterChapters.tsx` still passes `{ cars, brands }`. `translate()` (`src/i18n/translate.ts`) fills only placeholders present in the string, so no component change is needed and the extra values are ignored.
+- The Arabic `fleet.title` (`{cars} سيارة من {brands} علامات`) must drop both too.
+- Until it does, `node qa/scripts/i18n-keys.mjs` reports one problem: "placeholders differ at fleet.title". A run on a scratch copy with the Arabic placeholders removed reports "Keys and placeholders match", so this is the only mismatch.
+- The Arabic page keeps rendering correctly in the meantime.
+
+### R2 before and after (7 keys)
+
+| Key | Before (round 1) | After | Reason |
+|---|---|---|---|
+| `sky.title` | Supercars, after dark | Supercars, on arrival | Product and promise; works with either skyline (R2.1) |
+| `sky.noteEyebrow` | Door-to-door handover | Your car | Plain label; drops the trade term "handover" |
+| `sky.noteTitle` | Hotel, villa or arrivals | The one you asked for | Captions the car on screen as the visitor's own car |
+| `sky.noteBody` | Someone from our team meets you with the car and walks round it with you. At the end, we collect it from wherever you finish. | You request a specific car, and that is the car that arrives. If it's ever unavailable, you choose a full refund or a comparable car at no extra cost. | A new, provable trust point in place of delivery details that repeat later sections (R2.2) |
+| `sculpture.title` | Every part on display | Compare the specs | Says the purpose of the section (R2.3) |
+| `sculpture.lede` | Keep scrolling to take the car apart, from engine to wheels, and watch it rebuild. | Choose a car to see its engine, power, acceleration and seats. | Tells visitors what to do and what they'll see; true with reduced motion |
+| `fleet.title` | {cars} cars, {brands} marques | Every car, every price | Explains the section and the pricing stance; **placeholders removed** (R2.4) |
+
+### R2 test ideas (these replace §7 item 2)
+
+1. **Hero headline:** *Supercars, on arrival* vs *Supercars, after dark*. Metric: hero "Check availability" clicks and scroll into chapter 2.
+2. **Panel:** the specific-car promise vs no panel. This needs the `[data-sky-b]` block made optional in `Chapters.tsx`. Metric: scroll from the hero into chapter 2 and clicks on a category card.
+
+### R2 verification
+
+- `npx tsc --noEmit` passes.
+- `node qa/scripts/i18n-keys.mjs` reports one expected problem, "placeholders differ at fleet.title", until the Arabic drops `{cars}` and `{brands}`. With that applied in a scratch copy it reports "Keys and placeholders match".
+- Before writing, each candidate headline and body was injected into the live page at 390 and 1440 px and its line breaks measured.
+- Final screenshots of every chapter and section at 390×844 and 1440×900 (Chromium with SwiftShader WebGL, shared dev server):
+  - 0 px horizontal overflow and 0 console errors.
+  - No single word on the last line of any headline or paragraph from this file.
+  - The car name "GranTurismo / Trofeo" in the fleet strip still breaks with one word on its last line. It comes from car data.
