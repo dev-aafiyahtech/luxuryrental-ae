@@ -122,6 +122,7 @@ tools/
 | 25 Oct 2026 | Demo completed in Arabic (`/ar`, right to left, demo translation to be reviewed), with simulated car availability (no double bookings), per-car share images and particle cars sampled from the AI images on the homepage |
 | 25 Oct 2026 | Logo accent (".ae" and the monogram square) deepened to Burnished Gold `#D6AE4F` so it stands apart from the Alabaster letters; buttons stay Antique Gold. Demo branch merged into `main` |
 | 26 Oct 2026 | Brand corrected to **LuxuryRentals.ae** (Zubair): wordmark redrawn with the S, domain and emails now luxuryrentals.ae. The desktop text menu now starts at 1280 px so the logo keeps its full size on smaller laptops |
+| 26 Oct 2026 | Homepage copy audited and rewritten with the copywriting and copy-editing skills (38 of 95 lines; claims checked against the rules data), Arabic updated to match. Audit: docs/brief/homepage-copy-audit.md. A recognisable Burj Khalifa and Dubai skyline for the hero is being tested on branch `claude/hero-burj-khalifa` |
 
 ## Open items
 

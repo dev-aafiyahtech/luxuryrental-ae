@@ -535,3 +535,13 @@ Got it. I've saved your answers to the project, and I'll wait for your next inst
 > Remove: "Demo site: bookings and payments are simulated. Nothing is booked or charged." strip from the top. "Demo: the company name, licence, permit and TRN shown are sample values." Remove the above live from the footer. Also remove any mention of Demo word from the site. We want to show the client the complete live version. All the terms and everything shall be revised as per client's final draft. That we will work on later. But for now aesthetics are important
 
 *Claude removed every demo, sample and simulated label from the site in both languages: the top bar, the footer and About sample notes, the "Demo terms" note and demo sections on the legal pages, the demo notices in booking, payment, account, documents and the agreement, and the "(demo)" version suffix. The flows work as before. The payment page now has a single "Pay securely" button (no card fields; `&fail=1` shows a failed payment). The sign-in code appears as an incoming message, and the contact form opens WhatsApp with the message filled in, so it reaches the team for real. The team desk moved from /demo/ops to /ops, with a "Team desk" link in the footer (old links redirect). Search engines stay out until launch. A check of 58 pages and a full booking walk in English and Arabic found no demo wording left.*
+
+---
+
+## 22. Burj Khalifa hero (branch) and homepage copy
+
+**Zubair:**
+> On the homepage hero section. Please add Burj Khalifa or Dubai skyline (Keep this change on a separte brach so that we can test it first how it looks. Use suitable Agents for this)
+> Use specific copywriting skills and agents to audit the copy of the homepage. An rewrite the copy properly. this revise version can go live on the main production
+
+*Claude set up a separate worktree on branch `claude/hero-burj-khalifa` for a 3D & Scene Developer agent to model a recognisable Burj Khalifa and Dubai skyline, to be previewed on Vercel before any merge. In parallel, a copywriting agent used the copywriting and copy-editing skills to audit the homepage and rewrite 38 of its 95 lines: the first screen now says what the business does, chapter labels describe their content, calls to action are clearer, and claims were corrected against the rules data (insurance excess, delivery fees, Salik, deposit). An Internationalization Engineer agent updated the Arabic. Claude fixed two display details it found (model names reversing in Arabic tabs, the reply hours breaking) and published the copy to main. Open: whether to replace "Reserve" with "Request" in the header and car cards.*

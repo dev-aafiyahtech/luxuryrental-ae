@@ -53,7 +53,8 @@ export function SculptureTabs({ tabs, panels }: { tabs: { brand: string; model: 
             )}
           >
             <span className="sr-only">{tab.brand} </span>
-            {tab.model}
+            {/* Model names keep their Latin order on Arabic pages ("296 GTS", not "GTS 296"). */}
+            <bdi dir="ltr">{tab.model}</bdi>
           </button>
         ))}
       </div>
