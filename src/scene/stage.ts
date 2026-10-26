@@ -43,7 +43,24 @@ export interface Stage {
   dispose(): void;
 }
 
-const LOOK_TOWER = new THREE.Vector3(0, 85, 0);
+/**
+ * Chapter 1 opens across the city on the Burj Khalifa (at the origin), standing on the end
+ * side of the screen beside the copy, then descends past it onto the helipad. The camera looks
+ * at the tower's middle, rising toward its top section by mid-descent.
+ */
+const BURJ_LOOK_Y = [182, 238] as const;
+/**
+ * View offsets [x mirrored for right-to-left, y, x not mirrored] per chapter, as a share of
+ * the screen. Chapter 1 eases from framing the Burj to framing the car (BURJ_* → index 0).
+ * Phones keep the Burj a little left of centre in both languages (the copy is full width).
+ */
+const OFFSETS = {
+  desk: [[0.1, 0.07], [0, 0.27], [-0.15, 0.07], [0.13, 0.1]],
+  mob: [[0, 0.1], [0, 0.25], [0, -0.12], [0, 0.2]],
+} as const;
+const BURJ_FRAME = { desk: [-0.18, 0.075, 0], mob: [0, 0.22, 0.08] } as const;
+/** Fog colour: a warmer desert haze for the opening view, the usual colour by the landing. */
+const HAZE = new THREE.Vector3(0.07, 0.115, 0.105), FOG = new THREE.Vector3(0.03, 0.075, 0.075);
 /** Camera on +z looks at the car's flank with the nose to the right, as in the side images. */
 const SIDE = Math.PI / 2;
 const AZ1 = SIDE - 0.24; // end of the descent: a touch in front of side-on
@@ -155,10 +172,20 @@ export function createStage(opts: StageOptions): Stage {
   let width = 1, height = 1, rs = 1, hs = 1;
   let curve: THREE.CatmullRomCurve3 | null = null;
   const camPos = new THREE.Vector3(), camTgt = new THREE.Vector3(), tmp = new THREE.Vector3();
+  const lookA = new THREE.Vector3(), lookB = new THREE.Vector3();
   const orbit = (out: THREE.Vector3, az: number, r: number, h: number) => out.set(C.x + Math.cos(az) * r * rs, C.y + h * hs, C.z + Math.sin(az) * r * rs);
   const buildCurve = () => {
+    // The opening stands further back on narrow screens, so the whole tower fits above the copy.
+    const fs = Math.min(1.28, Math.max(1, 1.25 / (width / height)));
     curve = new THREE.CatmullRomCurve3(
-      [new THREE.Vector3(-70, 232, 365), new THREE.Vector3(-28, 168, 245), new THREE.Vector3(40, 118, 172), new THREE.Vector3(C.x + 16, C.y + 24, C.z + 50), orbit(new THREE.Vector3(), AZ1, R1, 1.6)],
+      [
+        new THREE.Vector3(40 * fs, 135 + 45 * (fs - 1), 820 * fs),
+        new THREE.Vector3(42, 150 + 20 * (fs - 1), 640 + 420 * (fs - 1)),
+        new THREE.Vector3(46, 160, 470),
+        new THREE.Vector3(56, 118, 262),
+        new THREE.Vector3(C.x + 15, C.y + 24, C.z + 54),
+        orbit(new THREE.Vector3(), AZ1, R1, 1.6),
+      ],
       false,
       "centripetal",
     );
@@ -265,7 +292,9 @@ export function createStage(opts: StageOptions): Stage {
       }
 
       common.uCity.value = cityK;
-      common.uFogD.value = 0.0021 + (1 - cityK) * 0.004;
+      // Clearer air for the opening view across the city; the usual haze by the landing.
+      common.uFogD.value = 0.0021 * lerp(0.45, 1, sm(0.2, 0.8, c1)) + (1 - cityK) * 0.004;
+      common.uFogC.value.lerpVectors(HAZE, FOG, sm(0.2, 0.8, c1));
       const cityOn = cityK > 0.003;
       world.city.visible = world.ground.visible = world.tall.visible = world.beacons.visible = world.stars.visible = cityOn;
       world.streaks.visible = tunnel > 0.003;
@@ -328,11 +357,17 @@ export function createStage(opts: StageOptions): Stage {
 
       if (!curve) buildCurve();
       if (c2 <= 0.0001) {
-        curve!.getPoint(0.5 - 0.5 * Math.cos(Math.PI * c1), camPos);
+        // Halfway through the chapter the camera is at the third point, with the whole tower in view.
+        curve!.getPoint(0.5 - 0.5 * Math.cos(Math.PI * Math.pow(c1, 1.2)), camPos);
         // Ease the end of the descent onto this car's framing distance.
         const e = sm(0.6, 1, c1);
         camPos.set(C.x + (camPos.x - C.x) * lerp(1, k, e), camPos.y, C.z + (camPos.z - C.z) * lerp(1, k, e));
-        camTgt.lerpVectors(LOOK_TOWER, tmp.set(C.x, C.y + 0.6 * k, C.z), sm(0.3, 0.95, c1));
+        // Turn the view (not the target point) from the tower down to the car, so the tilt stays even.
+        tmp.set(C.x, C.y + 0.6 * k, C.z);
+        const reach = camPos.distanceTo(tmp);
+        lookA.set(0, lerp(BURJ_LOOK_Y[0], BURJ_LOOK_Y[1], sm(0, 0.5, c1)), 0).sub(camPos).normalize();
+        lookB.copy(tmp).sub(camPos).normalize();
+        camTgt.copy(lookA).lerp(lookB, sm(0.45, 0.82, c1)).normalize().multiplyScalar(reach).add(camPos);
       } else if (c3 <= 0.0001) {
         const t = sm(0, 0.45, c2);
         orbit(camPos, lerp(AZ1, AZ2, t), lerp(R1, R2, t) * k, lerp(1.6, 1.0, t));
@@ -353,16 +388,17 @@ export function createStage(opts: StageOptions): Stage {
       camera.position.copy(camPos);
       camera.lookAt(camTgt);
 
-      // Frame the subject beside the copy: shift the view per chapter
+      // Frame the subject beside the copy: shift the view per chapter. In chapter 1 the
+      // subject is first the Burj (end side), then the car on the pad.
       const w2 = sm(0, 0.4, c2), w3 = sm(0, 0.4, c3), w4 = sm(0, 0.4, c4);
-      const W = [1 - w2, w2 * (1 - w3), w2 * w3 * (1 - w4), w2 * w3 * w4];
-      const O = width < 768 ? [[0, 0.1], [0, 0.25], [0, -0.12], [0, 0.2]] : [[0.1, 0.07], [0, 0.27], [-0.15, 0.07], [0.13, 0.1]];
-      let ox = 0, oy = 0;
-      W.forEach((w, i) => {
-        ox += w * O[i][0];
-        oy += w * O[i][1];
-      });
-      camera.setViewOffset(width, height, side * ox * width, oy * height, width, height);
+      const mob = width < 768;
+      const O = mob ? OFFSETS.mob : OFFSETS.desk, B = mob ? BURJ_FRAME.mob : BURJ_FRAME.desk;
+      const fb = sm(0.3, 0.75, c1);
+      const W0 = 1 - w2, W1 = w2 * (1 - w3), W2 = w2 * w3 * (1 - w4), W3 = w2 * w3 * w4;
+      const ox = W0 * lerp(B[0], O[0][0], fb) + W1 * O[1][0] + W2 * O[2][0] + W3 * O[3][0];
+      const oy = W0 * lerp(B[1], O[0][1], fb) + W1 * O[1][1] + W2 * O[2][1] + W3 * O[3][1];
+      const oxAbs = W0 * B[2] * (1 - fb);
+      camera.setViewOffset(width, height, (side * ox + oxAbs) * width, oy * height, width, height);
 
       world.sky.position.copy(camera.position);
       world.stars.position.copy(camera.position);
