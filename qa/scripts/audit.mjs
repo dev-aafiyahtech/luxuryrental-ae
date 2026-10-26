@@ -1,5 +1,5 @@
 // Quick audit of every demo route at phone and desktop widths: HTTP status, console
-// errors, horizontal overflow, H1 count. Needs the dev server on :3000.
+// errors, horizontal overflow, H1 count. Needs the dev server on :3000 (or AUDIT_BASE).
 // Usage: node qa/scripts/audit.mjs   (AUDIT_ONLY=en|ar to run one locale, AUDIT_AR=some for a short Arabic pass)
 import { chromium } from "playwright";
 
@@ -13,6 +13,8 @@ const english = [
 // Arabic (RTL): every English route under /ar, or a subset with AUDIT_AR=some.
 const arabic = english.filter((r) => process.env.AUDIT_AR !== "some" || ["/", "/cars", "/cars/lamborghini/revuelto", "/book/trip?car=ferrari-296-gts", "/legal/terms-of-rental", "/no-such-page"].includes(r)).map((r) => `/ar${r === "/" ? "" : r}`);
 const routes = process.env.AUDIT_ONLY === "ar" ? arabic : process.env.AUDIT_ONLY === "en" ? english : [...english, ...arabic];
+// AUDIT_BASE=https://luxuryrental-ae.vercel.app audits the live site instead of the dev server.
+const BASE = process.env.AUDIT_BASE ?? "http://localhost:3000";
 const sizes = [{ name: "390", width: 390, height: 844, mobile: true }, { name: "1440", width: 1440, height: 900, mobile: false }];
 
 const browser = await chromium.launch({ args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
@@ -24,7 +26,7 @@ for (const size of sizes) {
     const errors = [];
     page.on("console", (m) => { if (m.type() === "error") errors.push(m.text().slice(0, 160)); });
     page.on("pageerror", (e) => errors.push(e.message.slice(0, 160)));
-    const res = await page.goto(`http://localhost:3000${route}`, { waitUntil: "networkidle", timeout: 120_000 });
+    const res = await page.goto(`${BASE}${route}`, { waitUntil: "networkidle", timeout: 120_000 });
     await page.waitForTimeout(600);
     const info = await page.evaluate(() => {
       // Arabic pages: lower-case English words in the visible text are usually untranslated strings.
