@@ -84,6 +84,7 @@ If you need a change in one of these, keep it minimal and additive, and say so i
 - Dynamic pages read `params` inside `<Suspense>` (Next 16.4 instant navigation), so an unknown slug (e.g. `/cars/nope`) renders the 404 page with `noindex` but an HTTP 200. Fix with the backend work. URLs that match no route at all get a real 404 from `src/app/[lang]/[...missing]`.
 - The Dock and the car page's mobile bar render into `<body>` after hydration (portals), so they aren't in the server HTML.
 - Booking steps need JavaScript (no Server Actions yet); without it they show a placeholder.
+- The homepage hero is a Dubai night scene (approved 27 Oct 2026): the Burj Khalifa (`src/scene/burj.ts`, proportions in `burjProfile.ts`), the skyline (`dubai.ts`) and the Burj Al Arab, whose helipad is where the car lands (`baa.ts`). Static and no-WebGL visitors get an SVG skyline (`src/components/home/SkylineArt.tsx`). Not yet tested on real phones.
 - The homepage particle cars are sampled from each car's side image (`node tools/sample-car-particles.mjs <slug>` after replacing an image). Plan §3.1's photo dissolve and the morph to the front three-quarter image are not built yet.
 - The Arabic is a demo translation: a translator should review it, and a UAE lawyer the legal pages (`docs/dev/ARABIC-GUIDE.md`).
 
