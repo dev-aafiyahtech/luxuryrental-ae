@@ -211,7 +211,7 @@ export function createStage(opts: StageOptions): Stage {
   // Callouts: DOM labels pinned to projected part anchors while the car is exploded
   const centreV = new THREE.Vector3();
   let calloutsShown = true;
-  const LABEL_W = 250, RAIL_W = 190;
+  const LABEL_W = 250, RAIL_W = 310; // rail plus the Sound and Pause motion pills
   const placeCallouts = (explode: number) => {
     if (!overlay) return;
     const els = overlay.querySelectorAll<HTMLElement>("[data-anchor]");

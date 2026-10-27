@@ -48,7 +48,7 @@ export function ChapterRail() {
                 onClick={toggleSound}
                 className="flex min-h-11 items-center gap-2.5 rounded-full border border-line bg-[rgba(24,51,51,.55)] px-4 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted backdrop-blur-sm transition-colors hover:border-accent hover:text-fg aria-pressed:border-accent aria-pressed:text-fg"
               >
-                <SoundIcon className={clsx("size-3.5", soundOn && "text-accent")} aria-hidden="true" />
+                <SoundIcon className={clsx("size-3.5 rtl:-scale-x-100", soundOn && "text-accent")} aria-hidden="true" />
                 {t("rail.sound")}
               </button>
             )}
@@ -76,7 +76,7 @@ export function ChapterRail() {
             (hiddenCls || reserveVisible) && "pointer-events-none invisible opacity-0",
           )}
         >
-          <SoundIcon className={clsx("size-4", soundOn && "text-accent")} aria-hidden="true" />
+          <SoundIcon className={clsx("size-4 rtl:-scale-x-100", soundOn && "text-accent")} aria-hidden="true" />
         </button>
       )}
 

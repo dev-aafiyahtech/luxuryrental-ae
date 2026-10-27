@@ -244,9 +244,10 @@ export function createHeroSound(): HeroSound {
       quietUntil = performance.now() + 800;
       document.addEventListener("visibilitychange", onVisibility);
       GESTURES.forEach((type) => window.addEventListener(type, onGesture, { capture: true, passive: true }));
-      // Back on the homepage after a click elsewhere on the site: the remembered "on" may start now.
+      // Back on the homepage straight after a click elsewhere on the site (the gesture is still
+      // fresh): the remembered "on" may start now. Otherwise it waits for the next gesture.
       const ua = navigator.userActivation as UserActivation | undefined;
-      if (wanted && ua?.hasBeenActive) ensureRunning();
+      if (wanted && ua?.isActive) ensureRunning();
       log({ ev: "attach", reason: wanted ? "remembered-on" : "off" });
       refresh();
     },
@@ -260,12 +261,19 @@ export function createHeroSound(): HeroSound {
       loading?.abort();
       loading = null;
       buffers.clear();
-      const c = ctx;
-      if (c) {
-        // A short fade, then close: the next attach starts from a fresh context.
-        fadeAll(0.05);
+      const c = ctx, m = master;
+      if (c && m) {
+        // Close now, so the next attach starts from a fresh context. If something is playing,
+        // fade it first on the audio thread (silent at once even if the main thread is busy).
         c.onstatechange = null;
-        window.setTimeout(() => c.close().catch(() => {}), 90);
+        const close = () => c.close().then(() => log({ ev: "closed" }), () => {});
+        if (voices.size && c.state === "running") {
+          const t = c.currentTime;
+          m.gain.cancelScheduledValues(t);
+          m.gain.setValueAtTime(m.gain.value, t);
+          m.gain.linearRampToValueAtTime(0, t + 0.03);
+          window.setTimeout(close, 40);
+        } else close();
       }
       voices.clear();
       ctx = master = null;
