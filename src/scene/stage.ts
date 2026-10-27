@@ -445,7 +445,6 @@ export function createStage(opts: StageOptions): Stage {
     },
 
     debug() {
-      (window as unknown as { __world?: unknown }).__world = world; // TEMP profiling
       return {
         swap,
         current: current.slug,
