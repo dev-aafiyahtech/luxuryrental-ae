@@ -15,6 +15,16 @@ const nextConfig: NextConfig = {
       { source: "/ar/demo/widgets", destination: "/ar/ops/widgets", permanent: true },
     ];
   },
+  // Car images, sounds and the car-maker logo sprite are content-hashed (name.<sha8>.ext): a
+  // changed file gets a new name, so browsers may keep them for a year without revalidating.
+  async headers() {
+    const immutable = [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }];
+    return [
+      { source: "/cars/:car/:file([^/]+\\.[0-9a-f]{8}\\.[a-z0-9]+)", headers: immutable },
+      { source: "/sounds/:file([^/]+\\.[0-9a-f]{8}\\.mp3)", headers: immutable },
+      { source: "/marques/:file([^/]+\\.[0-9a-f]{8}\\.svg)", headers: immutable },
+    ];
+  },
   // The car share images read fonts, the wordmark and the car's card image from disk.
   outputFileTracingIncludes: {
     "/[lang]/cars/[brand]/[model]/opengraph-image": ["./assets/fonts/**", "./public/brand/logo-horizontal-white.svg", "./public/cars/*/card.*.webp"],

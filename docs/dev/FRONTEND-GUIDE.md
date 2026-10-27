@@ -38,7 +38,7 @@ Next.js 16.4 (App Router, Turbopack, **Cache Components on**), React 19.3, TypeS
 
 Source of truth: `docs/design-system/luxuryrental-ae/MASTER.md`. Dark only: Sea Moss `#2C5252` background, Antique Gold `#EBDAB0` for calls to action, Alabaster `#F4EADE` for type. Syncopate for headlines (uppercase), Montserrat for body. Never hard-code hex colours in components; use the tokens.
 
-- Tokens are Tailwind theme colours: `bg card elevated fg muted accent accent-hover on-accent ring line input danger success warning info ice champagne amber` (e.g. `bg-card text-muted border-line`).
+- Tokens are Tailwind theme colours: `bg bg-deep card elevated fg muted accent accent-hover on-accent ring line input danger success warning info ice champagne amber` (e.g. `bg-card text-muted border-line`).
 - Component classes in `src/app/globals.css`: `.btn .btn-primary .btn-secondary .btn-ghost .btn-sm .btn-block`, `.card .card-hover .glass`, `.field .input .field-hint .field-error`, `.eyebrow .display .display-md .display-sm .lede .fine .label .tabular`, `.spec-list .trust .badge .notice`, `.container-site .container-narrow .prose-legal`.
 - React pieces: `src/components/ui` (ButtonLink, Button, Breadcrumbs, Badge, Notice, Eyebrow, PageHeader), `src/components/car` (CarArt, CarCard, PriceFrom, SpecList, specRows, headlineSpecs, callouts).
 - Gold buttons always have dark text. Touch targets are at least 44 px. Labels are always visible above fields. Use Lucide icons only (plus the WhatsApp glyph) and no emojis. Use `.glass` only for booking panels and the nav.
@@ -71,7 +71,7 @@ If you need a change in one of these, keep it minimal and additive, and say so i
 
 - Say **"request"**, never "booked" or "reserved", until ops confirm. Nothing is charged on the live site, and the payment page collects **no card fields**.
 - **No demo labels** (Zubair, 26 Oct 2026): the site is shown to the client as the live version, so nothing on the page says demo, sample or simulated, in either language. Flows still run in the browser until the backend exists; the team desk is at `/ops` (footer link "Team desk").
-- No fake reviews, ratings, customer counts, founding years or AI "team" photos.
+- No fake reviews, ratings, customer counts, founding years or AI "team" photos. The footer review badges read real figures from `site.reviews` (null until the client's Google and Trustpilot profiles exist). `site.previewReviews` are illustrative figures that `src/content/reviews.ts` shows only in dev and on Vercel preview deployments, never in production.
 - Don't claim "Salik included" (Salik is charged per crossing + AED 1), "confirm within 15 minutes", rooftop handover or DXB T3 valet. Use `site.replyPromise`.
 - Car-maker logos (Changed by Zubair, 27 Oct 2026, replacing "text only"): monochrome marks from `<BrandLogo>` (`src/components/car/BrandLogo.tsx`, data from `tools/fetch-brand-logos.mjs`) beside the car or brand they describe: car cards, car and brand page headers, the footer marques row. Never in the makers' colours, never in the nav, share images or ads, and no "official", "authorised" or partner wording. Keep the footer trademark disclaimer. A UAE lawyer should confirm before launch.
 - Prices are AED including 5% VAT. The deposit is a refundable card hold shown separately.

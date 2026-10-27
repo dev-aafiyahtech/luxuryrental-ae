@@ -1,8 +1,8 @@
 import clsx from "clsx";
-import { brandLogoFrame, brandLogos } from "@/content/brand-logos";
+import { brandLogoFrame, spriteUrl } from "@/content/brand-logos";
 
 /**
- * A car-maker's mark as an inline SVG, e.g. `<BrandLogo slug="lamborghini" className="h-6 w-auto text-muted" />`.
+ * A car-maker's mark, e.g. `<BrandLogo slug="lamborghini" className="h-6 w-auto text-muted" />`.
  *
  * - Size it with a height class plus `w-auto`; the width follows the mark. Each mark carries an
  *   optical scale, so a wordmark (McLaren) and a crest (Ferrari) look the same size at one height.
@@ -12,6 +12,9 @@ import { brandLogoFrame, brandLogos } from "@/content/brand-logos";
  * - Decorative by default (`aria-hidden`), because the brand name is always shown as text beside
  *   it. Pass `title` when the mark stands alone; it then becomes `role="img"` with that label.
  * - Returns null for a brand without a mark. Works in Server and Client Components.
+ *
+ * The paths live in one cached, content-hashed sprite (`spriteUrl`); each mark is a <use> of the
+ * brand's <symbol>, so a page carries no path data however many marks it shows.
  */
 export function BrandLogo({ slug, className, title }: { slug: string; className?: string; title?: string }) {
   const frame = brandLogoFrame(slug);
@@ -30,7 +33,7 @@ export function BrandLogo({ slug, className, title }: { slug: string; className?
       {...a11y}
     >
       {title && <title>{title}</title>}
-      <path d={brandLogos[slug as keyof typeof brandLogos].path} />
+      <use href={`${spriteUrl}#${slug}`} />
     </svg>
   );
 }
