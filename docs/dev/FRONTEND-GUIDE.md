@@ -73,7 +73,7 @@ If you need a change in one of these, keep it minimal and additive, and say so i
 - **No demo labels** (Zubair, 26 Oct 2026): the site is shown to the client as the live version, so nothing on the page says demo, sample or simulated, in either language. Flows still run in the browser until the backend exists; the team desk is at `/ops` (footer link "Team desk").
 - No fake reviews, ratings, customer counts, founding years or AI "team" photos.
 - Don't claim "Salik included" (Salik is charged per crossing + AED 1), "confirm within 15 minutes", rooftop handover or DXB T3 valet. Use `site.replyPromise`.
-- Brand names as text only: no manufacturer logos.
+- Car-maker logos (Changed by Zubair, 27 Oct 2026, replacing "text only"): monochrome marks from `<BrandLogo>` (`src/components/car/BrandLogo.tsx`, data from `tools/fetch-brand-logos.mjs`) beside the car or brand they describe: car cards, car and brand page headers, the footer marques row. Never in the makers' colours, never in the nav, share images or ads, and no "official", "authorised" or partner wording. Keep the footer trademark disclaimer. A UAE lawyer should confirm before launch.
 - Prices are AED including 5% VAT. The deposit is a refundable card hold shown separately.
 - Car images are AI illustrations until photos of the real cars arrive; label them.
 

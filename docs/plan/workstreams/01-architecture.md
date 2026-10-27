@@ -320,7 +320,7 @@ Phase totals: MVP 56.5 days (M1 35.5 + M2 21), Phase 2 23, Phase 3 14.
 | # | Risk | Mitigation |
 |---|------|-----------|
 | R1 | AI images vary in angle, lighting and alpha fringe, so the particle car looks inconsistent across the fleet | Strict asset spec agreed with the visual-pipeline section; Studio validation; a per-car `particle` override; `flags.stage` falls back to the photo relief only |
-| R2 | AI images misrepresent the real car (consumer protection), and brand logos raise trademark issues | "Images are illustrative" label per car; brand names as text, not logos; replace with real photos when available |
+| R2 | AI images misrepresent the real car (consumer protection), and brand logos raise trademark issues | "Images are illustrative" label per car; brand names as text, and maker logos only as monochrome labels beside the cars (D-22, changed 27 Oct 2026); replace with real photos when available |
 | R3 | Mid-range Android or iOS Safari GPU and memory limits | Tiers, runtime demotion, budgets in CI, testing on real devices before M2 goes live |
 | R4 | A simulated payment on the live site misleads customers | No card fields ever; the demo checkout only appears with `paymentsDemo` or on Preview |
 | R5 | No live availability, so double bookings with the WhatsApp channel | Request semantics, ops confirmation, and the exclusion constraint in Phase 2 |

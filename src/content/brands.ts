@@ -1,6 +1,9 @@
 import type { Brand, Category } from "./types";
 
-// Brand names are used as text only (plan D-22): no manufacturer logos anywhere on the site.
+// Brand names always appear as text. Manufacturer logos (owner's call, reversing plan D-22) appear
+// only as monochrome labels beside the cars: <BrandLogo> in currentColor, never the makers'
+// colours, data in brand-logos.ts. No "official", "authorised" or partner wording anywhere, and
+// the footer trademark disclaimer stays.
 export const brands: Brand[] = [
   { slug: "lamborghini", name: "Lamborghini", country: "Italy", order: 1 },
   { slug: "ferrari", name: "Ferrari", country: "Italy", order: 2 },

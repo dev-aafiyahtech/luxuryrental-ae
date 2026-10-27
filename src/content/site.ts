@@ -12,6 +12,12 @@ function siteUrl() {
   return !host || host.endsWith("luxuryrentals.ae") ? "https://www.luxuryrentals.ae" : `https://${host}`;
 }
 
+/** A public review profile: the rating out of 5 and review count as the platform shows them. */
+export type ReviewProfile = { rating: number; count: number; url: string };
+export type ReviewPlatform = "google" | "trustpilot";
+/** Payment methods with a footer mark (src/content/footer-marks.ts). */
+export type PaymentMethodId = "visa" | "mastercard" | "amex" | "applepay" | "googlepay";
+
 export const site = {
   brandName: "LuxuryRentals.ae", // wordmark and domain (corrected from "LuxuryRental.ae" by Zubair, 26 Oct 2026)
   businessName: "Luxuryrentals", // trade name: legal text, footer, Google Business
@@ -40,6 +46,27 @@ export const site = {
   vatTrn: "100123456700003", // sample
   vatRate: 5,
   socials: [] as { name: string; url: string }[], // hidden until real handles exist
+  /**
+   * Public review profiles shown as footer badges. Each stays null until the business has a
+   * verified profile: a badge renders only when its entry is filled, and the rating and count
+   * must be copied from the live profile (never estimated), then kept current.
+   */
+  reviews: {
+    google: null as null | ReviewProfile,
+    trustpilot: null as null | ReviewProfile,
+  },
+  /**
+   * ILLUSTRATIVE figures, not real ratings: the owner asked to see the review badges before the
+   * profiles exist. They are shown only on preview deployments (VERCEL_ENV "preview") and in local
+   * dev, never in production; `shownReview()` in src/content/reviews.ts enforces this. The links go
+   * to the platforms' home pages because there are no profile URLs yet. Real figures go in `reviews`.
+   */
+  previewReviews: {
+    google: { rating: 4.9, count: 127, url: "https://www.google.com/maps" } as ReviewProfile,
+    trustpilot: { rating: 4.8, count: 64, url: "https://www.trustpilot.com" } as ReviewProfile,
+  },
+  /** Payment marks in the footer, in display order (confirmed by the owner, 27 Oct 2026). Ids are the keys of `paymentMarks` in footer-marks.ts. */
+  paymentMethods: ["visa", "mastercard", "amex", "applepay", "googlepay"] as PaymentMethodId[],
   /** Dubai consumer protection, named in the complaints process. */
   consumerProtection: { name: "Dubai Economy and Tourism Consumer Protection", url: "https://consumerrights.ae", phone: "600 545 555" },
   /**

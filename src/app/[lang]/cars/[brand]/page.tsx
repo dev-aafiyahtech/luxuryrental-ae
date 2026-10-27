@@ -12,6 +12,7 @@ import { getToday } from "@/lib/server-time";
 import { fromPrice } from "@/lib/pricing";
 import { formatAED, formatNumber } from "@/lib/format";
 import { Breadcrumbs } from "@/components/ui";
+import { BrandLogo } from "@/components/car/BrandLogo";
 import { Dock } from "@/components/booking/Dock";
 import { BrandCompare, BrandModelCard, OtherBrands, brandFallbackFaqs } from "@/components/fleet/BrandParts";
 import { Faqs } from "@/components/fleet/Faqs";
@@ -85,7 +86,12 @@ async function BrandDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]
 
       <header className="grid gap-5 pt-8 md:pt-12">
         <Breadcrumbs items={crumbs} />
-        <p className="eyebrow pt-4">{t("brand.eyebrow", { country: brandCountry(brand.slug, brand.country, locale), count: list.length })}</p>
+        {/* The maker's mark heads the page as a label beside the eyebrow; the name stays in the title as text. */}
+        <div className="flex flex-col items-start gap-3 pt-4 sm:flex-row sm:items-center sm:gap-5">
+          <BrandLogo slug={brand.slug} className="h-12 w-auto text-champagne md:h-16" />
+          <span aria-hidden="true" className="hidden h-10 w-px flex-none bg-line sm:block" />
+          <p className="eyebrow">{t("brand.eyebrow", { country: brandCountry(brand.slug, brand.country, locale), count: list.length })}</p>
+        </div>
         <h1 className="display-md max-w-4xl">{t("brand.title", { brand: brand.name })}</h1>
         <p className="lede max-w-[68ch]">{intro}</p>
         <p className="text-sm font-semibold text-champagne tabular">

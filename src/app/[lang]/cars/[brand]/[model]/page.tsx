@@ -17,6 +17,7 @@ import { getToday } from "@/lib/server-time";
 import { fromPrice } from "@/lib/pricing";
 import { formatAED, formatNumber } from "@/lib/format";
 import { Badge, Breadcrumbs } from "@/components/ui";
+import { BrandLogo } from "@/components/car/BrandLogo";
 import { CarArt } from "@/components/car/CarArt";
 import { CarCard } from "@/components/car/CarCard";
 import { PriceFrom, SpecList, specRows } from "@/components/car/CarBits";
@@ -148,6 +149,9 @@ async function CarDetail({ params }: { params: PageProps<"/[lang]/cars/[brand]/[
 
             <div className="grid gap-5">
               <div className="flex flex-wrap items-center gap-2">
+                {/* The maker's mark labels the car; the brand name stays in the title as text. */}
+                <BrandLogo slug={car.brand} className="h-8 w-auto text-champagne" />
+                <span aria-hidden="true" className="mx-2 h-5 w-px bg-line" />
                 {category ? <Badge>{category.singular}</Badge> : <Badge>{t("car.chauffeurFirst")}</Badge>}
                 {car.rates.onRequest && <Badge muted>{t("car.onRequestBadge")}</Badge>}
                 {!car.rates.onRequest && car.heroRank && <Badge muted>{t("car.featured")}</Badge>}

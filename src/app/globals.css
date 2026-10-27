@@ -12,6 +12,7 @@
   --color-card: #244747;
   --color-elevated: #1d3c3c;
   --color-deep: #183333;
+  --color-bg-deep: #0f2424; /* Sea Moss at night (hue 180°, lightness 25% → 10%): the end of the footer gradient */
   --color-fg: #f4eade; /* Alabaster */
   --color-muted: #c3cec6;
   --color-accent: #ebdab0; /* Antique Gold */

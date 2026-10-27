@@ -232,7 +232,7 @@ Badge style: 12px uppercase label in gold, with a 1px gold outline at 40% opacit
 |---|---|---|---|
 | Car records: specs, day/week/month rates, deposit, km per day, extra-km fee, minimum age, 50- and 150-word descriptions, 3 callouts, SEO title and description | 16 | Claude (estimates); client checks specs and prices | Mark uncertain specs "approx." |
 | Car images: 4:3 card, 16:9 and 4:5 hero, 4 gallery stills, alt text for each | 16 sets, plus chapter assets for the top 5 | Image specialist (AI); client approves likeness | No fake number plates; only colours the fleet actually has |
-| Brand intros and category blurbs | 8 + 3 | Claude | Brand names as text only: no manufacturer logos, no "official dealer" wording |
+| Brand intros and category blurbs | 8 + 3 | Claude | No "official dealer" wording. Maker logos only as monochrome labels (D-22, changed 27 Oct 2026) |
 | Homepage chapter copy, How it works, trust row | 1 set | Claude, adapting the prototype | Prototype claims need ops sign-off: "Salik included", "confirm within 15 minutes", "rooftop handover", "DXB T3 valet" |
 | Chauffeur and Delivery pages | 2 | Claude (estimated fees and zones) | Client approves the numbers |
 | About | 1 | Claude (simulated) | No invented founding year, awards or customer counts |
@@ -300,7 +300,7 @@ MVP total is 27.5 ideal days. UX-03, UX-04 and UX-13 can start today. UX-01 is o
 
 **Risks**
 - **AI images may misrepresent the actual car** (colour, trim, wheels), which invites consumer complaints. Mitigation: the client approves each image, car pages carry an "Illustrative image" note, and real photos replace them in Phase 3.
-- **Trademarks.** Naming brands in text to describe rentals is fine. Manufacturer logos, "official" wording and logo shapes that echo theirs are not.
+- **Trademarks.** Naming brands in text to describe rentals is fine. "Official" wording and logo shapes that echo theirs are not. Maker logos appear only as monochrome labels beside the cars (D-22, changed 27 Oct 2026).
 - **Prototype claims become promises**: Salik included, 15-minute confirmation, rooftop handover. Each needs ops sign-off or removal.
 - **No availability system.** Two people can request the same car. "Request" wording, CMS blackouts and the ops reply are the only safeguards until a booking backend exists.
 - **WhatsApp drop-off.** Mitigated by storing the request and emailing ops before the handoff.
