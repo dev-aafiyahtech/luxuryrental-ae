@@ -14,13 +14,13 @@
   },
   "sky": {
     "eyebrow": "Luxury car rental in Dubai",
-    "title": "Supercars, after dark",
+    "title": "Supercars, on arrival",
     "lede": "Drive a Lamborghini, Ferrari or Bugatti, or be driven in a Rolls-Royce. We bring it to your door, and nothing is charged before we confirm.",
     "check": "Check availability",
     "skip": "See prices",
-    "noteEyebrow": "Door-to-door handover",
-    "noteTitle": "Hotel, villa or arrivals",
-    "noteBody": "Someone from our team meets you with the car and walks round it with you. At the end, we collect it from wherever you finish.",
+    "noteEyebrow": "Your car",
+    "noteTitle": "The one you asked for",
+    "noteBody": "You request a specific car, and that is the car that arrives. If it's ever unavailable, you choose a full refund or a comparable car at no extra cost.",
     "cue": "Scroll to descend"
   },
   "tunnel": {
@@ -50,8 +50,8 @@
   },
   "sculpture": {
     "eyebrow": "Featured cars",
-    "title": "Every part on display",
-    "lede": "Keep scrolling to take the car apart, from engine to wheels, and watch it rebuild.",
+    "title": "Compare the specs",
+    "lede": "Choose a car to see its engine, power, acceleration and seats.",
     "tabs": "Featured cars",
     "schematic": "The 3D view is a schematic.",
     "see": "See prices and dates",
@@ -74,7 +74,7 @@
   },
   "fleet": {
     "eyebrow": "The fleet",
-    "title": "{cars} cars, {brands} marques",
+    "title": "Every car, every price",
     "lede": "Daily rates include VAT. Each car's page lists its deposit, kilometres and minimum age.",
     "all": "Browse and filter the fleet",
     "brand": "All {brand} cars",
