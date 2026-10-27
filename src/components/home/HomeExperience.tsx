@@ -5,11 +5,12 @@ import type { Car } from "@/content/types";
 import type { Stage } from "@/scene/stage";
 import { SNAP, type ChapterState, type StageCar } from "@/scene/types";
 import { detectTier } from "@/scene/tier";
+import { createHeroSound, type SoundStatus } from "./heroSound";
 
 // The homepage controller. Server-rendered chapters are passed in as children; this
 // component adds the scroll choreography (GSAP ScrollTrigger + Lenis), lazy-loads the WebGL
 // stage after first paint, and shares the Kinetic Sculpture selection, the Pause motion
-// setting and the dock visibility with the client islands below it.
+// setting, the scroll sounds (heroSound.ts) and the dock visibility with the client islands.
 // Everything it starts is torn down on unmount: Next keeps hidden routes mounted inside
 // <Activity> and re-runs effects when the route shows again.
 
@@ -25,6 +26,9 @@ interface HomeContext {
   select: (index: number) => void;
   paused: boolean;
   togglePaused: () => void;
+  /** Scroll sounds: "unavailable" hides the Sound button (static tier, reduced motion). */
+  sound: SoundStatus;
+  toggleSound: () => void;
   reduced: boolean;
   active: number;
   mode: StageMode;
@@ -141,6 +145,8 @@ export function HomeExperience({ cars, heroSlug, defaultIndex, chrome, chapters,
   const [chaptersOnScreen, setChaptersOnScreen] = useState(true);
   const reduced = useSyncExternalStore(subscribeReduced, () => matchMedia(reducedQuery).matches, () => false);
   const paused = useSyncExternalStore(subscribePaused, readPaused, () => false);
+  const [sound] = useState(createHeroSound);
+  const soundStatus = useSyncExternalStore(sound.subscribe, sound.getStatus, () => "unavailable" as const);
 
   const rootRef = useRef<HTMLDivElement>(null);
   const chaptersRef = useRef<HTMLDivElement>(null);
@@ -168,10 +174,20 @@ export function HomeExperience({ cars, heroSlug, defaultIndex, chrome, chapters,
   useEffect(() => {
     pausedRef.current = paused;
     needsRender.current = true;
+    sound.setPaused(paused);
     if (paused) cueTween.current?.pause();
     else cueTween.current?.play();
-  }, [paused]);
+  }, [paused, sound]);
   const togglePaused = useCallback(() => writePaused(!readPaused()), []);
+  const toggleSound = useCallback(() => sound.toggle(), [sound]);
+
+  // Scroll sounds exist only with the WebGL stage and full motion: reduced motion shows each
+  // chapter's final state (nothing to cue) and the static tier has no scene to sound.
+  useEffect(() => {
+    if (mode !== "gl" || reduced) return;
+    sound.attach();
+    return () => sound.detach();
+  }, [sound, mode, reduced]);
 
   // Keep --home-top (height of what sits above the homepage, e.g. the demo bar) current.
   useEffect(() => {
@@ -258,6 +274,8 @@ export function HomeExperience({ cars, heroSlug, defaultIndex, chrome, chapters,
         const headerH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--header-h")) || 72;
         if (card) y = Math.min(y, card.getBoundingClientRect().top + window.scrollY - headerH - 16);
       }
+      // A jump through the story is silent: the cues it passes (plus the scrub's catch-up) are dropped.
+      sound.quiet(3200);
       if (lenis) lenis.scrollTo(y, { duration: 1.8 });
       else window.scrollTo({ top: y, behavior: reduced ? "auto" : "smooth" });
       el.querySelector<HTMLElement>("h1, h2")?.focus({ preventScroll: true });
@@ -335,9 +353,13 @@ export function HomeExperience({ cars, heroSlug, defaultIndex, chrome, chapters,
           }
         }, root);
 
+        // The scrub tweens start from the last known state, so they may sweep through the story
+        // to the restored scroll position: no sounds until that settles.
+        sound.quiet(1500);
         const tick = (time: number, deltaMs: number) => {
           lenis?.raf(time * 1000);
           renderFrame(Math.min(deltaMs / 1000, 0.05), time);
+          sound.update(state);
         };
         gsap.ticker.add(tick);
         if (lenis) gsap.ticker.lagSmoothing(0);
@@ -418,7 +440,7 @@ export function HomeExperience({ cars, heroSlug, defaultIndex, chrome, chapters,
       stage.current = null;
       setMode("pending");
     };
-  }, [reduced, carsKey, heroSlug]);
+  }, [reduced, carsKey, heroSlug, sound]);
 
   const select = useCallback(
     (index: number) => {
@@ -442,8 +464,8 @@ export function HomeExperience({ cars, heroSlug, defaultIndex, chrome, chapters,
   const goTo = useCallback((id: string) => goToRef.current(id), []);
 
   const value = useMemo<HomeContext>(
-    () => ({ cars, heroSlug, selected, select, paused, togglePaused, reduced, active, mode, reserveVisible, chaptersOnScreen, goTo, openDock, stageRef, overlayRef, progressRef, reserveRef }),
-    [cars, heroSlug, selected, select, paused, togglePaused, reduced, active, mode, reserveVisible, chaptersOnScreen, goTo, openDock],
+    () => ({ cars, heroSlug, selected, select, paused, togglePaused, sound: soundStatus, toggleSound, reduced, active, mode, reserveVisible, chaptersOnScreen, goTo, openDock, stageRef, overlayRef, progressRef, reserveRef }),
+    [cars, heroSlug, selected, select, paused, togglePaused, soundStatus, toggleSound, reduced, active, mode, reserveVisible, chaptersOnScreen, goTo, openDock],
   );
 
   return (

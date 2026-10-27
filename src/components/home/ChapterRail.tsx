@@ -2,17 +2,23 @@
 
 import clsx from "clsx";
 import { useEffect } from "react";
-import { Pause, Play } from "lucide-react";
+import { Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { useT } from "@/i18n/client";
 import { CHAPTERS, useHome } from "./HomeExperience";
 
-/** Desktop chapter rail with the Pause motion control (WCAG 2.2.2), plus the mobile control. */
+/**
+ * Desktop chapter rail with the Pause motion control (WCAG 2.2.2) and the Sound toggle, plus
+ * the mobile controls. Sound is a toggle button (aria-pressed) with a constant name; it shows
+ * as on only while audio can actually play (a remembered "on" waits for the first gesture).
+ */
 export function ChapterRail() {
-  const { active, paused, togglePaused, reduced, chaptersOnScreen, reserveVisible } = useHome();
+  const { active, paused, togglePaused, sound, toggleSound, reduced, chaptersOnScreen, reserveVisible } = useHome();
   const t = useT("home");
   const hiddenCls = !chaptersOnScreen && "pointer-events-none invisible opacity-0";
   const pauseLabel = paused ? t("rail.play") : t("rail.pause");
   const Icon = paused ? Play : Pause;
+  const soundOn = sound === "on";
+  const SoundIcon = soundOn ? Volume2 : VolumeX;
 
   return (
     <>
@@ -33,16 +39,46 @@ export function ChapterRail() {
           ))}
         </ol>
         {!reduced && (
-          <button
-            type="button"
-            onClick={togglePaused}
-            className="ms-auto mt-4 flex min-h-11 items-center justify-end gap-2.5 rounded-full border border-line bg-[rgba(24,51,51,.55)] px-4 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted backdrop-blur-sm transition-colors hover:border-accent hover:text-fg"
-          >
-            <Icon className="size-3.5" aria-hidden="true" />
-            {pauseLabel}
-          </button>
+          <div className="mt-4 flex justify-end gap-2">
+            {sound !== "unavailable" && (
+              <button
+                type="button"
+                data-sound-toggle=""
+                aria-pressed={soundOn}
+                onClick={toggleSound}
+                className="flex min-h-11 items-center gap-2.5 rounded-full border border-line bg-[rgba(24,51,51,.55)] px-4 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted backdrop-blur-sm transition-colors hover:border-accent hover:text-fg aria-pressed:border-accent aria-pressed:text-fg"
+              >
+                <SoundIcon className={clsx("size-3.5", soundOn && "text-accent")} aria-hidden="true" />
+                {t("rail.sound")}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={togglePaused}
+              className="flex min-h-11 items-center justify-end gap-2.5 rounded-full border border-line bg-[rgba(24,51,51,.55)] px-4 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted backdrop-blur-sm transition-colors hover:border-accent hover:text-fg"
+            >
+              <Icon className="size-3.5" aria-hidden="true" />
+              {pauseLabel}
+            </button>
+          </div>
         )}
       </nav>
+
+      {!reduced && sound !== "unavailable" && (
+        <button
+          type="button"
+          data-sound-toggle=""
+          aria-pressed={soundOn}
+          aria-label={t("rail.sound")}
+          onClick={toggleSound}
+          className={clsx(
+            "fixed bottom-[calc(var(--home-dock)+12px)] end-[4.25rem] z-[var(--z-rail)] flex size-11 items-center justify-center rounded-full border border-line bg-[rgba(24,51,51,.7)] text-fg backdrop-blur-sm transition-[opacity,visibility,border-color] duration-300 hover:border-accent aria-pressed:border-accent lg:hidden",
+            (hiddenCls || reserveVisible) && "pointer-events-none invisible opacity-0",
+          )}
+        >
+          <SoundIcon className={clsx("size-4", soundOn && "text-accent")} aria-hidden="true" />
+        </button>
+      )}
 
       {!reduced && (
         <button
