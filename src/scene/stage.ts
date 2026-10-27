@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { clamp01, lerp, sm } from "./math";
 import { buildWorld, C } from "./world";
+import { BAA_SPINE, OPENING } from "./dubai";
 import { buildFor, createCarPoints, type CarPoints } from "./car/carPoints";
 import { loadParticleSet } from "./car/particleSet";
 import * as glsl from "./shaders";
@@ -44,11 +45,14 @@ export interface Stage {
 }
 
 /**
- * Chapter 1 opens across the city on the Burj Khalifa (at the origin), standing on the end
- * side of the screen beside the copy, then descends past it onto the helipad. The camera looks
- * at the tower's middle, rising toward its top section by mid-descent.
+ * Chapter 1 opens out at sea behind the Burj Al Arab, on the Burj Khalifa (at the origin)
+ * across the whole city, the tower on the end side of the screen beside the copy. A long lens
+ * keeps it large from 2,350 units away; the camera then flies in and down onto the Burj Al
+ * Arab's helipad (C) as the lens widens to the usual view, the Burj Khalifa staying in sight.
  */
-const BURJ_LOOK_Y = [182, 238] as const;
+const BURJ_LOOK_Y = [182, 196] as const;
+/** Opening lens: vertical field of view in degrees (the usual 40 / 50 by the landing). */
+const OPEN_FOV = { desk: 14.5, mob: 26 } as const;
 /**
  * View offsets [x mirrored for right-to-left, y, x not mirrored] per chapter, as a share of
  * the screen. Chapter 1 eases from framing the Burj to framing the car (BURJ_* → index 0).
@@ -58,7 +62,7 @@ const OFFSETS = {
   desk: [[0.1, 0.07], [0, 0.27], [-0.15, 0.07], [0.13, 0.1]],
   mob: [[0, 0.1], [0, 0.25], [0, -0.12], [0, 0.2]],
 } as const;
-const BURJ_FRAME = { desk: [-0.18, 0.075, 0], mob: [0, 0.22, 0.08] } as const;
+const BURJ_FRAME = { desk: [-0.18, 0.071, 0], mob: [0, 0.24, 0.08] } as const;
 /** Fog colour: a warmer desert haze for the opening view, the usual colour by the landing. */
 const HAZE = new THREE.Vector3(0.07, 0.115, 0.105), FOG = new THREE.Vector3(0.03, 0.075, 0.075);
 /** Camera on +z looks at the car's flank with the nose to the right, as in the side images. */
@@ -96,7 +100,8 @@ export function createStage(opts: StageOptions): Stage {
   renderer.setClearColor(0x0f2424, 1);
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 2600);
+  // The opening looks 2,350 units across the city; nothing comes nearer than a few units.
+  const camera = new THREE.PerspectiveCamera(40, 1, 1, 4500);
   const world = buildWorld(scene, camera, budget, pixelRatio);
   const { common, floorU, streakU } = world;
   const carPR = { value: pixelRatio };
@@ -172,20 +177,15 @@ export function createStage(opts: StageOptions): Stage {
   let width = 1, height = 1, rs = 1, hs = 1;
   let curve: THREE.CatmullRomCurve3 | null = null;
   const camPos = new THREE.Vector3(), camTgt = new THREE.Vector3(), tmp = new THREE.Vector3();
-  const lookA = new THREE.Vector3(), lookB = new THREE.Vector3();
+  const lookA = new THREE.Vector3(), lookB = new THREE.Vector3(), lookM = new THREE.Vector3();
   const orbit = (out: THREE.Vector3, az: number, r: number, h: number) => out.set(C.x + Math.cos(az) * r * rs, C.y + h * hs, C.z + Math.sin(az) * r * rs);
   const buildCurve = () => {
-    // The opening stands further back on narrow screens, so the whole tower fits above the copy.
-    const fs = Math.min(1.28, Math.max(1, 1.25 / (width / height)));
+    // From out at sea behind the helipad (`back` units, away from the Burj Khalifa), in and down.
+    const len = Math.hypot(C.x, C.z), fx = -C.x / len, fz = -C.z / len;
+    const at = (back: number, right: number, y: number) => new THREE.Vector3(C.x - fx * back - fz * right, y, C.z - fz * back + fx * right);
     curve = new THREE.CatmullRomCurve3(
-      [
-        new THREE.Vector3(40 * fs, 135 + 45 * (fs - 1), 820 * fs),
-        new THREE.Vector3(42, 150 + 20 * (fs - 1), 640 + 420 * (fs - 1)),
-        new THREE.Vector3(46, 160, 470),
-        new THREE.Vector3(56, 118, 262),
-        new THREE.Vector3(C.x + 15, C.y + 24, C.z + 54),
-        orbit(new THREE.Vector3(), AZ1, R1, 1.6),
-      ],
+      // Swinging a little right on the way in keeps the Burj Al Arab clear of the Burj Khalifa.
+      [at(OPENING.back, OPENING.right, OPENING.y), at(420, 46, 214), at(300, 60, 166), at(150, 44, 142), new THREE.Vector3(C.x + 15, C.y + 24, C.z + 54), orbit(new THREE.Vector3(), AZ1, R1, 1.6)],
       false,
       "centripetal",
     );
@@ -292,8 +292,8 @@ export function createStage(opts: StageOptions): Stage {
       }
 
       common.uCity.value = cityK;
-      // Clearer air for the opening view across the city; the usual haze by the landing.
-      common.uFogD.value = 0.0021 * lerp(0.45, 1, sm(0.2, 0.8, c1)) + (1 - cityK) * 0.004;
+      // Clear air across the city (it spans thousands of units); haze thickens as it fades out.
+      common.uFogD.value = 0.00046 + (1 - cityK) * 0.004;
       common.uFogC.value.lerpVectors(HAZE, FOG, sm(0.2, 0.8, c1));
       const cityOn = cityK > 0.003;
       world.city.visible = world.ground.visible = world.tall.visible = world.beacons.visible = world.stars.visible = cityOn;
@@ -357,17 +357,20 @@ export function createStage(opts: StageOptions): Stage {
 
       if (!curve) buildCurve();
       if (c2 <= 0.0001) {
-        // Halfway through the chapter the camera is at the third point, with the whole tower in view.
+        // Halfway through the chapter the camera is at the third point: both Burjs in view.
         curve!.getPoint(0.5 - 0.5 * Math.cos(Math.PI * Math.pow(c1, 1.2)), camPos);
         // Ease the end of the descent onto this car's framing distance.
         const e = sm(0.6, 1, c1);
         camPos.set(C.x + (camPos.x - C.x) * lerp(1, k, e), camPos.y, C.z + (camPos.z - C.z) * lerp(1, k, e));
-        // Turn the view (not the target point) from the tower down to the car, so the tilt stays even.
+        // Turn the view (not the target point) from the Burj Khalifa, through a frame holding both
+        // towers (the Burj Al Arab's sail in front), down to the car, so the tilt stays even.
         tmp.set(C.x, C.y + 0.6 * k, C.z);
         const reach = camPos.distanceTo(tmp);
         lookA.set(0, lerp(BURJ_LOOK_Y[0], BURJ_LOOK_Y[1], sm(0, 0.5, c1)), 0).sub(camPos).normalize();
+        lookM.set(BAA_SPINE[0], 70, BAA_SPINE[1]).sub(camPos).normalize();
         lookB.copy(tmp).sub(camPos).normalize();
-        camTgt.copy(lookA).lerp(lookB, sm(0.45, 0.82, c1)).normalize().multiplyScalar(reach).add(camPos);
+        lookA.lerp(lookM, 0.42 * sm(0.18, 0.5, c1)).normalize();
+        camTgt.copy(lookA).lerp(lookB, sm(0.55, 0.88, c1)).normalize().multiplyScalar(reach).add(camPos);
       } else if (c3 <= 0.0001) {
         const t = sm(0, 0.45, c2);
         orbit(camPos, lerp(AZ1, AZ2, t), lerp(R1, R2, t) * k, lerp(1.6, 1.0, t));
@@ -398,7 +401,14 @@ export function createStage(opts: StageOptions): Stage {
       const ox = W0 * lerp(B[0], O[0][0], fb) + W1 * O[1][0] + W2 * O[2][0] + W3 * O[3][0];
       const oy = W0 * lerp(B[1], O[0][1], fb) + W1 * O[1][1] + W2 * O[2][1] + W3 * O[3][1];
       const oxAbs = W0 * B[2] * (1 - fb);
+      // The opening's long lens widens to the usual one by the landing (eased in focal length).
+      const fov0 = mob ? OPEN_FOV.mob : OPEN_FOV.desk, fov1 = mob ? 50 : 40;
+      const lens = Math.exp(lerp(Math.log(Math.tan((fov0 * Math.PI) / 360)), Math.log(Math.tan((fov1 * Math.PI) / 360)), sm(0.06, 0.62, c1)));
+      camera.fov = (Math.atan(lens) * 360) / Math.PI;
       camera.setViewOffset(width, height, (side * ox + oxAbs) * width, oy * height, width, height);
+      // While the chapter 1 copy is on screen the city behind it steps back.
+      common.uCalm.value.set(side, 1 - sm(0.2, 0.42, c1), mob ? 1 : 0, 0);
+      common.uRes.value.set(canvas.width, canvas.height);
 
       world.sky.position.copy(camera.position);
       world.stars.position.copy(camera.position);
@@ -433,6 +443,7 @@ export function createStage(opts: StageOptions): Stage {
     },
 
     debug() {
+      (window as unknown as { __world?: unknown }).__world = world; // TEMP profiling
       return {
         swap,
         current: current.slug,

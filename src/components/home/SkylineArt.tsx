@@ -1,47 +1,65 @@
 import clsx from "clsx";
 import { mulberry } from "@/scene/math";
+import { BURJ_M, CORE, EDGE_LEFT, EDGE_RIGHT, FLARE, PINNACLE, PODIUM, WING_TOP, edgeAt } from "@/scene/burjProfile";
 
 // The homepage's Dubai skyline as inline SVG, for visitors without the 3D stage (static tier,
-// no WebGL, no JavaScript) and while the stage loads. Two layers: the city band along the
-// bottom, and the Burj Khalifa on the end side of the screen, beside the chapter 1 copy.
-// Positioned with logical CSS, so in Arabic the Burj stands on the left; the drawings
-// themselves are never mirrored. Colours come from the theme tokens. Decorative only.
+// no WebGL, no JavaScript) and while the stage loads. Three layers: the city band along the
+// bottom, the Burj Khalifa on the end side of the screen beside the chapter 1 copy, and the
+// Burj Al Arab (where the 3D descent lands) nearer the edge. Positioned with logical CSS, so in
+// Arabic they stand on the left; the drawings themselves are never mirrored. The Burj Khalifa
+// is drawn from the same massing as the 3D tower (scene/burjProfile.ts, no three.js). Colours
+// come from the theme tokens. Decorative only.
 
-/** Burj Khalifa elevation (viewBox 0 0 160 1000): staggered setbacks, top section, spire. */
-const burjPath = (() => {
-  const k = 1000 / 364; // scene units → drawing units, same massing as the 3D tower
-  const Y = (y: number) => (1000 - y * k).toFixed(1);
-  const reach = (y: number) => 6.4 + 23.6 * Math.pow(Math.max(0, 1 - y / 236), 1.3);
-  const steps = Array.from({ length: 24 }, (_, i) => 30 + (i * 196) / 23);
-  // The two sides step back on alternate setbacks (the spiral, seen side-on).
-  const side = (phase: number) => {
-    const pts: [number, number][] = [[0, reach(0)]];
-    let w = reach(0);
-    steps.forEach((y, i) => {
-      if (i % 2 !== phase) return;
-      pts.push([y, w]);
-      w = reach(y + 10);
-      pts.push([y, w]);
-    });
-    pts.push([236, Math.max(w, 7.6)]);
-    for (const [y0, y1, r] of [[236, 247, 8.6], [247, 256, 6.8], [256, 263, 5.2]]) pts.push([y0, r], [y1, r]);
-    pts.push([263, 3.0], [292, 2.0], [326, 0.95], [364, 0.1]);
+/** Rounded to 0.1, so server and browser print the same path (their Math.pow can differ in the last bit). */
+const r1 = (v: number) => Math.round(v * 10) / 10;
+
+/** Burj Khalifa elevation in metres (viewBox x −80…80, y 0 at the tip): the stepped silhouette. */
+const burj = (() => {
+  const breaks = new Set<number>([0, PODIUM.top, BURJ_M, CORE.end]);
+  for (const [h0, h1] of FLARE) breaks.add(h0).add(h1);
+  for (const [h] of [...EDGE_LEFT, ...EDGE_RIGHT, ...PINNACLE]) breaks.add(h);
+  breaks.add(WING_TOP.left).add(WING_TOP.right);
+  const hs = [...breaks].sort((a, b) => a - b);
+  const side = (s: "left" | "right") => {
+    const pts: string[] = [];
+    for (let i = 0; i < hs.length - 1; i++) {
+      const w = edgeAt(s, hs[i]) * (s === "left" ? -1 : 1);
+      pts.push(`${r1(w)},${r1(BURJ_M - hs[i])}`, `${r1(w)},${r1(BURJ_M - hs[i + 1])}`);
+    }
     return pts;
   };
-  const right = side(1).map(([y, w]) => `${(80 + w * 0.62 * k).toFixed(1)},${Y(y)}`);
-  const left = side(0).map(([y, w]) => `${(80 - w * 0.62 * k).toFixed(1)},${Y(y)}`).reverse();
-  return `M${right.join(" L")} L${left.join(" L")} Z`;
+  const right = side("right");
+  const left = side("left").reverse();
+  // The needle: the last tier narrows to a point
+  return `M${right.join(" L")} L0,0 L${left.join(" L")} Z`;
 })();
 
-/** Setback lines across the tower, for the lit terraces. */
-const burjSetbacks = Array.from({ length: 24 }, (_, i) => 30 + (i * 196) / 23).map((y) => Math.round(10 * (1000 - y * (1000 / 364))) / 10);
+/** Burj Al Arab in profile, in metres (viewBox x −90…60, y 0 at the mast tip): sail, mast, helipad. */
+const baa = (() => {
+  const top = 321, Y = (h: number) => r1(top - h);
+  const front: string[] = [];
+  for (let i = 0; i <= 16; i++) {
+    const t = i / 16, h = 7 + t * 193;
+    const d = 66 * (1 - Math.pow(t, 2.3)) * (0.86 + 0.5 * t * (1 - t)) + 5;
+    front.push(`${r1(-d)},${Y(h)}`);
+  }
+  const sail = `M0,${Y(7)} L${front.join(" L")} L0,${Y(206)} Z`;
+  const mast = `M-3.4,${Y(200)} L-1.7,${Y(262)} L-0.2,${Y(321)} L0.2,${Y(321)} L1.7,${Y(262)} L3.4,${Y(200)} Z`;
+  const pad = `M5,${Y(208)} L33,${Y(208)} L33,${Y(211)} L5,${Y(211)} Z`;
+  const struts = `M8,${Y(208)} L0,${Y(186)} M20,${Y(208)} L2,${Y(176)}`;
+  const island = `M-86,${Y(0)} L-80,${Y(7)} L40,${Y(7)} L46,${Y(0)} Z`;
+  // The exoskeleton's X braces across the side of the sail (clipped to it)
+  const braces = Array.from({ length: 9 }, (_, i) => -280 + i * 34)
+    .map((x) => `M${x},${Y(7)} l200,-200 M${x},${Y(207)} l200,200`)
+    .join(" ");
+  return { sail, mast, pad, struts, island, braces, front: `M${front.join(" L")}` };
+})();
 
-/** City band (viewBox 0 0 1440 360): towers, Emirates Towers, Cayan, the Burj Al Arab sail. */
+/** City band (viewBox 0 0 1440 360): towers across the width, a few crowns and spires, Emirates Towers. */
 const band = (() => {
   const r = mulberry(11);
   const shapes: string[] = [];
-  // Rounded, so server and browser print the same path (their Math.pow can differ in the last bit).
-  const add = (d: string) => shapes.push(d.replace(/\d+\.\d+/g, (n) => (Math.round(Number(n) * 10) / 10).toString()));
+  const add = (d: string) => shapes.push(d.replace(/\d+\.\d+/g, (n) => r1(Number(n)).toString()));
   let x = 0;
   while (x < 1440) {
     const w = 18 + r() * 26;
@@ -57,15 +75,8 @@ const band = (() => {
   // Emirates Towers: two triangular towers with roofs sloping to a point
   add("M1186,360 V168 L1214,118 V360 Z");
   add("M1222,360 V196 L1246,152 V360 Z");
-  // Cayan Tower's twist
-  add("M318,360 V178 C326,174 340,174 348,178 V360 Z");
-  // The Burj Al Arab on the coast, far off: the sail and its mast
-  add("M88,360 V250 L90,218 C108,236 120,280 122,336 L124,360 Z");
-  add("M89.2,222 L90.2,196 L91.2,222 Z");
   return shapes.join(" ");
 })();
-
-const cayanBands = Array.from({ length: 9 }, (_, i) => 186 + i * 19);
 
 export function SkylineBand({ className }: { className?: string }) {
   return (
@@ -82,37 +93,45 @@ export function SkylineBand({ className }: { className?: string }) {
       <rect x="0" y="120" width="1440" height="240" fill="url(#sky-haze)" />
       <path d={band} className="fill-deep stroke-line" strokeWidth="1" />
       <path d={band} fill="url(#sky-win)" opacity="0.55" />
-      {cayanBands.map((y) => (
-        <path key={y} d={`M318,${y + 12} L348,${y}`} className="stroke-accent" strokeWidth="1" opacity="0.35" />
-      ))}
-      <path d="M90,218 C108,236 120,280 122,336" className="fill-none stroke-champagne" strokeWidth="1.5" opacity="0.7" />
     </svg>
   );
 }
 
 export function SkylineBurj({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 -12 160 1012" preserveAspectRatio="xMidYMax meet" className={clsx("block aspect-[160/1012]", className)} aria-hidden="true" focusable="false">
+    <svg viewBox="-80 -14 160 842" preserveAspectRatio="xMidYMax meet" className={clsx("block aspect-[160/842]", className)} aria-hidden="true" focusable="false">
       <defs>
         <linearGradient id="burj-glow" x1="0" y1="1" x2="0" y2="0">
           <stop offset="0%" className="[stop-color:var(--color-amber)]" stopOpacity="0.4" />
           <stop offset="45%" className="[stop-color:var(--color-amber)]" stopOpacity="0.06" />
           <stop offset="100%" className="[stop-color:var(--color-amber)]" stopOpacity="0" />
         </linearGradient>
-        <clipPath id="burj-clip">
-          <path d={burjPath} />
+      </defs>
+      <path d={burj} className="fill-deep" />
+      <path d={burj} fill="url(#burj-glow)" />
+      <path d={burj} className="fill-none stroke-accent" strokeWidth="1.1" opacity="0.85" />
+      <circle cx="0" cy="-3" r="2.6" className="fill-danger" />
+    </svg>
+  );
+}
+
+export function SkylineBurjAlArab({ className }: { className?: string }) {
+  return (
+    <svg viewBox="-90 -6 152 330" preserveAspectRatio="xMidYMax meet" className={clsx("block aspect-[152/330]", className)} aria-hidden="true" focusable="false">
+      <defs>
+        <clipPath id="baa-sail">
+          <path d={baa.sail} />
         </clipPath>
       </defs>
-      <path d={burjPath} className="fill-deep" />
-      <path d={burjPath} fill="url(#burj-glow)" />
-      <g clipPath="url(#burj-clip)" className="stroke-accent" strokeWidth="1" opacity="0.35">
-        {burjSetbacks.map((y) => (
-          <line key={y} x1="0" x2="160" y1={y} y2={y} />
-        ))}
-        <line x1="80" x2="80" y1="0" y2="1000" strokeWidth="1.6" />
-      </g>
-      <path d={burjPath} className="fill-none stroke-accent" strokeWidth="1.4" opacity="0.8" />
-      <circle cx="80" cy="0" r="3.2" className="fill-danger" />
+      <path d={baa.island} className="fill-deep stroke-accent" strokeWidth="0.8" opacity="0.9" />
+      <path d={baa.sail} className="fill-deep" />
+      <path d={baa.braces} clipPath="url(#baa-sail)" className="fill-none stroke-accent" strokeWidth="0.9" opacity="0.5" />
+      <path d={baa.front} className="fill-none stroke-champagne" strokeWidth="1.6" opacity="0.9" />
+      <path d={baa.sail} className="fill-none stroke-accent" strokeWidth="0.9" opacity="0.8" />
+      <path d={baa.mast} className="fill-champagne" opacity="0.85" />
+      <path d={baa.struts} className="fill-none stroke-accent" strokeWidth="0.8" opacity="0.7" />
+      <path d={baa.pad} className="fill-deep stroke-accent" strokeWidth="0.9" />
+      <circle cx="0" cy="-1.5" r="2" className="fill-danger" />
     </svg>
   );
 }

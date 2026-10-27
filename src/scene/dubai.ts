@@ -1,377 +1,157 @@
 import * as THREE from "three";
 import { mulberry } from "./math";
+import { Facade, at, circle, norm, rightOf, rot2, turn, type XZ } from "./facade";
+import { HELIPAD_R, HELIPAD_Y, buildBurjAlArab } from "./baa";
 
-// Procedural Dubai for the homepage stage: the Burj Khalifa and a few recognisable silhouettes
-// around it. Everything is built from code (no models, textures or fonts) into two merged
-// geometries for the facade shader (shaders.ts `facade`): one for the Burj, one for the rest.
+// Procedural Dubai for the homepage stage, laid out around the landing. The car lands on the
+// Burj Al Arab's helipad, looking inland: the Burj Khalifa stands 1,800 units away (about
+// 14 km, compressed), a little right of the car, with Downtown, Business Bay, Sheikh Zayed
+// Road's tower corridor and Trade Centre around it, the low-rise districts lit between, the
+// coast curving away to the left and the sea around the island. The opening camera stands
+// out at sea behind the Burj Al Arab, looking at the Burj Khalifa over the whole city.
+// Everything is code-built: no models, textures or fonts.
 //
-// Scale: about 0.44 scene units per metre, so the 828 m Burj Khalifa stands 364 units tall
-// over a city whose towers reach ~150. Geography is compressed but plausible. The camera opens
-// from the north-east, over Trade Centre, looking south-west: Sheikh Zayed Road runs on the
-// Burj's north-west side (+x) from Emirates Towers and the Museum of the Future (near) to the
-// Marina and Cayan Tower (far), the coast and the Burj Al Arab lie beyond it, and the Address
-// Downtown and the lake sit on the Burj's south-east side (−x).
+// Scale: about 0.44 units per metre (the Burj Khalifa's 828 m → 364 units); the Burj Al Arab
+// is drawn at 0.55 (baa.ts).
 
-export const BURJ_H = 364;
-/** Where the red aviation light sits. */
-export const BURJ_TIP = new THREE.Vector3(0, BURJ_H + 0.6, 0);
+/** stage.ts AZ1: the landing camera stands at this azimuth around the car and looks back across it. */
+const AZ1 = Math.PI / 2 - 0.24;
+/** The landing camera's view direction. */
+export const LAND: XZ = norm(-Math.cos(AZ1), -Math.sin(AZ1));
+/** From the helipad to the Burj Khalifa: 7° right of the landing view. */
+export const TO_BURJ: XZ = turn(LAND, 7);
+export const BURJ_DIST = 1800;
+/** The Burj Al Arab's helipad (the car's pad): centre, deck height, radius. */
+export const HELIPAD = { x: -TO_BURJ[0] * BURJ_DIST, z: -TO_BURJ[1] * BURJ_DIST, y: HELIPAD_Y, r: HELIPAD_R } as const;
+/** The Burj Khalifa's front wing points back at the helipad (and the opening camera). */
+export const BURJ_FACING = Math.atan2(HELIPAD.z, HELIPAD.x);
 
-/** Sheikh Zayed Road's centre line (x) and half-width; the corridor towers stand either side. */
-export const SZR = { x: 125, half: 11, rows: 17 } as const;
-/** The lake at the Burj's foot: centre and radii. */
-export const LAKE = { x: -30, z: 24, rx: 24, rz: 12 } as const;
-/** Coastline: x = x0 + k * z (the sea is beyond, at larger x); it swings out toward the Marina. */
-export const COAST = { x0: 212, k: -0.05 } as const;
-export const coastX = (z: number) => COAST.x0 + COAST.k * z;
+const PAD: XZ = [HELIPAD.x, HELIPAD.z];
+/** The opening camera: out at sea behind the helipad (units back, to the right), and its height. */
+export const OPENING = { back: 550, right: 40, y: 262 } as const;
+/** The opening camera's ground position. */
+export const OPEN_POS: XZ = at(PAD, [-OPENING.back, TO_BURJ], [OPENING.right, rightOf(TO_BURJ)]);
+/** Where the Burj Al Arab's mast stands: ahead and to the left of the helipad, just outside the landing frame. */
+export const BAA_SPINE: XZ = at(PAD, [4, LAND], [-14.3, rightOf(LAND)]);
+/** The coast: a line through COAST.p running along COAST.dir; inland is +COAST.n. */
+const BEACH: XZ = turn(TO_BURJ, 70);
+const COAST_DIR: XZ = turn(TO_BURJ, -20);
+const COAST_N: XZ = rightOf(COAST_DIR);
+const COAST_P: XZ = at(PAD, [80, BEACH]);
+export const COAST = { x: COAST_P[0], z: COAST_P[1], nx: COAST_N[0], nz: COAST_N[1], dx: COAST_DIR[0], dz: COAST_DIR[1] } as const;
+/** Distance inland from the shoreline (negative: at sea). */
+export const inland = (x: number, z: number) => (x - COAST_P[0]) * COAST_N[0] + (z - COAST_P[1]) * COAST_N[1];
+/** Distance along the coast (positive toward the north-east). */
+const along = (x: number, z: number) => (x - COAST_P[0]) * COAST_DIR[0] + (z - COAST_P[1]) * COAST_DIR[1];
+const shoreFrom = (p: XZ): XZ => at(p, [-inland(p[0], p[1]), COAST_N]);
+
+/** Sheikh Zayed Road runs parallel to the coast, just north-west of the Burj Khalifa. */
+const SZR_D = inland(0, 0) - 55;
+export const SZR = { d: SZR_D, half: 11, rows: 17 } as const;
+const szrAt = (t: number, off: number): XZ => at(COAST_P, [SZR_D + off, COAST_N], [t + along(0, 0), COAST_DIR]);
+
+/** Seen from the helipad: forward toward the Burj, and to the right. */
+const FWD = TO_BURJ, RIGHT = rightOf(TO_BURJ);
+const fromBurj = (f: number, r: number): XZ => at([0, 0], [f, FWD], [r, RIGHT]);
+
+/** The lake at the Burj Khalifa's foot (centre, radii along x and z). */
+const LAKE_C = fromBurj(-34, 52);
+export const LAKE = { x: LAKE_C[0], z: LAKE_C[1], rx: 26, rz: 16 } as const;
+
+const ADDRESS = fromBurj(46, 84);
+const BUSINESS_BAY = at([0, 0], [215, COAST_N], [70, COAST_DIR]);
+const EMIRATES = szrAt(520, 26);
+const MUSEUM = szrAt(472, 50);
 
 /** Ground plots kept clear of generic towers: [x, z, radius]. */
 export const PLOTS: readonly (readonly [number, number, number])[] = [
-  [0, 0, 40], // Burj Khalifa
-  [-62, 46, 16], // Address Downtown
-  [103, 132, 20], // Emirates Towers
-  [94, 182, 16], // Museum of the Future
+  [0, 0, 40],
+  [ADDRESS[0], ADDRESS[1], 16],
+  [EMIRATES[0], EMIRATES[1], 22],
+  [MUSEUM[0], MUSEUM[1], 18],
 ];
 
-type XZ = readonly [number, number];
-const BIG = 1000;
-
-interface Style {
-  kind: number;
-  seed: number;
-}
-
-/** Accumulates facade triangles with the attributes the facade shader reads. */
-class Facade {
-  private pos: number[] = [];
-  private nrm: number[] = [];
-  private face: number[] = [];
-  private span: number[] = [];
-  private readonly a = new THREE.Vector3();
-  private readonly b = new THREE.Vector3();
-  private readonly n = new THREE.Vector3();
-
-  private vert(p: THREE.Vector3, n: THREE.Vector3, u: number, dl: number, dr: number, top: number, bottom: number, s: Style) {
-    this.pos.push(p.x, p.y, p.z);
-    this.nrm.push(n.x, n.y, n.z);
-    this.face.push(u, dl, dr, top);
-    this.span.push(bottom, s.kind, s.seed);
-  }
-
-  /**
-   * A wall quad (bottom-left, bottom-right, top-right, top-left), wound to face `out`.
-   * `sharpL`/`sharpR` mark vertical edges that get an edge light line.
-   */
-  quad(
-    bl: THREE.Vector3,
-    br: THREE.Vector3,
-    tr: THREE.Vector3,
-    tl: THREE.Vector3,
-    o: Style & { u: number; uTop?: number; sharpL: boolean; sharpR: boolean; bottom: number; topL: number; topR: number; out: THREE.Vector3; normal?: THREE.Vector3 },
-  ) {
-    const wB = Math.hypot(br.x - bl.x, br.z - bl.z), wT = Math.hypot(tr.x - tl.x, tr.z - tl.z);
-    const uT = o.uTop ?? o.u;
-    const L0 = o.sharpL ? 0 : BIG, R0 = o.sharpR ? 0 : BIG;
-    const n = this.n;
-    if (o.normal) n.copy(o.normal);
-    else {
-      this.a.subVectors(br, bl);
-      this.b.subVectors(tl, bl);
-      n.crossVectors(this.a, this.b);
-      if (n.lengthSq() < 1e-10) {
-        this.a.subVectors(tr, bl);
-        n.crossVectors(this.a, this.b);
-      }
-      n.normalize();
-      if (n.dot(o.out) < 0) n.negate();
-    }
-    // Winding: front faces are counter-clockwise seen from outside.
-    this.a.subVectors(br, bl);
-    this.b.subVectors(tr, bl);
-    const flip = this.a.cross(this.b).dot(n) < 0;
-    const V: [THREE.Vector3, number, number, number, number][] = [
-      [bl, o.u, L0, R0 + wB, o.topL],
-      [br, o.u + wB, L0 + wB, R0, o.topR],
-      [tr, uT + wT, L0 + wT, R0, o.topR],
-      [tl, uT, L0, R0 + wT, o.topL],
-    ];
-    const order = flip ? [0, 2, 1, 0, 3, 2] : [0, 1, 2, 0, 2, 3];
-    for (const i of order) {
-      const [p, u, dl, dr, top] = V[i];
-      this.vert(p, n, u, dl, dr, top, o.bottom, o);
-    }
-  }
-
-  /** A flat or sloped cap over a convex outline (fan), facing up. */
-  cap(pts: THREE.Vector3[], s: Style & { bottom: number }) {
-    const n = this.n;
-    this.a.subVectors(pts[1], pts[0]);
-    this.b.subVectors(pts[2], pts[0]);
-    n.crossVectors(this.a, this.b).normalize();
-    const flip = n.y < 0;
-    if (flip) n.negate();
-    for (let i = 1; i < pts.length - 1; i++) {
-      const tri = flip ? [pts[0], pts[i + 1], pts[i]] : [pts[0], pts[i], pts[i + 1]];
-      for (const p of tri) this.vert(p, n, 0, BIG, BIG, p.y, s.bottom, s);
-    }
-  }
-
-  /**
-   * Vertical prism over a convex outline. `tops` may give a height per vertex (sloped roofs).
-   * `skip[i]` drops the wall from vertex i to i+1 (hidden inside another piece).
-   */
-  prism(poly: XZ[], y0: number, tops: number | number[], o: Style & { sharp?: boolean[]; skip?: boolean[]; cap?: boolean }) {
-    const n = poly.length;
-    const top = (i: number) => (typeof tops === "number" ? tops : tops[i % n]);
-    let cx = 0, cz = 0;
-    for (const [x, z] of poly) {
-      cx += x / n;
-      cz += z / n;
-    }
-    const out = new THREE.Vector3();
-    let u = 0;
-    for (let i = 0; i < n; i++) {
-      const [ax, az] = poly[i], [bx, bz] = poly[(i + 1) % n];
-      const w = Math.hypot(bx - ax, bz - az);
-      if (!o.skip?.[i]) {
-        out.set((ax + bx) / 2 - cx, 0, (az + bz) / 2 - cz);
-        this.quad(new THREE.Vector3(ax, y0, az), new THREE.Vector3(bx, y0, bz), new THREE.Vector3(bx, top(i + 1), bz), new THREE.Vector3(ax, top(i), az), {
-          ...o,
-          u,
-          sharpL: !!o.sharp?.[i],
-          sharpR: !!o.sharp?.[(i + 1) % n],
-          bottom: y0,
-          topL: top(i),
-          topR: top(i + 1),
-          out,
-        });
-      }
-      u += w;
-    }
-    if (o.cap !== false) this.cap(poly.map(([x, z], i) => new THREE.Vector3(x, top(i), z)), { ...o, bottom: y0 });
-  }
-
-  /** Lofted walls through outline levels with the same vertex count (tapers and twists). */
-  loft(levels: { y: number; pts: XZ[]; c?: XZ }[], o: Style & { sharp?: boolean[]; cap?: boolean; kinds?: number[] }) {
-    const n = levels[0].pts.length;
-    const y0 = levels[0].y, yTop = levels[levels.length - 1].y;
-    const out = new THREE.Vector3();
-    const cum = levels.map((l) => {
-      const c: number[] = [0];
-      for (let i = 0; i < n; i++) {
-        const [ax, az] = l.pts[i], [bx, bz] = l.pts[(i + 1) % n];
-        c.push(c[i] + Math.hypot(bx - ax, bz - az));
-      }
-      return c;
-    });
-    const centre = (l: { pts: XZ[]; c?: XZ }): XZ => {
-      if (l.c) return l.c;
-      let cx = 0, cz = 0;
-      for (const [x, z] of l.pts) {
-        cx += x / n;
-        cz += z / n;
-      }
-      return [cx, cz];
-    };
-    for (let j = 0; j < levels.length - 1; j++) {
-      const A = levels[j], B = levels[j + 1];
-      const [ca, cza] = centre(A), [cb, czb] = centre(B);
-      for (let i = 0; i < n; i++) {
-        const k = (i + 1) % n;
-        const bl = new THREE.Vector3(A.pts[i][0], A.y, A.pts[i][1]);
-        const br = new THREE.Vector3(A.pts[k][0], A.y, A.pts[k][1]);
-        const tr = new THREE.Vector3(B.pts[k][0], B.y, B.pts[k][1]);
-        const tl = new THREE.Vector3(B.pts[i][0], B.y, B.pts[i][1]);
-        out.set((bl.x + br.x + tr.x + tl.x) / 4 - (ca + cb) / 2, 0, (bl.z + br.z + tr.z + tl.z) / 4 - (cza + czb) / 2);
-        this.quad(bl, br, tr, tl, {
-          ...o,
-          kind: o.kinds?.[i] ?? o.kind,
-          u: cum[j][i],
-          uTop: cum[j + 1][i],
-          sharpL: !!o.sharp?.[i],
-          sharpR: !!o.sharp?.[k],
-          bottom: y0,
-          topL: yTop,
-          topR: yTop,
-          out,
-        });
-      }
-    }
-    if (o.cap !== false) {
-      const L = levels[levels.length - 1];
-      this.cap(L.pts.map(([x, z]) => new THREE.Vector3(x, L.y, z)), { ...o, bottom: y0 });
-    }
-  }
-
-  /** A torus standing upright (axis horizontal), with analytic normals. */
-  ring(cx: number, cy: number, cz: number, rot: number, R: number, r: number, stretch: number, segs: number, sides: number, s: Style) {
-    const e1 = new THREE.Vector3(Math.cos(rot), 0, Math.sin(rot)); // across the ring
-    const e3 = new THREE.Vector3(-Math.sin(rot), 0, Math.cos(rot)); // the ring's axis
-    const P = (i: number, j: number, n: THREE.Vector3) => {
-      const phi = (i / segs) * Math.PI * 2, psi = (j / sides) * Math.PI * 2;
-      const rr = R + r * Math.cos(psi);
-      n.copy(e1).multiplyScalar(Math.cos(phi) * Math.cos(psi)).addScaledVector(e3, Math.sin(psi));
-      n.y = Math.sin(phi) * Math.cos(psi);
-      n.normalize();
-      return new THREE.Vector3(cx + e1.x * Math.cos(phi) * rr + e3.x * r * Math.sin(psi), cy + Math.sin(phi) * rr * stretch, cz + e1.z * Math.cos(phi) * rr + e3.z * r * Math.sin(psi));
-    };
-    const n0 = new THREE.Vector3(), n1 = new THREE.Vector3();
-    const tube = 2 * Math.PI * r;
-    for (let i = 0; i < segs; i++) {
-      for (let j = 0; j < sides; j++) {
-        const bl = P(i, j, n0), tl = P(i + 1, j, n1);
-        const br = P(i, j + 1, n0), tr = P(i + 1, j + 1, n1);
-        const mid = P(i + 0.5, j + 0.5, n0);
-        const normal = n0.clone();
-        const out = mid.clone().sub(new THREE.Vector3(cx, cy, cz)).normalize();
-        this.quad(bl, br, tr, tl, { ...s, u: (j / sides) * tube + i * 0.37, sharpL: false, sharpR: false, bottom: cy - R, topL: cy + R * stretch + r, topR: cy + R * stretch + r, out, normal });
-      }
-    }
-  }
-
-  build(): THREE.BufferGeometry {
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.Float32BufferAttribute(this.pos, 3));
-    g.setAttribute("normal", new THREE.Float32BufferAttribute(this.nrm, 3));
-    g.setAttribute("aFace", new THREE.Float32BufferAttribute(this.face, 4));
-    g.setAttribute("aSpan", new THREE.Float32BufferAttribute(this.span, 3));
-    g.computeBoundingSphere();
-    return g;
-  }
-}
-
-const rot2 = (pts: XZ[], a: number, cx = 0, cz = 0): XZ[] => {
-  const c = Math.cos(a), s = Math.sin(a);
-  return pts.map(([x, z]) => [cx + x * c - z * s, cz + x * s + z * c] as const);
-};
-
-const circle = (n: number, r: number, a0 = 0, cx = 0, cz = 0): XZ[] =>
-  Array.from({ length: n }, (_, i) => [cx + Math.cos(a0 + (i / n) * Math.PI * 2) * r, cz + Math.sin(a0 + (i / n) * Math.PI * 2) * r] as const);
-
-/** One wing of the Y plan: a bar from the core with a rounded nose, pointing along angle a. */
-function wing(len: number, hw: number, a: number) {
-  const ARC = 6;
-  const L = Math.max(len, hw + 0.6);
-  const local: XZ[] = [[0, -hw], [L - hw, -hw]];
-  for (let k = 1; k < ARC; k++) {
-    const t = -Math.PI / 2 + (k * Math.PI) / ARC;
-    local.push([L - hw + Math.cos(t) * hw, Math.sin(t) * hw]);
-  }
-  local.push([L - hw, hw], [0, hw]);
-  const sharp = local.map((_, i) => i === 1 + ARC / 2); // the nose
-  const skip = local.map((_, i) => i === local.length - 1); // the inner end, inside the core
-  return { pts: rot2(local, a), sharp, skip };
-}
-
 /**
- * The Burj Khalifa: three wings around a hexagonal core (the Y plan), stepping back in a
- * spiral one wing at a time, then the tapering top section and the long spire.
+ * Keeps the Burj Khalifa visible down to about 80 m from the helipad and from the opening
+ * camera: a tower standing in that slot of the view (narrow near the camera, about the Burj's
+ * width at its foot) is capped below the line of sight. In Dubai the Old Town and the lake on
+ * that side of the Burj are low too.
  */
-export function buildBurj(): THREE.BufferGeometry {
-  const f = new Facade();
-  const A0 = -0.42; // plan rotation: one wing toward the opening camera's left
-  const angles = [A0, A0 + (2 * Math.PI) / 3, A0 + (4 * Math.PI) / 3];
-  const Ys = 236, Rb = 30, Re = 6.4, steps = 24, yFirst = 30, yLast = 226;
-  const dy = (yLast - yFirst) / (steps - 1);
-  const reach = (y: number) => Re + (Rb - Re) * Math.pow(Math.max(0, 1 - y / Ys), 1.3);
-  const halfWidth = (y: number) => 7.2 - 2.4 * Math.min(1, y / Ys);
-  let seed = 0.13;
-
-  // Wings: each steps back on every third setback, so the setbacks spiral up the tower.
-  angles.forEach((a, w) => {
-    let y0 = 0, len = Rb;
-    for (let k = w; k < steps; k += 3) {
-      const yk = yFirst + k * dy;
-      const p = wing(len, halfWidth(y0), a);
-      f.prism(p.pts, y0, yk, { kind: 0, seed: (seed += 0.071), sharp: p.sharp, skip: p.skip });
-      y0 = yk;
-      len = reach(yk + 2 * dy);
-      if (len < 7.6) return;
-    }
-    const p = wing(len, halfWidth(y0), a);
-    f.prism(p.pts, y0, Ys, { kind: 0, seed: (seed += 0.071), sharp: p.sharp, skip: p.skip });
-  });
-
-  // Hexagonal core, filling the concave corners between the wings (lit edges there).
-  const hex = (r: number) => circle(6, r, A0 + Math.PI / 3);
-  const hexSharp = [true, false, true, false, true, false];
-  f.loft([{ y: 0, pts: hex(9.8) }, { y: Ys, pts: hex(6.6) }], { kind: 0, seed: 0.91, sharp: hexSharp });
-
-  // Top section: the core with short fins, telescoping into the spire.
-  const tiers: [number, number, number, number, number][] = [
-    [Ys, 247, 6.0, 8.6, 2.6],
-    [247, 256, 4.9, 6.8, 2.0],
-    [256, 263, 3.9, 5.2, 1.5],
-  ];
-  for (const [y0, y1, r, fl, fw] of tiers) {
-    f.prism(hex(r), y0, y1, { kind: 0, seed: (seed += 0.071), sharp: hexSharp });
-    for (const a of angles) {
-      const p = wing(fl, fw, a);
-      f.prism(p.pts, y0, y1, { kind: 0, seed: (seed += 0.071), sharp: p.sharp, skip: p.skip });
-    }
+export function viewCap(x: number, z: number, h: number, w: number): number {
+  let cap = h;
+  for (const [back, right, y] of [[0, 0, HELIPAD_Y + 1.6], [OPENING.back, OPENING.right, OPENING.y]] as const) {
+    const o = at(PAD, [-back, TO_BURJ], [right, RIGHT]);
+    const D = Math.hypot(o[0], o[1]);
+    const f = (x - o[0]) * TO_BURJ[0] + (z - o[1]) * TO_BURJ[1];
+    if (f <= 0 || f >= D) continue;
+    const lat = Math.abs((x - o[0]) * TO_BURJ[1] - (z - o[1]) * TO_BURJ[0]);
+    if (lat > (48 * f) / D + w / 2) continue;
+    cap = Math.min(cap, y + ((34 - y) * f) / D);
   }
-  const spire: [number, number][] = [[263, 3.0], [292, 2.0], [326, 0.95], [BURJ_H, 0.1]];
-  f.loft(spire.map(([y, r]) => ({ y, pts: circle(8, r, A0) })), { kind: 1, seed: 0.5 });
-  return f.build();
+  return Math.max(4, cap);
+}
+
+/** True where generic towers may stand: on land, off Sheikh Zayed Road and the plots. */
+export function buildable(x: number, z: number, w: number): boolean {
+  if (inland(x, z) < 14 + w / 2) return false;
+  if (Math.abs(inland(x, z) - SZR_D) < SZR.rows + 9) return false;
+  if (Math.hypot((x - LAKE.x) / (LAKE.rx + 5), (z - LAKE.z) / (LAKE.rz + 5)) < 1) return false;
+  return !PLOTS.some(([px, pz, pr]) => Math.hypot(x - px, z - pz) < pr + w / 2);
 }
 
 /** The twin Emirates Towers: triangular plans with roofs sloping up to a point. */
-function emiratesTower(f: Facade, cx: number, cz: number, side: number, h: number, rot: number, seed: number) {
+function emiratesTower(f: Facade, c: XZ, side: number, h: number, rot: number, seed: number): number[] {
   const rr = side / Math.sqrt(3);
-  const pts = circle(3, rr, rot, cx, cz);
-  const drop = side * 0.75;
-  f.prism(pts, 0, [h, h - drop, h - drop], { kind: 0, seed, sharp: [true, true, true] });
+  f.prism(circle(3, rr, rot, c[0], c[1]), 0, [h, h - side * 0.75, h - side * 0.75], { kind: 0, seed, sharp: [true, true, true] });
+  return [c[0] + Math.cos(rot) * rr, h + 0.6, c[1] + Math.sin(rot) * rr];
 }
 
-/** Cayan Tower: a squarish plan turning 90° from base to roof. */
-function cayan(f: Facade, cx: number, cz: number, side: number, h: number, seed: number) {
-  const n = 18;
-  const c = side / 2, k = side * 0.16;
-  const sq: XZ[] = [[c, -c + k], [c, c - k], [c - k, c], [-c + k, c], [-c, c - k], [-c, -c + k], [-c + k, -c], [c - k, -c]];
-  const levels = Array.from({ length: n + 1 }, (_, i) => ({ y: (i / n) * h, pts: rot2(sq, (i / n) * (Math.PI / 2), cx, cz), c: [cx, cz] as XZ }));
-  f.loft(levels, { kind: 0, seed, sharp: sq.map(() => true) });
-}
-
-/** The Address Downtown: a tapering tower whose back curves in, with a slim crown. Returns its tip. */
-function address(f: Facade, cx: number, cz: number, rot: number, seed: number): number[] {
+/** The Address Downtown: a tapering tower whose back curves in, with a slim crown. */
+function address(f: Facade, c: XZ, rot: number, seed: number): number[] {
   const base: XZ[] = [[9, 0], [6, 7], [-3, 9], [-9, 5], [-9, -5], [-3, -9], [6, -7]];
   const n = 8, H = 118;
   const levels = Array.from({ length: n + 1 }, (_, i) => {
     const t = i / n;
     const s = 1 - 0.52 * Math.pow(t, 1.5);
-    const shift = -5.5 * Math.pow(t, 2); // the back leans in toward the top
-    return { y: t * H, pts: rot2(base.map(([x, z]) => [x * s + shift, z * s] as const), rot, cx, cz), c: rot2([[shift, 0]], rot, cx, cz)[0] };
+    const shift = -5.5 * Math.pow(t, 2);
+    return { y: t * H, pts: rot2(base.map(([x, z]) => [x * s + shift, z * s] as const), rot, c[0], c[1]), c: rot2([[shift, 0]], rot, c[0], c[1])[0] };
   });
   f.loft(levels, { kind: 0, seed, sharp: [true, false, false, true, true, false, false] });
-  const top = levels[n];
-  const [tx, tz] = top.c;
+  const [tx, tz] = levels[n].c;
   f.loft([{ y: H, pts: circle(5, 3.2, rot, tx, tz) }, { y: H + 20, pts: circle(5, 0.25, rot, tx, tz) }], { kind: 3, seed: seed + 0.2 });
   return [tx, H + 20.6, tz];
 }
 
-/** The Burj Al Arab: a sail with a luminous fabric front and a mast, on its island. Returns the mast tip. */
-function burjAlArab(f: Facade, cx: number, cz: number, facing: number, seed: number): number[] {
-  const n = 9, H = 118;
-  const levels = Array.from({ length: n + 1 }, (_, i) => {
-    const t = i / n;
-    const depth = 30 * Math.pow(Math.cos((t * Math.PI) / 2), 0.75) + 1.2; // the bow of the sail
-    const wid = 12 * (1 - Math.pow(t, 1.8)) + 1.0;
-    // spine at the back (0,0); fabric front bulging forward between the two wings
-    const pts: XZ[] = [[0, 0], [depth * 0.62, -wid], [depth * 0.94, -wid * 0.5], [depth, 0], [depth * 0.94, wid * 0.5], [depth * 0.62, wid]];
-    return { y: 4 + t * H, pts: rot2(pts, facing, cx, cz), c: rot2([[depth * 0.4, 0]], facing, cx, cz)[0] };
-  });
-  // walls: 0 spine→wing (side), 1–4 fabric front, 5 wing→spine (side)
-  f.loft(levels, { kind: 0, seed, kinds: [0, 2, 2, 2, 2, 0], sharp: [true, true, false, false, false, true] });
-  const [sx, sz] = rot2([[0.5, 0]], facing, cx, cz)[0];
-  f.loft([{ y: 4 + H, pts: circle(4, 1.4, 0, sx, sz) }, { y: 4 + H + 22, pts: circle(4, 0.12, 0, sx, sz) }], { kind: 1, seed });
-  f.prism(circle(10, 16, facing, cx + Math.cos(facing) * 10, cz + Math.sin(facing) * 10), 0, 4, { kind: 5, seed });
-  return [sx, 4 + H + 22.6, sz];
+/** The Museum of the Future: an upright ring of lit calligraphy on a green mound. */
+function museum(f: Facade, c: XZ, rot: number) {
+  const mound: [number, number][] = [[0, 15], [3, 13.5], [6, 10], [8, 6]];
+  f.loft(mound.map(([y, r]) => ({ y, pts: circle(10, r, rot, c[0], c[1]) })), { kind: 5, seed: 0.3 });
+  f.ring(c[0], 7 + 12.5, c[1], rot, 10.5, 4.6, 1.18, 18, 8, { kind: 4, seed: 0.77 });
 }
 
-/** The Museum of the Future: an upright ring of lit calligraphy on a green mound. */
-function museum(f: Facade, cx: number, cz: number, rot: number) {
-  const mound: [number, number][] = [[0, 15], [3, 13.5], [6, 10], [8, 6]];
-  f.loft(mound.map(([y, r]) => ({ y, pts: circle(10, r, rot, cx, cz) })), { kind: 5, seed: 0.3 });
-  f.ring(cx, 7 + 12.5, cz, rot, 10.5, 4.6, 1.18, 18, 8, { kind: 4, seed: 0.77 });
+/** The Jumeirah Beach Hotel beside the Burj Al Arab: a long curved block rising like a wave. */
+function waveHotel(f: Facade, c: XZ, along: XZ, inl: XZ) {
+  const n = 14, span = 64, h0 = 10, h1 = 58, depth = 7;
+  const pt = (t: number, off: number): XZ => at(c, [(t - 0.5) * span, along], [Math.sin(t * Math.PI) * 9 + off, inl]);
+  for (let i = 0; i < n; i++) {
+    const t0 = i / n, t1 = (i + 1) / n;
+    const y0 = h0 + (h1 - h0) * Math.pow(t0, 1.6), y1 = h0 + (h1 - h0) * Math.pow(t1, 1.6);
+    for (const [o, s] of [[-depth / 2, 1], [depth / 2, -1]] as const) {
+      const a = pt(t0, o), b = pt(t1, o);
+      const out = new THREE.Vector3(inl[0] * -s, 0, inl[1] * -s);
+      f.quad(new THREE.Vector3(a[0], 0, a[1]), new THREE.Vector3(b[0], 0, b[1]), new THREE.Vector3(b[0], y1, b[1]), new THREE.Vector3(a[0], y0, a[1]), {
+        kind: 0,
+        seed: 0.83,
+        u: i * 4.6,
+        sharpL: i === 0,
+        sharpR: i === n - 1,
+        bottom: 0,
+        topL: y0,
+        topR: y1,
+        out,
+      });
+    }
+  }
 }
 
 /** Simple crowns on corridor towers so the skyline isn't all flat roofs. */
@@ -395,70 +175,87 @@ export interface Skyline {
 }
 
 /**
- * Everything around the Burj: the Sheikh Zayed Road corridor (boxes for the instanced city
- * plus crowns), Emirates Towers, the Museum of the Future, the Address Downtown, the Marina
- * with Cayan Tower, and the Burj Al Arab off the coast. `extent` shortens the corridor on the
- * low tier.
+ * Everything but the Burj Khalifa: the Burj Al Arab (with the helipad), the Jumeirah Beach
+ * Hotel, Sheikh Zayed Road's corridor, Trade Centre with Emirates Towers and the Museum of the
+ * Future, Business Bay, the Address Downtown, and the low- and mid-rise districts that fill
+ * the view from the coast to Downtown. `detail` thins the districts on the low tier.
  */
-export function buildSkyline(pad: { x: number; z: number; h: number }, extent: number): Skyline {
+export function buildSkyline(detail: number): Skyline {
   const f = new Facade();
   const r = mulberry(31);
   const towers: Skyline["towers"] = [];
   const beacons: number[] = [];
-  const clear = (x: number, z: number, m: number) => PLOTS.some(([px, pz, pr]) => Math.hypot(x - px, z - pz) < pr + m);
+  /** Adds a tower (kept out of the view slot); false if it had to be cut down. */
+  const box = (p: XZ, w: number, d: number, h: number) => {
+    const capped = viewCap(p[0], p[1], h, Math.max(w, d));
+    towers.push([p[0], p[1], w, d, capped]);
+    return capped >= h;
+  };
 
-  // Sheikh Zayed Road: a near-continuous wall of towers on both sides
+  // Sheikh Zayed Road: a near-continuous wall of towers on both sides, tallest by Downtown and
+  // Trade Centre, lower through Al Quoz and Al Barsha toward the camera's right.
   for (const s of [-1, 1]) {
-    const x0 = SZR.x + s * SZR.rows;
-    let z = 214;
-    while (z > -560 * extent) {
+    let t = 900;
+    while (t > -1250) {
       const len = 9 + r() * 5, wid = 8 + r() * 4;
-      const zc = z - len / 2, xc = x0 + (r() - 0.5) * 3;
-      let h = zc > -80 ? 82 + r() * 66 : zc > -420 ? 40 + Math.pow(r(), 1.4) * 80 : 55 + r() * 55;
+      const p = szrAt(t - len / 2, s * SZR.rows + (r() - 0.5) * 3);
+      let h = t > 280 ? 95 + r() * 70 : t > -120 ? 85 + r() * 65 : t > -650 ? 38 + Math.pow(r(), 1.4) * 70 : 40 + r() * 70;
       if (r() < 0.12) h *= 0.55;
-      if (Math.hypot(xc - pad.x, zc - pad.z) < 54) h = Math.min(h, pad.h - 12);
       const type = r();
-      z -= len + 3 + r() * 7;
-      if (clear(xc, zc, wid / 2)) continue;
-      towers.push([xc, zc, wid, len, h]);
-      if (h > 92 && type < 0.55) crown(f, xc, zc, wid, len, h, type < 0.08 ? 0 : type < 0.24 ? 1 : 2, r());
+      t -= len + 3 + r() * 8;
+      if (!buildableRoad(p, wid)) continue;
+      if (s < 0 && r() > 0.5 + 0.5 * detail) continue;
+      if (box(p, wid, len, h) && h > 92 && type < 0.55) crown(f, p[0], p[1], wid, len, h, type < 0.08 ? 0 : type < 0.24 ? 1 : 2, r());
     }
   }
 
-  // The Marina at the far end of the road, with Cayan Tower's twist
-  const marina: [number, number, number, number][] = [
-    [150, -900, 182, 1],
-    [176, -930, 168, 0],
-    [205, -885, 150, 2],
-    [128, -952, 160, 1],
-    [226, -948, 140, 0],
-  ];
-  for (const [x, z, h, t] of marina) {
-    towers.push([x, z, 11, 11, h]);
-    crown(f, x, z, 11, 11, h, t, 0.4);
-    beacons.push(x, h + (t === 1 ? 20.6 : t === 0 ? 9.4 : 5.6), z);
+  // Business Bay: a dense cluster east of the Burj Khalifa; Trade Centre and DIFC along the road
+  const cluster = (c: XZ, radius: number, count: number, hMin: number, hMax: number) => {
+    for (let i = 0; i < count; i++) {
+      const a = r() * Math.PI * 2, d = Math.sqrt(r()) * radius;
+      const p = at(c, [Math.cos(a) * d, FWD], [Math.sin(a) * d, RIGHT]);
+      const w = 8 + r() * 5, h = hMin + Math.pow(r(), 1.3) * (hMax - hMin), type = r();
+      if (!buildable(p[0], p[1], w)) continue;
+      if (box(p, w, 8 + r() * 5, h) && h > 95 && type < 0.4) crown(f, p[0], p[1], w, w, h, type < 0.1 ? 1 : 2, r());
+    }
+  };
+  cluster(BUSINESS_BAY, 120, Math.round(46 * (0.6 + 0.4 * detail)), 55, 150);
+  cluster(szrAt(560, 60), 90, Math.round(26 * (0.6 + 0.4 * detail)), 60, 140);
+
+  // The districts between the coast and Downtown: Jumeirah villas and beach-road hotels on the
+  // coast side of the road, Al Quoz and Al Barsha beyond it. Sparse boxes; the ground's carpet
+  // of lights does the rest. Sampled in rings from the helipad, wider apart with distance.
+  const rr = mulberry(57);
+  for (let d = 130; d < 2700; ) {
+    const step = Math.min(60, Math.max(18, d * 0.03));
+    for (let a = -42; a <= 46; a += (step / d) * (180 / Math.PI)) {
+      if (rr() > 0.27 * detail) continue;
+      const dir = turn(LAND, a + (rr() - 0.5) * 2);
+      const p = at(PAD, [d + (rr() - 0.5) * step, dir]);
+      const w = 6 + rr() * 6;
+      if (Math.hypot(p[0], p[1]) < 270 || Math.hypot(p[0] - BUSINESS_BAY[0], p[1] - BUSINESS_BAY[1]) < 130) continue;
+      if (!buildable(p[0], p[1], w)) continue;
+      const s = inland(p[0], p[1]);
+      const roadSide = s < SZR_D;
+      const beachRoad = s < 70 && rr() < 0.35;
+      const h = beachRoad ? 14 + rr() * 30 : roadSide ? 3 + rr() * rr() * 14 : 6 + rr() * rr() * 34;
+      box(p, w, 6 + rr() * 6, h);
+    }
+    d += step;
   }
-  cayan(f, 186, -985, 15, 134, 0.63);
-  beacons.push(186, 134.6, -985);
 
-  // Emirates Towers (office and hotel) and the Museum of the Future beside them
-  emiratesTower(f, 98, 124, 19, 152, 0.2, 0.21);
-  emiratesTower(f, 110, 146, 16.5, 132, 0.2, 0.37);
-  beacons.push(...corner(98, 124, 19, 0.2, 152.6), ...corner(110, 146, 16.5, 0.2, 132.6));
-  museum(f, 92, 184, 0.35);
-
-  // The Address Downtown, by the lake
-  beacons.push(...address(f, -62, 46, -0.6, 0.52));
-
-  // The Burj Al Arab, off the coast to the south-west, its fabric front turned inland
-  const bz = -640;
-  beacons.push(...burjAlArab(f, coastX(bz) + 56, bz, Math.PI * 0.62, 0.44));
+  // Landmarks
+  beacons.push(...emiratesTower(f, EMIRATES, 19, 152, 0.2, 0.21), ...emiratesTower(f, at(EMIRATES, [26, COAST_DIR]), 16.5, 132, 0.2, 0.37));
+  museum(f, MUSEUM, 0.35);
+  beacons.push(...address(f, ADDRESS, Math.atan2(FWD[1], FWD[0]) + 2.4, 0.52));
+  beacons.push(...buildBurjAlArab(f, { pad: PAD, spine: BAA_SPINE, land: LAND, shoreFrom, inland: COAST_N }));
+  waveHotel(f, at(shoreFrom(at(PAD, [-60, LAND])), [34, COAST_N], [-30, COAST_DIR]), COAST_DIR, COAST_N);
 
   return { geometry: f.build(), towers, beacons };
 }
 
-/** Position of an Emirates Tower's highest corner (its spike), for the beacon. */
-function corner(cx: number, cz: number, side: number, rot: number, y: number): number[] {
-  const rr = side / Math.sqrt(3);
-  return [cx + Math.cos(rot) * rr, y, cz + Math.sin(rot) * rr];
+/** Corridor towers stand right by the road, so only the landmark plots and the sea rule them out. */
+function buildableRoad(p: XZ, w: number): boolean {
+  if (inland(p[0], p[1]) < 20) return false;
+  return !PLOTS.some(([px, pz, pr]) => Math.hypot(p[0] - px, p[1] - pz) < pr + w / 2);
 }

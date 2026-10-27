@@ -4,7 +4,7 @@ import clsx from "clsx";
 import type { ReactNode } from "react";
 import { useT } from "@/i18n/client";
 import { useHome } from "./HomeExperience";
-import { SkylineBand, SkylineBurj } from "./SkylineArt";
+import { SkylineBand, SkylineBurj, SkylineBurjAlArab } from "./SkylineArt";
 
 export interface CalloutText {
   part: "powertrain" | "body" | "cabin" | "wheels";
@@ -32,11 +32,12 @@ export function StageLayer({ arts, callouts }: { arts: ReactNode[]; callouts: Ca
       <div className="absolute inset-x-0 bottom-0 h-[38%] bg-[linear-gradient(to_top,rgba(184,151,90,.16),transparent)]" />
 
       {/* Dubai skyline behind the chapter 1 copy: without the 3D stage (static tier, no WebGL or
-          JavaScript) and while it loads; the canvas fades in over it. The Burj stands on the
-          end side, beside the copy, as in the 3D opening. */}
+          JavaScript) and while it loads; the canvas fades in over it. The Burj Khalifa stands on
+          the end side, beside the copy, as in the 3D opening, with the Burj Al Arab nearer the edge. */}
       <div className={clsx("absolute inset-0 transition-opacity duration-1000", (mode === "gl" || active !== 0) && "opacity-0")}>
         <SkylineBand className="absolute inset-x-0 top-[25%] h-[24%] w-full [mask-image:linear-gradient(to_bottom,black_55%,transparent)] md:top-auto md:bottom-0 md:h-[46%] md:[mask-image:none]" />
         <SkylineBurj className="absolute inset-x-0 top-[8%] mx-auto h-[37%] md:inset-x-auto md:end-[calc(32%-6.3lvh)] md:top-[10%] md:mx-0 md:h-[80%]" />
+        <SkylineBurjAlArab className="absolute end-[4%] top-[29%] h-[17%] md:end-[10%] md:top-auto md:bottom-[9%] md:h-[34%]" />
       </div>
 
       {/* WebGL canvas host */}

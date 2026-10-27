@@ -8,6 +8,22 @@ const FOG_FN = /* glsl */ `
 uniform float uFogD; uniform vec3 uFogC; uniform vec3 uCam;
 vec3 applyFog(vec3 col, vec3 w){ float d = distance(w, uCam); float f = 1.0 - exp(-uFogD * uFogD * d * d); return mix(col, uFogC, f); }`;
 
+/**
+ * Behind the chapter 1 copy the city steps back (darker, flatter) so the headline stays
+ * readable: the start side of the screen on desktop (uCalm.x is 1 left-to-right, −1 for
+ * Arabic), the lower half on phones (uCalm.z). uCalm.y fades it out as the copy scrolls away.
+ * Needs FOG_FN first (uFogC).
+ */
+const CALM_FN = /* glsl */ `
+uniform vec4 uCalm; uniform vec2 uRes;
+vec3 calm(vec3 col){
+  vec2 s = gl_FragCoord.xy / uRes;
+  float x = uCalm.x > 0.0 ? s.x : 1.0 - s.x;
+  float k = uCalm.z > 0.5 ? 1.0 - smoothstep(0.3, 0.58, s.y) : 1.0 - smoothstep(0.3, 0.6, x);
+  float l = dot(col, vec3(0.3, 0.5, 0.2));
+  return mix(col, vec3(l) * 0.5 + uFogC * 0.3, k * uCalm.y * 0.8);
+}`;
+
 /** Sky dome with the desert haze on the horizon. */
 export const sky = {
   vertex: /* glsl */ `varying vec3 vDir;
@@ -43,7 +59,7 @@ export const tower = {
       vW = wp.xyz; vN = normalize(mat3(modelMatrix) * normal);
       gl_Position = projectionMatrix * viewMatrix * wp;
     }`,
-  fragment: /* glsl */ `uniform float uCity; ${FOG_FN}
+  fragment: /* glsl */ `uniform float uCity; ${FOG_FN} ${CALM_FN}
     varying vec3 vW; varying vec3 vN; varying float vSeed;
     float hash(vec3 p){ p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
     void main(){
@@ -51,21 +67,26 @@ export const tower = {
       if (abs(vN.y) < 0.5) {
         vec2 t = normalize(vec2(-vN.z, vN.x));
         vec2 cell = vec2(dot(vW.xz, t) / 1.25, vW.y / 1.6);
-        vec2 id = floor(cell), f = fract(cell);
-        float win = step(0.16, f.x) * step(f.x, 0.84) * step(0.2, f.y) * step(f.y, 0.8);
-        float lit = step(0.6, hash(vec3(id, vSeed * 97.0 + floor(vN.x * 3.0 + vN.z * 5.0))));
-        vec3 warm = mix(vec3(0.96, 0.78, 0.50), vec3(1.0, 0.93, 0.82), hash(vec3(id.yx, vSeed * 13.0)));
+        float face = floor(vN.x * 3.0 + vN.z * 5.0);
         float near = smoothstep(750.0, 220.0, distance(vW, uCam));
         // Far away the windows merge into clusters of lit floors (filtered), varied per tower,
         // so the skyline keeps texture instead of turning into flat blocks.
         vec2 sc = cell / vec2(3.0, 2.0);
-        float sv = hash(vec3(floor(sc), vSeed * 53.0 + floor(vN.x * 3.0 + vN.z * 5.0)));
+        float sv = hash(vec3(floor(sc), vSeed * 53.0 + face));
         float cluster = mix(0.3 + 2.1 * sv * sv * sv, 0.82, smoothstep(0.35, 0.8, max(fwidth(sc.x), fwidth(sc.y))));
-        col += warm * (win * lit * (0.5 + 0.5 * hash(vec3(id, 3.1))) * near + 0.17 * (0.6 + 0.8 * fract(vSeed * 7.31)) * cluster * (1.0 - near));
-        col += vec3(0.045, 0.085, 0.085) * win * (1.0 - lit) * near;
+        col += vec3(0.98, 0.855, 0.66) * 0.17 * (0.6 + 0.8 * fract(vSeed * 7.31)) * cluster * (1.0 - near);
+        // Individual windows only where they can be seen (most of the opening view is far away).
+        if (near > 0.0) {
+          vec2 id = floor(cell), f = fract(cell);
+          float win = step(0.16, f.x) * step(f.x, 0.84) * step(0.2, f.y) * step(f.y, 0.8);
+          float lit = step(0.6, hash(vec3(id, vSeed * 97.0 + face)));
+          vec3 warm = mix(vec3(0.96, 0.78, 0.50), vec3(1.0, 0.93, 0.82), hash(vec3(id.yx, vSeed * 13.0)));
+          col += warm * win * lit * (0.5 + 0.5 * hash(vec3(id, 3.1))) * near;
+          col += vec3(0.045, 0.085, 0.085) * win * (1.0 - lit) * near;
+        }
         col += vec3(0.55, 0.50, 0.36) * 0.35 * exp(-vW.y * 0.06);
       } else { col *= 1.4; }
-      gl_FragColor = vec4(applyFog(col, vW) * uCity, 1.0);
+      gl_FragColor = vec4(calm(applyFog(col, vW)) * uCity, 1.0);
     }`,
 };
 
@@ -80,86 +101,118 @@ export const beacons = {
 };
 
 /**
- * Streets with moving traffic, Sheikh Zayed Road, the lake at the foot of the Burj Khalifa and
- * the sea. Lines and dashes are filtered (fwidth), so the far city doesn't shimmer when the
- * opening shot looks across it with less haze.
+ * The ground: streets with moving traffic, Sheikh Zayed Road (parallel to the coast), the
+ * low-rise districts as a carpet of small lights, the lake at the Burj Khalifa's foot and the
+ * sea, with the Burj Al Arab's light on the water. Lines and dashes are filtered (fwidth), so
+ * the far city doesn't shimmer in the long opening view.
  */
 export const ground = {
   vertex: /* glsl */ `varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`,
-  fragment: /* glsl */ `uniform float uCity, uTime; ${FOG_FN}
+  fragment: /* glsl */ `uniform float uCity, uTime; ${FOG_FN} ${CALM_FN}
     uniform vec4 uLake;  // lake centre x, z and radii x, z
-    uniform vec2 uRoad;  // Sheikh Zayed Road: centre-line x, half-width
-    uniform vec2 uCoast; // coastline x at z = 0, and dx/dz
+    uniform vec2 uRoad;  // Sheikh Zayed Road: centre line's distance inland, half-width
+    uniform vec4 uCoast; // a point on the shoreline (x, z) and the inland normal (x, z)
+    uniform vec4 uRefl;  // the Burj Al Arab: x, z, half-width, height
     varying vec3 vW;
     // A soft line every sp units, at least a pixel wide (dimmed to keep its weight), fading to
-    // its average brightness once the period itself is only a few pixels.
-    float ln(float v, float sp, float w){
-      float f = abs(fract(v / sp + 0.5) - 0.5) * sp;
-      float aa = fwidth(v), k = max(w, aa);
+    // its average brightness once the period itself is only a few pixels. aa: the pixel's
+    // footprint along v (derivatives are taken once, outside any branch).
+    float ln(float v, float sp, float w, float aa){
+      float f = abs(fract(v / sp + 0.5) - 0.5) * sp, k = max(w, aa);
       return mix((1.0 - smoothstep(0.0, k, f)) * (w / k), w / sp, smoothstep(0.2, 0.5, aa / sp));
     }
-    float hash2(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+    float hash2(vec2 p){ vec3 q = fract(vec3(p.xyx) * 0.1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
     // 1 on the lit part of a dash pattern (duty = dark share), filtered the same way.
-    float dash(float v, float period, float duty){
-      float aa = fwidth(v) / period, x = fract(v / period);
+    float dash(float v, float period, float duty, float aa){
+      aa /= period;
+      float x = fract(v / period);
       return mix(smoothstep(duty - aa, duty + aa, x), 1.0 - duty, smoothstep(0.2, 0.5, aa));
     }
-    void main(){
-      float gx = vW.x + 7.0, gz = vW.z + 7.0;
-      float mnr = max(ln(gx, 14.0, 0.22), ln(gz, 14.0, 0.22));
-      float maj = max(ln(gx, 42.0, 0.7), ln(gz, 42.0, 0.7));
-      float l1 = ln(gx - 1.4, 42.0, 0.3) * dash(vW.z + uTime * 22.0, 11.0, 0.78);
-      float l2 = ln(gx + 1.4, 42.0, 0.3) * dash(vW.z - uTime * 19.0, 13.0, 0.78);
-      float l3 = ln(gz - 1.4, 42.0, 0.3) * dash(vW.x + uTime * 20.0, 12.0, 0.78);
-      float l4 = ln(gz + 1.4, 42.0, 0.3) * dash(vW.x - uTime * 24.0, 10.0, 0.78);
-      vec3 gold = vec3(0.55, 0.50, 0.36);
-      vec3 col = vec3(0.014, 0.035, 0.035);
-      // Sheikh Zayed Road: a wide, warmly lit highway with dense traffic both ways
-      float dx = vW.x - uRoad.x, ax = abs(dx);
-      float road = 1.0 - smoothstep(uRoad.y - 0.8, uRoad.y + 0.8, ax);
-      float grid = 1.0 - road;
-      col += gold * (maj * 0.5 + mnr * 0.16) * grid;
-      col += (vec3(1.0, 0.86, 0.62) * (l1 + l3) * 1.1 + vec3(0.98, 0.25, 0.2) * (l2 + l4) * 0.9) * grid;
-      float lane = floor(ax / 2.0);
-      float cars = ln(ax - 1.0, 2.0, 0.32) * dash(vW.z * sign(dx) + uTime * (21.0 + lane * 4.0) + lane * 5.3, 7.0 + lane, 0.55);
-      col += gold * road * 0.22 + gold * (ln(dx, 4000.0, 0.45) + ln(ax - uRoad.y, 4000.0, 0.4)) * 0.9;
-      col += mix(vec3(1.0, 0.9, 0.74), vec3(0.98, 0.26, 0.2), step(0.0, dx)) * cars * road * 1.2;
-      col *= 1.0 - smoothstep(260.0, 420.0, length(vW.xz)) * 0.6 * grid;
-      // Low-rise districts around the towers: a carpet of small warm lights
-      vec2 q = vW.xz / 3.5, qi = floor(q);
-      float qh = hash2(qi), qa = fwidth(q.x) + fwidth(q.y);
-      vec2 qf = fract(q) - 0.5 - (vec2(hash2(qi + 17.3), hash2(qi + 41.9)) - 0.5) * 0.6;
-      float spot = (1.0 - smoothstep(0.13, 0.13 + qa, length(qf))) * step(0.66, qh) * (0.4 + 1.8 * fract(qh * 13.7));
-      float sprawl = smoothstep(150.0, 320.0, length(vW.xz)) * (1.0 - smoothstep(900.0, 1500.0, length(vW.xz))) * smoothstep(120.0, 480.0, distance(vW, uCam));
-      col += vec3(1.0, 0.82, 0.55) * mix(spot, 0.34 * 0.053 * 1.3, smoothstep(0.12, 0.45, qa)) * 2.8 * sprawl * grid;
-      // The lake at the Burj Khalifa's foot, with the tower's light on the water
-      float lr = length((vW.xz - uLake.xy) / uLake.zw);
-      float lake = 1.0 - smoothstep(0.94, 1.0, lr);
-      vec2 toP = vW.xz - uCam.xz, toB = -uCam.xz;
-      float lb = max(length(toB), 1.0), lp = length(toP);
+    // Light from a tall lit object at o (half-width w, height h) on the water between it and
+    // the camera; returns the mask, and the distance to the camera in lp.
+    float reflection(vec2 o, float w, float h, out float lp){
+      vec2 toP = vW.xz - uCam.xz, toB = o - uCam.xz;
+      float lb = max(length(toB), 1.0);
+      lp = length(toP);
       float lat = abs(toP.x * toB.y - toP.y * toB.x) / lb;
       float rise = max(lb - lp, 0.0) * uCam.y / max(lp, 1.0);
-      float refl = (1.0 - smoothstep(4.0, 10.0, lat * lb / max(lp, 1.0))) * step(lp, lb) * exp(-rise * 0.012);
-      float shimmer = 0.6 + 0.4 * sin(lp * 3.1 + uTime * 1.6 + lat);
-      vec3 water = vec3(0.008, 0.03, 0.034) + vec3(0.93, 0.80, 0.56) * refl * shimmer * 0.45;
-      col = mix(col, water, lake) + gold * exp(-abs(lr - 1.0) * 26.0) * 0.6;
-      // The sea beyond the coast road, catching the haze on the horizon
-      float cx = uCoast.x + uCoast.y * vW.z;
-      float sea = smoothstep(cx - 1.5, cx + 1.5, vW.x);
-      float graze = pow(1.0 - abs(normalize(vW - uCam).y), 6.0);
-      vec3 seaCol = vec3(0.008, 0.026, 0.032) + vec3(0.30, 0.27, 0.19) * graze * 0.4;
-      col = mix(col, seaCol, sea) + gold * ln(vW.x - cx, 4000.0, 0.6) * 0.8;
-      gl_FragColor = vec4(applyFog(col, vW) * uCity, 1.0);
+      return (1.0 - smoothstep(w * 0.4, w, lat * lb / max(lp, 1.0))) * step(lp, lb) * (1.0 - smoothstep(h * 0.5, h, rise));
+    }
+    void main(){
+      vec2 n = uCoast.zw;
+      float inl = dot(vW.xz - uCoast.xy, n), alongC = dot(vW.xz - uCoast.xy, vec2(n.y, -n.x));
+      float fx = fwidth(vW.x), fz = fwidth(vW.z), fi = fwidth(inl), fa = fwidth(alongC);
+      float land = smoothstep(-1.5, 1.5, inl + 7.0 * sin(alongC * 0.006));
+      vec3 gold = vec3(0.55, 0.50, 0.36);
+      vec3 col = vec3(0.014, 0.035, 0.035);
+      float dR = inl - uRoad.x, ax = abs(dR);
+      float road = (1.0 - smoothstep(uRoad.y - 0.8, uRoad.y + 0.8, ax)) * land;
+      float grid = land - road;
+      if (max(fx, fz) < 7.0) {
+        // Streets and their traffic, where they still resolve
+        float gx = vW.x + 7.0, gz = vW.z + 7.0;
+        float mnr = max(ln(gx, 14.0, 0.22, fx), ln(gz, 14.0, 0.22, fz));
+        float maj = max(ln(gx, 42.0, 0.7, fx), ln(gz, 42.0, 0.7, fz));
+        float l1 = ln(gx - 1.4, 42.0, 0.3, fx) * dash(vW.z + uTime * 22.0, 11.0, 0.78, fz);
+        float l2 = ln(gx + 1.4, 42.0, 0.3, fx) * dash(vW.z - uTime * 19.0, 13.0, 0.78, fz);
+        float l3 = ln(gz - 1.4, 42.0, 0.3, fz) * dash(vW.x + uTime * 20.0, 12.0, 0.78, fx);
+        float l4 = ln(gz + 1.4, 42.0, 0.3, fz) * dash(vW.x - uTime * 24.0, 10.0, 0.78, fx);
+        col += gold * (maj * 0.5 + mnr * 0.16) * grid;
+        col += (vec3(1.0, 0.86, 0.62) * (l1 + l3) * 1.1 + vec3(0.98, 0.25, 0.2) * (l2 + l4) * 0.9) * grid;
+      } else {
+        // Far away: the streets' average glow
+        col += gold * 0.0215 * grid;
+      }
+      // Sheikh Zayed Road: a wide, warmly lit highway with dense traffic both ways
+      float lane = floor(ax / 2.0);
+      float cars = ln(ax - 1.0, 2.0, 0.32, fi) * dash(alongC * sign(dR) + uTime * (21.0 + lane * 4.0) + lane * 5.3, 7.0 + lane, 0.55, fa);
+      col += gold * road * 0.22 + gold * (ln(dR, 4000.0, 0.45, fi) + ln(ax - uRoad.y, 4000.0, 0.4, fi)) * 0.9 * land;
+      col += mix(vec3(1.0, 0.9, 0.74), vec3(0.98, 0.26, 0.2), step(0.0, dR)) * cars * road * 1.2;
+      col *= 1.0 - smoothstep(260.0, 420.0, length(vW.xz)) * 0.45 * grid;
+      // Low-rise districts: a carpet of small warm lights from the coast to Downtown
+      float sprawl = smoothstep(150.0, 320.0, length(vW.xz)) * (1.0 - smoothstep(2600.0, 3300.0, length(vW.xz)))
+        * smoothstep(120.0, 480.0, distance(vW, uCam)) * smoothstep(6.0, 40.0, inl) * grid;
+      if (sprawl > 0.0) {
+        vec2 q = vW.xz / 3.5, qi = floor(q);
+        float qh = hash2(qi), qa = (fx + fz) / 3.5;
+        vec2 qf = fract(q) - 0.5 - (vec2(fract(qh * 31.7), fract(qh * 57.3)) - 0.5) * 0.6;
+        float spot = (1.0 - smoothstep(0.13, 0.13 + qa, length(qf))) * step(0.66, qh) * (0.4 + 1.8 * fract(qh * 13.7));
+        col += vec3(1.0, 0.82, 0.55) * mix(spot, 0.34 * 0.053 * 1.3, smoothstep(0.12, 0.45, qa)) * 2.8 * sprawl;
+      }
+      float lp;
+      // The lake at the Burj Khalifa's foot, with the tower's light on the water
+      float lr = length((vW.xz - uLake.xy) / uLake.zw);
+      if (lr < 1.3) {
+        float lake = 1.0 - smoothstep(0.94, 1.0, lr);
+        float refl = reflection(vec2(0.0), 10.0, 364.0, lp);
+        vec3 water = vec3(0.008, 0.03, 0.034) + vec3(0.93, 0.80, 0.56) * refl * (0.6 + 0.4 * sin(lp * 3.1 + uTime * 1.6)) * 0.45;
+        col = mix(col, water, lake) + gold * exp(-abs(lr - 1.0) * 26.0) * 0.6;
+      }
+      // The sea, catching the haze on the horizon, the Burj Al Arab's light on the water and a
+      // few glints; the beach road lights along the shore
+      if (land < 1.0) {
+        float graze = pow(1.0 - abs(normalize(vW - uCam).y), 6.0);
+        vec3 seaCol = vec3(0.008, 0.026, 0.032) + vec3(0.30, 0.27, 0.19) * graze * 0.4;
+        float sail = reflection(uRefl.xy, uRefl.z, uRefl.w, lp);
+        seaCol += vec3(0.93, 0.85, 0.7) * sail * (0.55 + 0.45 * sin(lp * 1.7 + uTime * 1.3)) * 0.22;
+        vec2 gq = vW.xz / 2.2;
+        float glint = step(0.992, hash2(floor(gq) + floor(uTime * 0.7 + hash2(floor(gq)) * 7.0))) * (1.0 - smoothstep(0.1, 0.4, fx / 2.2));
+        seaCol += vec3(0.9, 0.85, 0.7) * glint * 0.35;
+        col = mix(seaCol, col, land);
+      }
+      col += gold * ln(inl, 4000.0, 0.7, fi) * 0.9;
+      gl_FragColor = vec4(calm(applyFog(col, vW)) * uCity, 1.0);
     }`,
 };
 
 /**
- * Landmark facades (the Burj Khalifa, Emirates Towers, Cayan, the Address, the Burj Al Arab
+ * Landmark facades (the Burj Khalifa, the Burj Al Arab, Emirates Towers, the Address, the
  * sail, the Museum of the Future): procedural night lighting in the palette. Every piece
  * carries aFace (x: distance along its outline, y/z: distance to the nearest sharp vertical
  * edge on either side, w: the piece's top) and aSpan (x: the piece's base, y: kind, z: seed).
  * Kinds: 0 glass with windows and fins, 1 floodlit metal (spires), 2 luminous fabric (the
- * sail), 3 lit crown, 4 lit calligraphy windows, 5 plain podium.
+ * sail), 3 lit crown, 4 lit calligraphy windows, 5 plain podium, 6 glass behind a white
+ * X-braced exoskeleton, 7 dark deck with a lit rim (the helipad, the island).
  * Fine patterns are filtered with fwidth, so towers seen from afar keep their silhouette and
  * edge lines without shimmering.
  */
@@ -171,8 +224,8 @@ export const facade = {
       vW = wp.xyz; vN = mat3(modelMatrix) * normal; vFace = aFace; vSpan = aSpan;
       gl_Position = projectionMatrix * viewMatrix * wp;
     }`,
-  fragment: /* glsl */ `uniform float uCity, uTime, uFogK;
-    uniform float uFogD; uniform vec3 uFogC; uniform vec3 uCam;
+  fragment: /* glsl */ `uniform float uCity, uTime, uFogK, uCalmK;
+    uniform float uFogD; uniform vec3 uFogC; uniform vec3 uCam; ${CALM_FN}
     uniform vec3 uGlass, uGold, uIvory;
     uniform vec4 uGrid; // fin spacing, floor height, lit share, window strength
     uniform vec4 uGlow; // fins, sharp edges, setback band, uplight from the ledge below
@@ -193,10 +246,15 @@ export const facade = {
       float facing = abs(dot(V, N));
       vec3 col = uGlass + vec3(0.07, 0.12, 0.115) * pow(1.0 - facing, 3.0) * uMisc.y;
       float sideFace = 1.0 - step(0.55, abs(N.y));
-      float e = edgeLine(min(vFace.y, vFace.z), 0.2);
+      // Edge lights read most along the silhouette, least on edges facing the camera head-on.
+      float e = edgeLine(min(vFace.y, vFace.z), 0.2) * (0.3 + 0.7 * (1.0 - smoothstep(0.6, 0.98, facing)));
       // Seen up close (the end of the descent) the lights step back, so the car stays the subject.
       float d = distance(vW, uCam), near = mix(0.55, 1.0, smoothstep(80.0, 260.0, d));
-      if (kind < 0.5 || kind > 3.5) {
+      if (kind > 6.5) {
+        // Deck and island rim: dark, a fine line of gold lights along the top edge
+        float lip = 1.0 - smoothstep(0.0, 0.22 + fwidth(y) * 1.5, vFace.w - y);
+        col = sideFace > 0.5 ? uGlass * 0.8 + uGold * lip * (0.45 + 0.55 * lines(vFace.x, 1.6, 0.25)) * 0.9 : uGlass * 0.6;
+      } else if (kind < 0.5 || kind > 3.5) {
         if (sideFace > 0.5) {
           float u = vFace.x;
           vec2 cell = vec2(u / uGrid.x, y / uGrid.y);
@@ -215,14 +273,17 @@ export const facade = {
           col += uGold * uGlow.w * exp(-max(y - vSpan.x, 0.0) * 0.085) * (0.25 + 0.75 * nose) * near;
           col += uIvory * 0.2 * smoothstep(uMisc.z - 24.0, uMisc.z, y);
           col += mix(uGold, uIvory, 0.5) * 0.07 * max(dot(N, vec3(0.6, 0.0, 0.8)), 0.0);
+          // The Burj Al Arab's white steel exoskeleton: big X braces across the wing faces
+          if (kind > 5.5) col += uIvory * (max(lines(u + y * 0.9, 34.0, 0.55), lines(u - y * 0.9, 34.0, 0.55)) * 0.45 + lines(y, 22.0, 0.35) * 0.15);
         } else {
           col = uGlass * 1.25 + uGold * 0.14 * uGlow.z;
         }
-        if (kind > 4.5) col = uGlass * 0.9 + uGold * 0.12 * exp(-max(vFace.w - y, 0.0) * 0.6);
+        if (kind > 4.5 && kind < 5.5) col = uGlass * 0.9 + uGold * 0.12 * exp(-max(vFace.w - y, 0.0) * 0.6);
       } else if (kind < 1.5) {
         float t = max(y - vSpan.x, 0.0);
         col = uGlass * 0.6 + uIvory * (0.62 * exp(-t * 0.024) + 0.12) + uIvory * lines(y, 3.4, 0.4) * 0.3 * exp(-t * 0.02);
         col += uIvory * 0.35 * pow(1.0 - facing, 2.0);
+        col = mix(uGlass, col, near * near);
       } else if (kind < 2.5) {
         float t = clamp((y - vSpan.x) / max(vFace.w - vSpan.x, 1.0), 0.0, 1.0);
         col = mix(uGlass, uIvory, 0.5 - 0.22 * t) + uGold * 0.12 + uIvory * lines(y, 5.5, 0.35) * 0.12;
@@ -233,7 +294,7 @@ export const facade = {
       col += uGold * uMisc.x * exp(-y * 0.03) * near;
       float fd = uFogD * uFogK;
       col = mix(col, uFogC, 1.0 - exp(-fd * fd * d * d));
-      gl_FragColor = vec4(col * uCity, 1.0);
+      gl_FragColor = vec4(mix(col, calm(col), uCalmK) * uCity, 1.0);
     }`,
 };
 
