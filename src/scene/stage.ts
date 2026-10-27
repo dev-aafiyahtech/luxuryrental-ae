@@ -406,9 +406,11 @@ export function createStage(opts: StageOptions): Stage {
       const lens = Math.exp(lerp(Math.log(Math.tan((fov0 * Math.PI) / 360)), Math.log(Math.tan((fov1 * Math.PI) / 360)), sm(0.06, 0.62, c1)));
       camera.fov = (Math.atan(lens) * 360) / Math.PI;
       camera.setViewOffset(width, height, (side * ox + oxAbs) * width, oy * height, width, height);
-      // While the chapter 1 copy is on screen the city behind it steps back.
-      common.uCalm.value.set(side, 1 - sm(0.2, 0.42, c1), mob ? 1 : 0, 0);
-      common.uRes.value.set(canvas.width, canvas.height);
+      // While the chapter 1 copy is on screen the city behind it steps back: across the copy's
+      // side on desktop (0 at its edge, 1 at the screen's middle), up from the bottom on phones.
+      const calmK = 0.8 * (1 - sm(0.2, 0.42, c1));
+      if (mob) common.uCalm.value.set(0, 1.0714 / canvas.height, -0.0214, calmK);
+      else common.uCalm.value.set(side / canvas.width, 0, side > 0 ? 0 : 1, calmK);
 
       world.sky.position.copy(camera.position);
       world.stars.position.copy(camera.position);

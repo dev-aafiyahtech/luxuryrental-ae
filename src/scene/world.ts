@@ -24,7 +24,8 @@ export interface World {
   /** The Burj Khalifa (with its glow and tip light) and the other landmarks. */
   tall: THREE.Group;
   beacons: THREE.Points;
-  ground: THREE.Mesh;
+  /** The ground in three pieces: inland, the strip along the shore, offshore. */
+  ground: THREE.Group;
   floor: THREE.Mesh;
   streaks: THREE.LineSegments;
   common: {
@@ -34,7 +35,6 @@ export interface World {
     uFogC: { value: THREE.Vector3 };
     uCam: { value: THREE.Vector3 };
     uCalm: { value: THREE.Vector4 };
-    uRes: { value: THREE.Vector2 };
   };
   floorU: { uPad: { value: number }; uRoad: { value: number }; uStudio: { value: number }; uHead: { value: number }; uTravel: { value: number } };
   streakU: { uTravel: { value: number }; uSpeed: { value: number }; uOpacity: { value: number }; uLen: { value: number } };
@@ -44,6 +44,41 @@ export interface World {
 
 const additive = { transparent: true, depthWrite: false, blending: THREE.AdditiveBlending } as const;
 
+/**
+ * The ground square (7,200 units around the Burj Khalifa, at height 0) cut to the band
+ * lo ≤ inland ≤ hi (distance inland of the coastline), as a fan of triangles facing up.
+ */
+function groundPiece(lo: number, hi: number): THREE.BufferGeometry {
+  const H = 3600;
+  let poly: [number, number][] = [[-H, -H], [H, -H], [H, H], [-H, H]];
+  const inl = (p: [number, number]) => (p[0] - COAST.x) * COAST.nx + (p[1] - COAST.z) * COAST.nz;
+  // Keep the part where f(p) ≥ 0 (Sutherland–Hodgman against one line)
+  const clip = (f: (p: [number, number]) => number) => {
+    const out: [number, number][] = [];
+    poly.forEach((a, i) => {
+      const b = poly[(i + 1) % poly.length], fa = f(a), fb = f(b);
+      if (fa >= 0) out.push(a);
+      if (fa >= 0 !== fb >= 0) {
+        const t = fa / (fa - fb);
+        out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]);
+      }
+    });
+    poly = out;
+  };
+  if (lo > -Infinity) clip((p) => inl(p) - lo);
+  if (hi < Infinity) clip((p) => hi - inl(p));
+  const pos: number[] = [];
+  for (let i = 1; i + 1 < poly.length; i++) {
+    const a = poly[0], b = poly[i], c = poly[i + 1];
+    // y of (b − a) × (c − a): positive faces up
+    const up = (b[1] - a[1]) * (c[0] - a[0]) - (b[0] - a[0]) * (c[1] - a[1]);
+    for (const p of up >= 0 ? [a, b, c] : [a, c, b]) pos.push(p[0], 0, p[1]);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  return g;
+}
+
 export function buildWorld(scene: THREE.Scene, camera: THREE.PerspectiveCamera, budget: Budget, pixelRatio: number): World {
   const rand = mulberry(7);
   const common = {
@@ -52,9 +87,8 @@ export function buildWorld(scene: THREE.Scene, camera: THREE.PerspectiveCamera, 
     uFogD: { value: 0.0021 },
     uFogC: { value: new THREE.Vector3(0.03, 0.075, 0.075) },
     uCam: { value: camera.position },
-    // Behind the chapter 1 copy the city steps back: [side (1 or −1), strength, phone layout, 0]
-    uCalm: { value: new THREE.Vector4(1, 0, 0, 0) },
-    uRes: { value: new THREE.Vector2(1, 1) },
+    // Behind the chapter 1 copy the city steps back: a screen axis in pixels and the strength
+    uCalm: { value: new THREE.Vector4(0, 0, 0, 0) },
   };
   const prUniforms: { value: number }[] = [];
   const pr = () => {
@@ -190,22 +224,26 @@ export function buildWorld(scene: THREE.Scene, camera: THREE.PerspectiveCamera, 
   beacons.frustumCulled = false;
   scene.add(beacons);
 
-  // Streets with moving traffic
-  const ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(7200, 7200),
-    new THREE.ShaderMaterial({
-      uniforms: {
-        ...common,
-        uLake: { value: new THREE.Vector4(LAKE.x, LAKE.z, LAKE.rx, LAKE.rz) },
-        uRoad: { value: new THREE.Vector2(SZR.d, SZR.half) },
-        uCoast: { value: new THREE.Vector4(COAST.x, COAST.z, COAST.nx, COAST.nz) },
-        uRefl: { value: new THREE.Vector4(PAD.x, PAD.z, 26, PAD_H) },
-      },
-      vertexShader: glsl.ground.vertex,
-      fragmentShader: glsl.ground.fragment,
-    }),
-  );
-  ground.rotation.x = -Math.PI / 2;
+  // Streets with moving traffic, the lake and the sea: one shader, cut into the land, the
+  // strip along the shore (where the coastline wiggles; it overlaps both neighbours slightly so
+  // no seam opens) and the sea, so each pixel runs only its own part.
+  const groundU = {
+    ...common,
+    uLake: { value: new THREE.Vector4(LAKE.x, LAKE.z, LAKE.rx, LAKE.rz) },
+    uRoad: { value: new THREE.Vector2(SZR.d, SZR.half) },
+    uCoast: { value: new THREE.Vector4(COAST.x, COAST.z, COAST.nx, COAST.nz) },
+    uRefl: { value: new THREE.Vector4(PAD.x, PAD.z, 26, PAD_H) },
+  };
+  const ground = new THREE.Group();
+  for (const [lo, hi, part] of [[2, Infinity, "LAND"], [-9.5, 2.5, ""], [-Infinity, -9, "SEA"]] as const) {
+    const defines: Record<string, string> = {};
+    if (part) defines[part] = "";
+    if (budget.liteGround) defines.LITE = "";
+    const piece = new THREE.Mesh(groundPiece(lo, hi), new THREE.ShaderMaterial({ uniforms: groundU, defines, vertexShader: glsl.ground.vertex, fragmentShader: glsl.ground.fragment }));
+    // Drawn after the towers, so the depth test skips the streets they hide
+    piece.renderOrder = 1;
+    ground.add(piece);
+  }
   scene.add(ground);
 
   // Floor under the car

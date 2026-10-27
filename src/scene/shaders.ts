@@ -6,22 +6,22 @@
 
 const FOG_FN = /* glsl */ `
 uniform float uFogD; uniform vec3 uFogC; uniform vec3 uCam;
-vec3 applyFog(vec3 col, vec3 w){ float d = distance(w, uCam); float f = 1.0 - exp(-uFogD * uFogD * d * d); return mix(col, uFogC, f); }`;
+vec3 fogDD(vec3 col, float dd){ return mix(col, uFogC, 1.0 - exp(-uFogD * uFogD * dd)); } // dd: squared distance
+vec3 applyFog(vec3 col, vec3 w){ vec3 d = w - uCam; return fogDD(col, dot(d, d)); }`;
 
 /**
  * Behind the chapter 1 copy the city steps back (darker, flatter) so the headline stays
- * readable: the start side of the screen on desktop (uCalm.x is 1 left-to-right, −1 for
- * Arabic), the lower half on phones (uCalm.z). uCalm.y fades it out as the copy scrolls away.
+ * readable: the start side of the screen on desktop, the lower half on phones. uCalm.xyz is a
+ * screen axis in pixels (t = x·fragX + y·fragY + z, 0 to 1 across the screen, set by the
+ * stage for the language and layout), uCalm.w the strength (fading as the copy scrolls away).
  * Needs FOG_FN first (uFogC).
  */
 const CALM_FN = /* glsl */ `
-uniform vec4 uCalm; uniform vec2 uRes;
+uniform vec4 uCalm;
 vec3 calm(vec3 col){
-  vec2 s = gl_FragCoord.xy / uRes;
-  float x = uCalm.x > 0.0 ? s.x : 1.0 - s.x;
-  float k = uCalm.z > 0.5 ? 1.0 - smoothstep(0.3, 0.58, s.y) : 1.0 - smoothstep(0.3, 0.6, x);
-  float l = dot(col, vec3(0.3, 0.5, 0.2));
-  return mix(col, vec3(l) * 0.5 + uFogC * 0.3, k * uCalm.y * 0.8);
+  if (uCalm.w <= 0.0) return col;
+  float k = (1.0 - smoothstep(0.3, 0.6, dot(gl_FragCoord.xy, uCalm.xy) + uCalm.z)) * uCalm.w;
+  return mix(col, vec3(dot(col, vec3(0.3, 0.5, 0.2))) * 0.5 + uFogC * 0.3, k);
 }`;
 
 /** Sky dome with the desert haze on the horizon. */
@@ -103,8 +103,11 @@ export const beacons = {
 /**
  * The ground: streets with moving traffic, Sheikh Zayed Road (parallel to the coast), the
  * low-rise districts as a carpet of small lights, the lake at the Burj Khalifa's foot and the
- * sea, with the Burj Al Arab's light on the water. Lines and dashes are filtered (fwidth), so
- * the far city doesn't shimmer in the long opening view.
+ * sea, with the Burj Al Arab's light on the water. Lines and dashes are filtered (from the
+ * pixel's footprint), so the far city doesn't shimmer in the long opening view. The ground is
+ * drawn in three pieces so each pixel runs only its own work: LAND (inland of the beach),
+ * SEA (offshore) and, with neither defined, the strip along the shore where they meet. LITE
+ * (the low tier) also leaves out the sea's glints and the far traffic lane's average.
  */
 export const ground = {
   vertex: /* glsl */ `varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`,
@@ -114,94 +117,118 @@ export const ground = {
     uniform vec4 uCoast; // a point on the shoreline (x, z) and the inland normal (x, z)
     uniform vec4 uRefl;  // the Burj Al Arab: x, z, half-width, height
     varying vec3 vW;
-    // A soft line every sp units, at least a pixel wide (dimmed to keep its weight), fading to
-    // its average brightness once the period itself is only a few pixels. aa: the pixel's
-    // footprint along v (derivatives are taken once, outside any branch).
+    // A soft line of width w, d from its centre: at least a pixel (aa) wide, dimmed to keep
+    // its weight.
+    float lineAt(float d, float w, float aa){ float k = max(w, aa); return (1.0 - smoothstep(0.0, k, d)) * (w / k); }
+    // The same for a line every sp units, fading to its average brightness once the period
+    // itself is only a few pixels.
     float ln(float v, float sp, float w, float aa){
-      float f = abs(fract(v / sp + 0.5) - 0.5) * sp, k = max(w, aa);
-      return mix((1.0 - smoothstep(0.0, k, f)) * (w / k), w / sp, smoothstep(0.2, 0.5, aa / sp));
+      return mix(lineAt(abs(fract(v / sp + 0.5) - 0.5) * sp, w, aa), w / sp, smoothstep(0.2, 0.5, aa / sp));
     }
     float hash2(vec2 p){ vec3 q = fract(vec3(p.xyx) * 0.1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
     // 1 on the lit part of a dash pattern (duty = dark share), filtered the same way.
     float dash(float v, float period, float duty, float aa){
       aa /= period;
-      float x = fract(v / period);
-      return mix(smoothstep(duty - aa, duty + aa, x), 1.0 - duty, smoothstep(0.2, 0.5, aa));
+      return mix(smoothstep(duty - aa, duty + aa, fract(v / period)), 1.0 - duty, smoothstep(0.2, 0.5, aa));
     }
-    // Light from a tall lit object at o (half-width w, height h) on the water between it and
-    // the camera; returns the mask, and the distance to the camera in lp.
-    float reflection(vec2 o, float w, float h, out float lp){
-      vec2 toP = vW.xz - uCam.xz, toB = o - uCam.xz;
-      float lb = max(length(toB), 1.0);
-      lp = length(toP);
-      float lat = abs(toP.x * toB.y - toP.y * toB.x) / lb;
-      float rise = max(lb - lp, 0.0) * uCam.y / max(lp, 1.0);
-      return (1.0 - smoothstep(w * 0.4, w, lat * lb / max(lp, 1.0))) * step(lp, lb) * (1.0 - smoothstep(h * 0.5, h, rise));
+    // A tall lit tower's light (o: x, z, half-width, height) on the water between it and the
+    // camera (dv: from the camera to this point), shimmering along its length.
+    float towerLight(vec4 o, vec3 dv, float k, float speed){
+      vec2 toB = o.xy - uCam.xz;
+      float lb = max(length(toB), 1.0), p2 = dot(dv.xz, dv.xz), ip = inversesqrt(max(p2, 1.0)), lp = p2 * ip;
+      return (1.0 - smoothstep(o.z * 0.4, o.z, abs(dv.x * toB.y - dv.z * toB.x) * ip)) * step(lp, lb)
+        * (1.0 - smoothstep(o.w * 0.5, o.w, max(lb - lp, 0.0) * uCam.y * ip)) * (0.6 + 0.4 * sin(lp * k + uTime * speed));
     }
     void main(){
-      vec2 n = uCoast.zw;
-      float inl = dot(vW.xz - uCoast.xy, n), alongC = dot(vW.xz - uCoast.xy, vec2(n.y, -n.x));
-      float fx = fwidth(vW.x), fz = fwidth(vW.z), fi = fwidth(inl), fa = fwidth(alongC);
-      float land = smoothstep(-1.5, 1.5, inl + 7.0 * sin(alongC * 0.006));
+      vec3 dv = vW - uCam;
+      float dd = dot(dv, dv);
+      vec2 n = uCoast.zw, tc = vec2(n.y, -n.x), rel = vW.xz - uCoast.xy;
+      float inl = dot(rel, n), alongC = dot(rel, tc);
+      // The pixel's footprint along x, z, inland and along the coast (one pair of derivatives,
+      // taken outside any branch)
+      vec2 dX = dFdx(vW.xz), dY = dFdy(vW.xz);
+      float fx = abs(dX.x) + abs(dY.x), fz = abs(dX.y) + abs(dY.y);
+      float fi = abs(dot(dX, n)) + abs(dot(dY, n)), fa = abs(dot(dX, tc)) + abs(dot(dY, tc));
       vec3 gold = vec3(0.55, 0.50, 0.36);
       vec3 col = vec3(0.014, 0.035, 0.035);
-      float dR = inl - uRoad.x, ax = abs(dR);
-      float road = (1.0 - smoothstep(uRoad.y - 0.8, uRoad.y + 0.8, ax)) * land;
-      float grid = land - road;
-      if (max(fx, fz) < 7.0) {
-        // Streets and their traffic, where they still resolve
-        float gx = vW.x + 7.0, gz = vW.z + 7.0;
-        float mnr = max(ln(gx, 14.0, 0.22, fx), ln(gz, 14.0, 0.22, fz));
-        float maj = max(ln(gx, 42.0, 0.7, fx), ln(gz, 42.0, 0.7, fz));
-        float l1 = ln(gx - 1.4, 42.0, 0.3, fx) * dash(vW.z + uTime * 22.0, 11.0, 0.78, fz);
-        float l2 = ln(gx + 1.4, 42.0, 0.3, fx) * dash(vW.z - uTime * 19.0, 13.0, 0.78, fz);
-        float l3 = ln(gz - 1.4, 42.0, 0.3, fz) * dash(vW.x + uTime * 20.0, 12.0, 0.78, fx);
-        float l4 = ln(gz + 1.4, 42.0, 0.3, fz) * dash(vW.x - uTime * 24.0, 10.0, 0.78, fx);
-        col += gold * (maj * 0.5 + mnr * 0.16) * grid;
-        col += (vec3(1.0, 0.86, 0.62) * (l1 + l3) * 1.1 + vec3(0.98, 0.25, 0.2) * (l2 + l4) * 0.9) * grid;
-      } else {
-        // Far away: the streets' average glow
-        col += gold * 0.0215 * grid;
+      #if defined(LAND)
+      float land = 1.0;
+      #elif defined(SEA)
+      float land = 0.0;
+      #else
+      float land = smoothstep(-1.5, 1.5, inl + 14.0 * abs(fract(alongC * 0.0011) - 0.5));
+      #endif
+      #ifndef SEA
+      if (land > 0.0) {
+        float dR = inl - uRoad.x, ax = abs(dR);
+        float road = (1.0 - smoothstep(uRoad.y - 0.8, uRoad.y + 0.8, ax)) * land;
+        float grid = land - road;
+        if (max(fx, fz) < 7.0) {
+          // Streets every 14 units, avenues every 42 with a lane of traffic each way beside
+          // their centre line (white headlights one way, red tail lights the other)
+          float gx = vW.x + 7.0, gz = vW.z + 7.0;
+          float ox = (fract(gx / 42.0 + 0.5) - 0.5) * 42.0, oz = (fract(gz / 42.0 + 0.5) - 0.5) * 42.0;
+          float sx = step(0.0, ox), sz = step(0.0, oz);
+          float mnr = max(ln(gx, 14.0, 0.22, fx), ln(gz, 14.0, 0.22, fz));
+          float maj = max(lineAt(abs(ox), 0.7, fx), lineAt(abs(oz), 0.7, fz));
+          float tx = lineAt(abs(abs(ox) - 1.4), 0.3, fx) * dash(vW.z + uTime * mix(-19.0, 22.0, sx), mix(13.0, 11.0, sx), 0.78, fz);
+          float tz = lineAt(abs(abs(oz) - 1.4), 0.3, fz) * dash(vW.x + uTime * mix(-24.0, 20.0, sz), mix(10.0, 12.0, sz), 0.78, fx);
+          vec3 head = vec3(1.1, 0.946, 0.682), tail = vec3(0.882, 0.225, 0.18);
+          col += (gold * (maj * 0.5 + mnr * 0.16) + mix(tail, head, sx) * tx + mix(tail, head, sz) * tz) * grid;
+          #ifndef LITE
+          // the other lane, once both share a pixel, at its average
+          col += (mix(head, tail, sx) * lineAt(abs(ox) + 1.4, 0.3, fx) + mix(head, tail, sz) * lineAt(abs(oz) + 1.4, 0.3, fz)) * 0.22 * grid;
+          #endif
+        } else {
+          // Far away: the streets' average glow
+          col += gold * 0.0215 * grid;
+        }
+        // Sheikh Zayed Road: a wide, warmly lit highway with dense traffic both ways
+        if (ax < uRoad.y + 3.0 + fi * 2.0) {
+          float lane = floor(ax / 2.0);
+          float cars = ln(ax - 1.0, 2.0, 0.32, fi) * dash(alongC * sign(dR) + uTime * (21.0 + lane * 4.0) + lane * 5.3, 7.0 + lane, 0.55, fa);
+          col += gold * road * 0.22 + gold * (lineAt(ax, 0.45, fi) + lineAt(abs(ax - uRoad.y), 0.4, fi)) * 0.9 * land;
+          col += mix(vec3(1.0, 0.9, 0.74), vec3(0.98, 0.26, 0.2), step(0.0, dR)) * cars * road * 1.2;
+        }
+        float fromBurj = length(vW.xz);
+        col *= 1.0 - smoothstep(260.0, 420.0, fromBurj) * 0.45 * grid;
+        // Low-rise districts: a carpet of small warm lights from the coast to Downtown
+        float sprawl = smoothstep(150.0, 320.0, fromBurj) * (1.0 - smoothstep(2600.0, 3300.0, fromBurj))
+          * smoothstep(120.0, 480.0, sqrt(dd)) * smoothstep(6.0, 40.0, inl) * grid;
+        if (sprawl > 0.0) {
+          vec2 q = vW.xz / 3.5, qi = floor(q);
+          float qh = hash2(qi), qa = (fx + fz) / 3.5;
+          vec2 qf = fract(q) - 0.5 - (fract(qh * vec2(31.7, 57.3)) - 0.5) * 0.6;
+          float spot = (1.0 - smoothstep(0.13, 0.13 + qa, length(qf))) * step(0.66, qh) * (0.4 + 1.8 * fract(qh * 13.7));
+          col += vec3(1.0, 0.82, 0.55) * mix(spot, 0.0234, smoothstep(0.12, 0.45, qa)) * 2.8 * sprawl;
+        }
+        // The lake at the Burj Khalifa's foot, with the tower's light on the water
+        float lr = length((vW.xz - uLake.xy) / uLake.zw);
+        if (lr < 1.3) {
+          vec3 water = vec3(0.008, 0.03, 0.034) + vec3(0.42, 0.36, 0.25) * towerLight(vec4(0.0, 0.0, 10.0, 364.0), dv, 3.1, 1.6);
+          col = mix(col, water, 1.0 - smoothstep(0.94, 1.0, lr)) + gold * exp(-abs(lr - 1.0) * 26.0) * 0.6;
+        }
       }
-      // Sheikh Zayed Road: a wide, warmly lit highway with dense traffic both ways
-      float lane = floor(ax / 2.0);
-      float cars = ln(ax - 1.0, 2.0, 0.32, fi) * dash(alongC * sign(dR) + uTime * (21.0 + lane * 4.0) + lane * 5.3, 7.0 + lane, 0.55, fa);
-      col += gold * road * 0.22 + gold * (ln(dR, 4000.0, 0.45, fi) + ln(ax - uRoad.y, 4000.0, 0.4, fi)) * 0.9 * land;
-      col += mix(vec3(1.0, 0.9, 0.74), vec3(0.98, 0.26, 0.2), step(0.0, dR)) * cars * road * 1.2;
-      col *= 1.0 - smoothstep(260.0, 420.0, length(vW.xz)) * 0.45 * grid;
-      // Low-rise districts: a carpet of small warm lights from the coast to Downtown
-      float sprawl = smoothstep(150.0, 320.0, length(vW.xz)) * (1.0 - smoothstep(2600.0, 3300.0, length(vW.xz)))
-        * smoothstep(120.0, 480.0, distance(vW, uCam)) * smoothstep(6.0, 40.0, inl) * grid;
-      if (sprawl > 0.0) {
-        vec2 q = vW.xz / 3.5, qi = floor(q);
-        float qh = hash2(qi), qa = (fx + fz) / 3.5;
-        vec2 qf = fract(q) - 0.5 - (vec2(fract(qh * 31.7), fract(qh * 57.3)) - 0.5) * 0.6;
-        float spot = (1.0 - smoothstep(0.13, 0.13 + qa, length(qf))) * step(0.66, qh) * (0.4 + 1.8 * fract(qh * 13.7));
-        col += vec3(1.0, 0.82, 0.55) * mix(spot, 0.34 * 0.053 * 1.3, smoothstep(0.12, 0.45, qa)) * 2.8 * sprawl;
-      }
-      float lp;
-      // The lake at the Burj Khalifa's foot, with the tower's light on the water
-      float lr = length((vW.xz - uLake.xy) / uLake.zw);
-      if (lr < 1.3) {
-        float lake = 1.0 - smoothstep(0.94, 1.0, lr);
-        float refl = reflection(vec2(0.0), 10.0, 364.0, lp);
-        vec3 water = vec3(0.008, 0.03, 0.034) + vec3(0.93, 0.80, 0.56) * refl * (0.6 + 0.4 * sin(lp * 3.1 + uTime * 1.6)) * 0.45;
-        col = mix(col, water, lake) + gold * exp(-abs(lr - 1.0) * 26.0) * 0.6;
-      }
+      #endif
       // The sea, catching the haze on the horizon, the Burj Al Arab's light on the water and a
-      // few glints; the beach road lights along the shore
+      // few glints near the camera
+      #ifndef LAND
       if (land < 1.0) {
-        float graze = pow(1.0 - abs(normalize(vW - uCam).y), 6.0);
-        vec3 seaCol = vec3(0.008, 0.026, 0.032) + vec3(0.30, 0.27, 0.19) * graze * 0.4;
-        float sail = reflection(uRefl.xy, uRefl.z, uRefl.w, lp);
-        seaCol += vec3(0.93, 0.85, 0.7) * sail * (0.55 + 0.45 * sin(lp * 1.7 + uTime * 1.3)) * 0.22;
-        vec2 gq = vW.xz / 2.2;
-        float glint = step(0.992, hash2(floor(gq) + floor(uTime * 0.7 + hash2(floor(gq)) * 7.0))) * (1.0 - smoothstep(0.1, 0.4, fx / 2.2));
-        seaCol += vec3(0.9, 0.85, 0.7) * glint * 0.35;
-        col = mix(seaCol, col, land);
+        float gz1 = 1.0 - abs(dv.y) * inversesqrt(dd), gz2 = gz1 * gz1;
+        vec3 sea = vec3(0.008, 0.026, 0.032) + vec3(0.12, 0.108, 0.076) * gz2 * gz2 * gz2 + vec3(0.205, 0.187, 0.154) * towerLight(uRefl, dv, 1.7, 1.3);
+        #ifndef LITE
+        if (fx < 0.88) {
+          float h = hash2(floor(vW.xz / 2.2));
+          float glint = step(0.992, fract(h * 7.31 + floor(uTime * 0.7 + h * 7.0) * 0.618034)) * (1.0 - smoothstep(0.22, 0.88, fx));
+          sea += vec3(0.315, 0.2975, 0.245) * glint;
+        }
+        #endif
+        col = mix(sea, col, land);
       }
-      col += gold * ln(inl, 4000.0, 0.7, fi) * 0.9;
-      gl_FragColor = vec4(calm(applyFog(col, vW)) * uCity, 1.0);
+      #endif
+      // The beach road's lights along the shore
+      if (abs(inl) < 20.0 + fi * 2.0) col += gold * lineAt(abs(inl), 0.7, fi) * 0.9;
+      gl_FragColor = vec4(calm(fogDD(col, dd)) * uCity, 1.0);
     }`,
 };
 
