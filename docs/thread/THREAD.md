@@ -555,3 +555,21 @@ Got it. I've saved your answers to the project, and I'll wait for your next inst
 > The current 3D city version of the Hero is approved, please make it live on the production
 
 *Round 2 of the hero (a Burj Khalifa built from published proportions, the skyline spread across the full hero, and the car landing on the Burj Al Arab helipad) was merged from `claude/hero-burj-khalifa` into main and deployed. Copy options from the copywriter (round 3: hero lines in the "Revuelto at nine" pattern, six panel angles, price-free fleet subheadings) are waiting for Zubair's picks.*
+
+---
+
+## 23. Sounds, footer trust band and car-maker logos
+
+**Zubair:**
+> Please add car sound at appropriate scroll points. The sound should only be played at those points. Not all the time. ... First when the first car appears on the helipad and the second when it starts moving. ... the exploded view of the car where you can make use of car splitting into parts sound effect
+
+> The sounds are not good. Please find any reliable open source library. Or make proper Super Car Engine Starting and Raving sound, for exploded view you can try transformer assembling smilar sound, and during the motion you can try super car moving sound
+
+*A Game Audio Engineer agent replaced the synthesized clips with edited real recordings: a Lexus LFA V10 starting and revving (helipad), a Lamborghini Gallardo Superleggera launching at Goodwood (pull-away), and an original Transformer-style layer of Mixkit and SoundBible mechanical effects (exploded view). Sound stays off until the visitor turns it on. Sources and licences are in `public/sounds/LICENSES.md`; the CC BY-SA and CC BY credits are in the Website Terms of Use. Merged to main and live.*
+
+**Zubair:**
+> Make the sound version live. Footer is also same color as the body, so add a dark to body color gradient. Add some social proof in the footer like Google reviews logo and rating, trust pilot and some certificaitons etc. Any other logos that will make the luxurious. Also on the car Cards and Individual car pages, respective car brand logos to be added
+
+*Two agents worked on branch `claude/footer-trust`. The footer now fades from Sea Moss to a deeper green (`bg-deep`) and has a marques row with the 8 car-maker logos, licence badges (DET trade licence, RTA permit, VAT registered, comprehensive insurance) and payment marks (Visa, Mastercard, Amex, Apple Pay, Google Pay, confirmed by Zubair). Monochrome car-maker logos appear on every car card and on the car and brand pages, which changes plan D-22 at Zubair's request; the trademark disclaimer stays and a UAE lawyer should confirm before launch. The logos load from one cached sprite. Zubair asked to show estimated ratings for now: the Google and Trustpilot badges show illustrative figures on preview deployments only, and stay hidden on the live site until the real profiles exist (`site.reviews`). Merged to main and live.*
+
+**Open:** real Google and Trustpilot profile links and figures; the client's real trade licence, RTA permit and TRN; official artwork for the Google, Trustpilot, Apple Pay and Google Pay marks once the profiles and payment provider exist; lawyer check on the car-maker logos.
