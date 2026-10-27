@@ -2,8 +2,8 @@ import type { ChapterState } from "@/scene/types";
 import { heroSoundFiles } from "./heroSoundFiles";
 
 // Sound for the homepage story: three one-shot cues, never a loop or background bed.
-//   start     the Revuelto's V12 starts as the car finishes forming on the helipad
-//   pullAway  a throttle blip and the pull-away as the car first moves into the tunnel
+//   start     a supercar engine starts and revs as the car finishes forming on the helipad
+//   pullAway  a supercar launches and pulls away as the car first moves into the tunnel
 //   split     the mechanical "coming apart" as the Kinetic Sculpture starts to explode
 // Off by default. Browsers only start audio from a user gesture (scrolling doesn't count), so
 // the Sound button creates or resumes the AudioContext and only then fetches the clips: no
@@ -11,7 +11,8 @@ import { heroSoundFiles } from "./heroSoundFiles";
 // or key press, and shows as off until the context is running. Silent while Pause motion is
 // on and while the tab is hidden; detach() closes the context (Next keeps the hidden route
 // mounted in <Activity> and re-runs effects when it shows again).
-// The clips are synthesized by tools/render-hero-sounds.mjs (public/sounds/LICENSES.md).
+// The clips are built from licensed recordings by tools/build-hero-sounds.mjs (sources and
+// licences: public/sounds/LICENSES.md).
 
 export type SoundStatus = "unavailable" | "off" | "waiting" | "on";
 type CueId = keyof typeof heroSoundFiles;
