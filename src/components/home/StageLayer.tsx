@@ -4,6 +4,7 @@ import clsx from "clsx";
 import type { ReactNode } from "react";
 import { useT } from "@/i18n/client";
 import { useHome } from "./HomeExperience";
+import { SkylineBand, SkylineBurj, SkylineBurjAlArab } from "./SkylineArt";
 
 export interface CalloutText {
   part: "powertrain" | "body" | "cabin" | "wheels";
@@ -13,9 +14,9 @@ export interface CalloutText {
 
 /**
  * The sticky full-screen layer behind the four chapters. It holds the WebGL canvas (added by
- * the stage itself), the static fallback (night gradient plus the car's line art) and the
- * desktop spec callouts that follow the exploded parts. Decorative: the same facts are in
- * each chapter's HTML.
+ * the stage itself), the static fallback (night gradient, the Dubai skyline with the Burj
+ * Khalifa for chapter 1, then the car's picture) and the desktop spec callouts that follow
+ * the exploded parts. Decorative: the same facts are in each chapter's HTML.
  */
 export function StageLayer({ arts, callouts }: { arts: ReactNode[]; callouts: CalloutText[][] }) {
   const { stageRef, overlayRef, mode, active, selected, cars, heroSlug } = useHome();
@@ -30,12 +31,21 @@ export function StageLayer({ arts, callouts }: { arts: ReactNode[]; callouts: Ca
       <div className="absolute inset-0 bg-[radial-gradient(90%_60%_at_70%_100%,rgba(184,151,90,.35),transparent_70%),radial-gradient(60%_50%_at_20%_0%,rgba(165,216,220,.08),transparent_70%)]" />
       <div className="absolute inset-x-0 bottom-0 h-[38%] bg-[linear-gradient(to_top,rgba(184,151,90,.16),transparent)]" />
 
+      {/* Dubai skyline behind the chapter 1 copy: without the 3D stage (static tier, no WebGL or
+          JavaScript) and while it loads; the canvas fades in over it. The Burj Khalifa stands on
+          the end side, beside the copy, as in the 3D opening, with the Burj Al Arab nearer the edge. */}
+      <div className={clsx("absolute inset-0 transition-opacity duration-1000", (mode === "gl" || active !== 0) && "opacity-0")}>
+        <SkylineBand className="absolute inset-x-0 top-[25%] h-[24%] w-full [mask-image:linear-gradient(to_bottom,black_55%,transparent)] md:top-auto md:bottom-0 md:h-[46%] md:[mask-image:none]" />
+        <SkylineBurj className="absolute inset-x-0 top-[8%] mx-auto h-[37%] md:inset-x-auto md:end-[calc(32%-6.3lvh)] md:top-[10%] md:mx-0 md:h-[80%]" />
+        <SkylineBurjAlArab className="absolute end-[4%] top-[29%] h-[17%] md:end-[10%] md:top-auto md:bottom-[9%] md:h-[34%]" />
+      </div>
+
       {/* WebGL canvas host */}
       <div ref={stageRef} className="absolute inset-0" />
 
-      {/* Static fallback: the car's line art (no WebGL, save-data, low memory) */}
+      {/* Static fallback: the car's picture from chapter 2 on (no WebGL, save-data, low memory) */}
       {mode === "static" && (
-        <div className="absolute inset-x-0 top-[34%] mx-auto w-[min(92vw,720px)] opacity-60 lg:top-auto lg:bottom-[calc(var(--home-dock)+10vh)] lg:me-[clamp(160px,14vw,240px)] lg:w-[min(52vw,760px)] lg:opacity-90">
+        <div className={clsx("absolute inset-x-0 top-[34%] mx-auto w-[min(92vw,720px)] opacity-60 transition-opacity duration-700 lg:top-auto lg:bottom-[calc(var(--home-dock)+10vh)] lg:me-[clamp(160px,14vw,240px)] lg:w-[min(52vw,760px)] lg:opacity-90", active === 0 && "!opacity-0")}>
           {arts.map((art, i) => (
             <div key={i} className={clsx("transition-opacity duration-300", i === artIndex ? "opacity-100" : "absolute inset-0 opacity-0")}>
               {art}

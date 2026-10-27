@@ -41,10 +41,13 @@ function supportsWebGL2(): boolean {
   }
 }
 
-/** Particle and detail budgets per tier (desktop ~10k car particles, cap 12k; phones ~3k). */
+/**
+ * Particle and detail budgets per tier (desktop ~10k car particles, cap 12k; phones ~3k).
+ * liteGround: the ground shader without the sea's glints and the far traffic lane's average.
+ */
 export const budgets = {
-  high: { carParticles: 10_000, stars: 900, streaks: 1400, cityRadius: 18, maxPixelRatio: 1.75, pointSize: 2.2, antialias: true },
-  low: { carParticles: 3_000, stars: 420, streaks: 600, cityRadius: 13, maxPixelRatio: 1.5, pointSize: 2.6, antialias: false },
+  high: { carParticles: 10_000, stars: 900, streaks: 1400, cityRadius: 18, maxPixelRatio: 1.75, pointSize: 2.2, antialias: true, liteGround: false },
+  low: { carParticles: 3_000, stars: 420, streaks: 600, cityRadius: 13, maxPixelRatio: 1.5, pointSize: 2.6, antialias: false, liteGround: true },
 } as const;
 
 export type Budget = (typeof budgets)[keyof typeof budgets];

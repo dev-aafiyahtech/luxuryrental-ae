@@ -1,15 +1,19 @@
 import * as THREE from "three";
 import { mulberry } from "./math";
 import * as glsl from "./shaders";
+import { BURJ_H, BURJ_TIP, buildBurj } from "./burj";
+import { BURJ_FACING, COAST, HELIPAD, LAKE, OPEN_POS, SZR, buildSkyline, buildable, inland, viewCap } from "./dubai";
 import type { Budget } from "./tier";
 
 // The night city around the car, ported from the prototype's initGL(): sky dome with desert
-// haze, stars, instanced towers with lit windows, the stepped supertall and spire, aviation
-// beacons, streets with traffic, the helipad/road/studio floor and the Velocity Tunnel.
+// haze, stars, instanced towers with lit windows, aviation beacons, streets with traffic, the
+// helipad/road/studio floor and the Velocity Tunnel. The city reads as Dubai (dubai.ts): the
+// car lands on the Burj Al Arab's helipad (baa.ts) with the Burj Khalifa (burj.ts), Downtown,
+// Business Bay, Sheikh Zayed Road and Trade Centre across the view.
 
-/** The helipad roof the car lands on, and its height. */
-export const PAD = new THREE.Vector3(46, 0, 64);
-export const PAD_H = 58;
+/** The helipad the car lands on (the Burj Al Arab's), and its height. */
+export const PAD = new THREE.Vector3(HELIPAD.x, 0, HELIPAD.z);
+export const PAD_H = HELIPAD.y;
 /** Car centre on the roof. */
 export const C = new THREE.Vector3(PAD.x, PAD_H, PAD.z);
 
@@ -17,9 +21,11 @@ export interface World {
   sky: THREE.Mesh;
   stars: THREE.Points;
   city: THREE.InstancedMesh;
+  /** The Burj Khalifa (with its glow and tip light) and the other landmarks. */
   tall: THREE.Group;
   beacons: THREE.Points;
-  ground: THREE.Mesh;
+  /** The ground in three pieces: inland, the strip along the shore, offshore. */
+  ground: THREE.Group;
   floor: THREE.Mesh;
   streaks: THREE.LineSegments;
   common: {
@@ -28,6 +34,7 @@ export interface World {
     uFogD: { value: number };
     uFogC: { value: THREE.Vector3 };
     uCam: { value: THREE.Vector3 };
+    uCalm: { value: THREE.Vector4 };
   };
   floorU: { uPad: { value: number }; uRoad: { value: number }; uStudio: { value: number }; uHead: { value: number }; uTravel: { value: number } };
   streakU: { uTravel: { value: number }; uSpeed: { value: number }; uOpacity: { value: number }; uLen: { value: number } };
@@ -37,6 +44,41 @@ export interface World {
 
 const additive = { transparent: true, depthWrite: false, blending: THREE.AdditiveBlending } as const;
 
+/**
+ * The ground square (7,200 units around the Burj Khalifa, at height 0) cut to the band
+ * lo ≤ inland ≤ hi (distance inland of the coastline), as a fan of triangles facing up.
+ */
+function groundPiece(lo: number, hi: number): THREE.BufferGeometry {
+  const H = 3600;
+  let poly: [number, number][] = [[-H, -H], [H, -H], [H, H], [-H, H]];
+  const inl = (p: [number, number]) => (p[0] - COAST.x) * COAST.nx + (p[1] - COAST.z) * COAST.nz;
+  // Keep the part where f(p) ≥ 0 (Sutherland–Hodgman against one line)
+  const clip = (f: (p: [number, number]) => number) => {
+    const out: [number, number][] = [];
+    poly.forEach((a, i) => {
+      const b = poly[(i + 1) % poly.length], fa = f(a), fb = f(b);
+      if (fa >= 0) out.push(a);
+      if (fa >= 0 !== fb >= 0) {
+        const t = fa / (fa - fb);
+        out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]);
+      }
+    });
+    poly = out;
+  };
+  if (lo > -Infinity) clip((p) => inl(p) - lo);
+  if (hi < Infinity) clip((p) => hi - inl(p));
+  const pos: number[] = [];
+  for (let i = 1; i + 1 < poly.length; i++) {
+    const a = poly[0], b = poly[i], c = poly[i + 1];
+    // y of (b − a) × (c − a): positive faces up
+    const up = (b[1] - a[1]) * (c[0] - a[0]) - (b[0] - a[0]) * (c[1] - a[1]);
+    for (const p of up >= 0 ? [a, b, c] : [a, c, b]) pos.push(p[0], 0, p[1]);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  return g;
+}
+
 export function buildWorld(scene: THREE.Scene, camera: THREE.PerspectiveCamera, budget: Budget, pixelRatio: number): World {
   const rand = mulberry(7);
   const common = {
@@ -45,6 +87,8 @@ export function buildWorld(scene: THREE.Scene, camera: THREE.PerspectiveCamera, 
     uFogD: { value: 0.0021 },
     uFogC: { value: new THREE.Vector3(0.03, 0.075, 0.075) },
     uCam: { value: camera.position },
+    // Behind the chapter 1 copy the city steps back: a screen axis in pixels and the strength
+    uCalm: { value: new THREE.Vector4(0, 0, 0, 0) },
   };
   const prUniforms: { value: number }[] = [];
   const pr = () => {
@@ -80,21 +124,37 @@ export function buildWorld(scene: THREE.Scene, camera: THREE.PerspectiveCamera, 
 
   // City
   const towerMat = (seed: number) => new THREE.ShaderMaterial({ uniforms: { ...common, uSeedFallback: { value: seed } }, vertexShader: glsl.tower.vertex, fragmentShader: glsl.tower.fragment });
-  const towers: [number, number, number, number, number][] = [];
+  let towers: [number, number, number, number, number][] = [];
   const R = budget.cityRadius, SP = 14;
   for (let i = -R; i <= R; i++) {
     for (let k = -R; k <= R; k++) {
       const x = i * SP, z = k * SP, dist = Math.hypot(x, z);
       if (dist < 24 || dist > R * SP) continue;
-      if (Math.abs(x - PAD.x) < 9 && Math.abs(z - PAD.z) < 9) continue;
       if (rand() < 0.1) continue;
       const fall = Math.max(0.12, 1 - dist / (R * SP));
-      let h = 5 + Math.pow(rand(), 2) * 130 * fall + rand() * 8;
-      if (Math.hypot(x - PAD.x, z - PAD.z) < 44) h = Math.min(h, PAD_H - 10 - rand() * 24);
+      const h = 5 + Math.pow(rand(), 2) * 130 * fall + rand() * 8;
       towers.push([x + (rand() - 0.5) * 2, z + (rand() - 0.5) * 2, 6 + rand() * 4, 6 + rand() * 4, Math.max(4, h)]);
     }
   }
-  towers.push([PAD.x, PAD.z, 16, 16, PAD_H]);
+  // Downtown around the Burj Khalifa: clear the landmark plots, the lake and Sheikh Zayed Road;
+  // on the coast side of the road the city is low-rise, as in Al Wasl and Jumeirah.
+  towers = towers.filter(([x, z, w]) => buildable(x, z, w));
+  for (const t of towers) {
+    if (inland(t[0], t[1]) < SZR.d - SZR.rows - 12) t[4] = Math.min(t[4], 4 + (t[4] % 9));
+    t[4] = viewCap(t[0], t[1], t[4], Math.max(t[2], t[3]));
+  }
+  // A ragged edge, thinning out into the low-rise districts (the ground's carpet of lights).
+  const edge = R * SP;
+  towers = towers.filter(([x, z]) => {
+    const d = Math.hypot(x, z) / edge;
+    const n = Math.sin(x * 12.9898 + z * 78.233) * 43758.5453;
+    return d < 0.68 || n - Math.floor(n) > ((d - 0.68) / 0.32) * 0.9;
+  });
+  const skyline = buildSkyline(budget.cityRadius >= 18 ? 1 : 0.35);
+  towers.push(...skyline.towers);
+  // Near to far from the opening camera: the descent looks the same way, so the depth test
+  // rejects most hidden fragments of the dense skyline before they are shaded.
+  towers.sort((a, b) => Math.hypot(a[0] - OPEN_POS[0], a[1] - OPEN_POS[1]) - Math.hypot(b[0] - OPEN_POS[0], b[1] - OPEN_POS[1]));
   const boxG = new THREE.BoxGeometry(1, 1, 1);
   boxG.translate(0, 0.5, 0);
   const seeds = new Float32Array(towers.length);
@@ -110,24 +170,50 @@ export function buildWorld(scene: THREE.Scene, camera: THREE.PerspectiveCamera, 
   city.frustumCulled = false;
   scene.add(city);
 
-  // The supertall: stepped, slightly twisting tiers and a spire
+  // The Burj Khalifa and the landmarks (procedural, lit in the palette by the facade shader)
   const tall = new THREE.Group();
-  const tallMat = towerMat(0.81);
-  const tiers: [number, number, number][] = [[11, 0, 64], [9, 64, 128], [7.2, 128, 178], [5.6, 178, 222], [4.2, 222, 258], [3, 258, 288], [1.8, 288, 312]];
-  tiers.forEach(([r, h0, h1], k) => {
-    const g = new THREE.CylinderGeometry(r * 0.9, r, h1 - h0, 6);
-    g.translate(0, (h0 + h1) / 2, 0);
-    const m = new THREE.Mesh(g, tallMat);
-    m.rotation.y = k * 0.3;
-    tall.add(m);
-  });
-  const spireG = new THREE.CylinderGeometry(0.2, 1.3, 52, 6);
-  spireG.translate(0, 338, 0);
-  tall.add(new THREE.Mesh(spireG, tallMat));
+  const gold = new THREE.Vector3(0.93, 0.8, 0.56), ivory = new THREE.Vector3(0.97, 0.93, 0.86);
+  const facadeMat = (o: { glass: [number, number, number]; grid: [number, number, number, number]; glow: [number, number, number, number]; misc: [number, number, number]; fog: number; calm: number }) =>
+    new THREE.ShaderMaterial({
+      uniforms: {
+        ...common,
+        uFogK: { value: o.fog },
+        uCalmK: { value: o.calm },
+        uGlass: { value: new THREE.Vector3(...o.glass) },
+        uGold: { value: gold },
+        uIvory: { value: ivory },
+        uGrid: { value: new THREE.Vector4(...o.grid) },
+        uGlow: { value: new THREE.Vector4(...o.glow) },
+        uMisc: { value: new THREE.Vector3(...o.misc) },
+      },
+      vertexShader: glsl.facade.vertex,
+      fragmentShader: glsl.facade.fragment,
+    });
+  const burj = new THREE.Mesh(buildBurj(BURJ_FACING), facadeMat({ glass: [0.034, 0.07, 0.074], grid: [1.3, 1.6, 0.34, 0.7], glow: [0.2, 0.7, 0.4, 0.3], misc: [0.2, 2.2, 250], fog: 0.24, calm: 0 }));
+  const landmarks = new THREE.Mesh(skyline.geometry, facadeMat({ glass: [0.026, 0.058, 0.06], grid: [1.4, 1.6, 0.4, 0.55], glow: [0.05, 0.45, 0.32, 0.1], misc: [0.08, 0.8, 9999], fog: 0.55, calm: 1 }));
+  burj.frustumCulled = landmarks.frustumCulled = false;
+  const haloG = new THREE.PlaneGeometry(2, 1);
+  haloG.translate(0, 0.5, 0);
+  const halo = new THREE.Mesh(
+    haloG,
+    new THREE.ShaderMaterial({
+      ...additive,
+      uniforms: { uCity: common.uCity, uFogD: common.uFogD, uCenter: { value: new THREE.Vector3(0, 0, 0) }, uSize: { value: new THREE.Vector2(78, BURJ_H * 1.15) }, uBack: { value: 46 }, uStrength: { value: 0.085 }, uColor: { value: gold } },
+      vertexShader: glsl.halo.vertex,
+      fragmentShader: glsl.halo.fragment,
+    }),
+  );
+  halo.frustumCulled = false;
+  halo.renderOrder = -1;
+  const tipG = new THREE.BufferGeometry();
+  tipG.setAttribute("position", new THREE.Float32BufferAttribute([BURJ_TIP.x, BURJ_TIP.y, BURJ_TIP.z], 3));
+  const tip = new THREE.Points(tipG, new THREE.ShaderMaterial({ ...additive, uniforms: { uCity: common.uCity, uTime: common.uTime, uPR: pr() }, vertexShader: glsl.tipLight.vertex, fragmentShader: glsl.tipLight.fragment }));
+  tip.frustumCulled = false;
+  tall.add(halo, burj, landmarks, tip);
   scene.add(tall);
 
-  // Aviation lights on the tallest roofs
-  const beac: number[] = [0, 365, 0];
+  // Aviation lights on the tallest roofs and the landmarks (the Burj has its own tip light)
+  const beac: number[] = [...skyline.beacons];
   towers.forEach((t) => {
     if (t[4] > 46) beac.push(t[0], t[4] + 0.6, t[1]);
   });
@@ -138,9 +224,26 @@ export function buildWorld(scene: THREE.Scene, camera: THREE.PerspectiveCamera, 
   beacons.frustumCulled = false;
   scene.add(beacons);
 
-  // Streets with moving traffic
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(3200, 3200), new THREE.ShaderMaterial({ uniforms: { ...common }, vertexShader: glsl.ground.vertex, fragmentShader: glsl.ground.fragment }));
-  ground.rotation.x = -Math.PI / 2;
+  // Streets with moving traffic, the lake and the sea: one shader, cut into the land, the
+  // strip along the shore (where the coastline wiggles; it overlaps both neighbours slightly so
+  // no seam opens) and the sea, so each pixel runs only its own part.
+  const groundU = {
+    ...common,
+    uLake: { value: new THREE.Vector4(LAKE.x, LAKE.z, LAKE.rx, LAKE.rz) },
+    uRoad: { value: new THREE.Vector2(SZR.d, SZR.half) },
+    uCoast: { value: new THREE.Vector4(COAST.x, COAST.z, COAST.nx, COAST.nz) },
+    uRefl: { value: new THREE.Vector4(PAD.x, PAD.z, 26, PAD_H) },
+  };
+  const ground = new THREE.Group();
+  for (const [lo, hi, part] of [[2, Infinity, "LAND"], [-9.5, 2.5, ""], [-Infinity, -9, "SEA"]] as const) {
+    const defines: Record<string, string> = {};
+    if (part) defines[part] = "";
+    if (budget.liteGround) defines.LITE = "";
+    const piece = new THREE.Mesh(groundPiece(lo, hi), new THREE.ShaderMaterial({ uniforms: groundU, defines, vertexShader: glsl.ground.vertex, fragmentShader: glsl.ground.fragment }));
+    // Drawn after the towers, so the depth test skips the streets they hide
+    piece.renderOrder = 1;
+    ground.add(piece);
+  }
   scene.add(ground);
 
   // Floor under the car
