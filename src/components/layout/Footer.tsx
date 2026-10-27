@@ -128,7 +128,7 @@ export async function Footer() {
           <TrustRow id="footer-payments" label={t("footer.payments")}>
             <ul aria-labelledby="footer-payments" className="flex flex-wrap gap-2 p-0 [list-style:none]">
               {site.paymentMethods.map((id) => (
-                <li key={id} className="grid h-10 w-14 place-items-center rounded-lg border border-line/60 text-muted sm:h-11 sm:w-[4.5rem]">
+                <li key={id} className="grid h-10 w-14 place-items-center rounded-lg border border-line/60 text-fg sm:h-11 sm:w-[4.5rem]">
                   <MarkSvg mark={paymentMarks[id]} label={paymentMarks[id].name} />
                 </li>
               ))}

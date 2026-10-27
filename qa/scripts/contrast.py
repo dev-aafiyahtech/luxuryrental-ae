@@ -7,10 +7,11 @@ def lum(h):
     return 0.2126*c[0]+0.7152*c[1]+0.0722*c[2]
 def cr(a,b):
     la,lb=sorted([lum(a),lum(b)],reverse=True); return (la+0.05)/(lb+0.05)
-BG,CARD,ELEV,DEEP="#2C5252","#244747","#1D3C3C","#183333"
+BG,CARD,ELEV,DEEP,BG_DEEP="#2C5252","#244747","#1D3C3C","#183333","#0F2424"
 FG,MUTED,GOLD,GOLD_HI,ON_GOLD="#F4EADE","#C3CEC6","#EBDAB0","#F6EBCF","#1B3434"
 pairs=[("Foreground on bg",FG,BG,4.5),("Foreground on card",FG,CARD,4.5),("Foreground on elevated",FG,ELEV,4.5),
 ("Muted text on bg",MUTED,BG,4.5),("Muted text on card",MUTED,CARD,4.5),("Muted text on elevated",MUTED,ELEV,4.5),
+("Foreground on footer end",FG,BG_DEEP,4.5),("Muted text on footer end",MUTED,BG_DEEP,4.5),
 ("Gold text on bg",GOLD,BG,4.5),("Gold text on card",GOLD,CARD,4.5),("Gold text on elevated",GOLD,ELEV,4.5),
 ("Dark text on gold btn",ON_GOLD,GOLD,4.5),("White text on gold btn (reject)","#FFFFFF",GOLD,4.5),
 ("Dark text on gold hover",ON_GOLD,GOLD_HI,4.5),

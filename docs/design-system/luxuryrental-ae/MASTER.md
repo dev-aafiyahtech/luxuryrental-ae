@@ -74,7 +74,8 @@ The site stays dark: Sea Moss is the page background, and cards, panels and the 
 | Background (Sea Moss) | `#2C5252` | `bg` | — |
 | Card / Surface | `#244747` | `card` | — |
 | Elevated surface | `#1D3C3C` | `elevated` | — |
-| Deepest surface (scrims, wheels, footer) | `#183333` | `deep` | — |
+| Deepest surface (scrims, wheels) | `#183333` | `deep` | — |
+| Footer gradient end | `#0F2424` | `bg-deep` | The footer runs from `bg` to `bg-deep`. fg 13.6:1, muted 10.0:1 at the dark end |
 | Foreground (Alabaster) | `#F4EADE` | `fg` | 7.3:1 on bg · 8.6:1 on card · 10.0:1 on elevated |
 | Muted text | `#C3CEC6` | `muted` | 5.3:1 on bg · 6.3:1 on card |
 | Accent / CTA (Antique Gold) | `#EBDAB0` | `accent` | 6.2:1 on bg · 7.4:1 on card (as text) |
