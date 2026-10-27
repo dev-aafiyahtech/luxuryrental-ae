@@ -581,6 +581,13 @@ export const legalDocs: LegalDoc[] = [
         blocks: [`${and([...new Set(cars.map((car) => car.name.slice(0, car.name.length - car.model.length).trim()))].map(ltr))} علامات تجارية مملوكة لأصحابها، ولا نستخدمها إلا لوصف السيارات التي نؤجرها. ولا ترتبط ${site.businessName} بأي منها ولا تحظى بتأييدها.`],
       },
       {
+        id: "sound-credits",
+        title: "حقوق الأصوات",
+        blocks: [
+          `أصوات الصفحة الرئيسية معدّلة من تسجيلات لآخرين: ${ltr('"Lexus LFA revving 1LR-GUE (2009)"')} من ${ltr("Altair78")}، و${ltr('"Lamborghini Gallardo LP570-4 Superleggera"')} من ${ltr("Edvvc")}، من [ويكيميديا كومنز](https://commons.wikimedia.org) بترخيص [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)؛ و${ltr('"Large Servo Motor"')} و${ltr('"Small Servo Motor"')} من ${ltr("Smoothie")}، من [SoundBible](https://soundbible.com) بترخيص [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)؛ ومؤثرات صوتية من [Mixkit](https://mixkit.co/license/#sfxFree). وننشر أصوات المحرك المعدّلة بترخيص ${ltr("CC BY-SA 3.0")}.`,
+        ],
+      },
+      {
         id: "acceptable-use",
         title: "الاستخدام المقبول",
         blocks: [{ list: ["لا ترسل طلبات حجز كاذبة أو طلبات باسم شخص آخر.", "لا تحاول تعطيل الموقع أو إثقاله أو استخراج محتواه آلياً.", "لا تنسخ نصوصنا أو صورنا للاستخدام التجاري دون إذن."] }],

@@ -85,6 +85,7 @@ If you need a change in one of these, keep it minimal and additive, and say so i
 - The Dock and the car page's mobile bar render into `<body>` after hydration (portals), so they aren't in the server HTML.
 - Booking steps need JavaScript (no Server Actions yet); without it they show a placeholder.
 - The homepage hero is a Dubai night scene (approved 27 Oct 2026): the Burj Khalifa (`src/scene/burj.ts`, proportions in `burjProfile.ts`), the skyline (`dubai.ts`) and the Burj Al Arab, whose helipad is where the car lands (`baa.ts`). Static and no-WebGL visitors get an SVG skyline (`src/components/home/SkylineArt.tsx`). Not yet tested on real phones.
+- Homepage sounds (approved 27 Oct 2026): three one-shot cues behind a Sound toggle that is off by default (`src/components/home/heroSound.ts`). The clips are edited from licensed recordings; rebuild them with `node tools/build-hero-sounds.mjs <sources>`. Sources and licences are in `public/sounds/LICENSES.md`, and the CC BY-SA and CC BY credits are in the Website Terms of Use (`#sound-credits`). Keep that credit if you change the legal pages.
 - The homepage particle cars are sampled from each car's side image (`node tools/sample-car-particles.mjs <slug>` after replacing an image). Plan §3.1's photo dissolve and the morph to the front three-quarter image are not built yet.
 - The Arabic is a demo translation: a translator should review it, and a UAE lawyer the legal pages (`docs/dev/ARABIC-GUIDE.md`).
 

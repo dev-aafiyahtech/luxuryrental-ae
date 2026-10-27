@@ -547,6 +547,13 @@ export const legalDocs: LegalDoc[] = [
         blocks: [`${listJoin([...new Set(cars.map((car) => car.name.slice(0, car.name.length - car.model.length).trim()))])} are trademarks of their owners. They are used only to describe the cars we rent. ${site.businessName} is not affiliated with or endorsed by them.`],
       },
       {
+        id: "sound-credits",
+        title: "Sound credits",
+        blocks: [
+          `The homepage sounds are edited from recordings by others: "Lexus LFA revving 1LR-GUE (2009)" by Altair78 and "Lamborghini Gallardo LP570-4 Superleggera" by Edvvc, from [Wikimedia Commons](https://commons.wikimedia.org), under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/); "Large Servo Motor" and "Small Servo Motor" by Smoothie, from [SoundBible](https://soundbible.com), under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/); and effects from [Mixkit](https://mixkit.co/license/#sfxFree). Our edited engine sounds are shared under CC BY-SA 3.0.`,
+        ],
+      },
+      {
         id: "acceptable-use",
         title: "Acceptable use",
         blocks: [{ list: ["Do not send false booking requests or requests in someone else's name.", "Do not try to break, overload or scrape the site.", "Do not copy our text or images for commercial use without permission."] }],
